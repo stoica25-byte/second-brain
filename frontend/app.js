@@ -1,17 +1,25 @@
-// State variables
+// --- STATE VARIABLES ---
 let notes = {};
 let graphData = { nodes: [], links: [] };
 let activeNote = null;
-let selectedGraphNode = null;
-let lastClickTime = 0;
-let lastClickedNodeId = null;
-let currentSearchQuery = "";
-let activeCategoryFilters = ["ideas", "skills", "errors", "journal", "sources"];
 let graphInstance = null;
-let autocompleteActive = false;
-let autocompleteStartIndex = -1;
+let selectedGraphNode = null;
+let activeCategoryFilters = ["ideas", "skills", "errors", "journal", "sources"];
+let currentSearchQuery = "";
 
-// Category colors for graph (must match CSS variables)
+// Offline Telemetry Queue
+let isOffline = false;
+let offlineQueue = []; // Array of task objects
+
+// Timeline Pagination
+let timelinePage = 1;
+const timelineLimit = 15;
+let timelineTotalPages = 1;
+
+// Curation Undo Handlers
+let pendingTriageActions = {}; // Maps safeId -> { timerId, action, category, filename, payload, cardElement }
+
+// Category Accent Colors (Sync with CSS variables)
 const CATEGORY_COLORS = {
     ideas: "#bb9af7",      // Lavender
     skills: "#73daca",     // Neon Teal
@@ -19,6 +27,12 @@ const CATEGORY_COLORS = {
     journal: "#7aa2f7",    // Ice Blue
     sources: "#e0af68"     // Amber Gold
 };
+
+// Utilidad para mapear rutas de archivo a selectores DOM seguros (reemplaza Base64)
+function getSafeId(path) {
+    if (!path) return "safe_id_null";
+    return path.replace(/[^a-zA-Z0-9]/g, '_');
+}
 
 // --- DOM ELEMENTS ---
 const searchInput = document.getElementById("global-search");
@@ -35,25 +49,14 @@ const reindexBtn = document.getElementById("settings-btn-reindex");
 
 const statTotalNotes = document.getElementById("stat-total-notes");
 const statTotalLinks = document.getElementById("stat-total-links");
-const statMaturity = document.getElementById("stat-maturity");
-const statVelocity = document.getElementById("stat-velocity");
-const inboxCard = document.getElementById("inbox-card");
+const statDensity = document.getElementById("stat-density");
+const statDraftNotes = document.getElementById("stat-draft-notes");
+
 const inboxCount = document.getElementById("inbox-count");
-const inboxList = document.getElementById("inbox-list");
+const inboxFeed = document.getElementById("inbox-feed");
+const inboxEmpty = document.getElementById("inbox-empty");
 
-const newNoteBtn = document.getElementById("new-note-btn");
-const dailyNoteBtn = document.getElementById("daily-note-btn");
-const searchInfo = document.getElementById("search-info");
-const searchCount = document.getElementById("search-count");
-const clearSearchBtn = document.getElementById("clear-search-btn");
-
-const listIdeas = document.getElementById("list-ideas");
-const listSkills = document.getElementById("list-skills");
-const listErrors = document.getElementById("list-errors");
-const listJournal = document.getElementById("list-journal");
-const listSources = document.getElementById("list-sources");
-
-// Note view DOMs
+// Note view DOM elements
 const noteViewer = document.getElementById("note-viewer");
 const viewNoteBadge = document.getElementById("view-note-badge");
 const viewNoteTitle = document.getElementById("view-note-title");
@@ -61,27 +64,16 @@ const viewNoteDates = document.getElementById("view-note-dates");
 const viewNoteBody = document.getElementById("view-note-body");
 const viewNoteTags = document.getElementById("view-note-tags");
 const viewNoteBacklinks = document.getElementById("view-note-backlinks");
-const editNoteBtn = document.getElementById("btn-edit-note");
-const deleteNoteBtn = document.getElementById("btn-delete-note");
+const btnDeleteNote = document.getElementById("btn-delete-note");
+const btnOpenObsidianNote = document.getElementById("btn-open-obsidian-note");
+const btnOpenObsidianActive = document.getElementById("btn-open-obsidian-active");
 
-// Curation HUD
-const curationHud = document.getElementById("curation-hud");
-const hudSourceType = document.getElementById("hud-source-type");
-const hudSourceUrl = document.getElementById("hud-source-url");
-const hudBtnRead = document.getElementById("hud-btn-read");
-const hudBtnPromoteIdea = document.getElementById("hud-btn-promote-idea");
-const hudBtnPromoteSkill = document.getElementById("hud-btn-promote-skill");
+// Left panel git controls
+const leftPanelGitStatus = document.getElementById("left-panel-git-status");
+const leftPanelSyncBtn = document.getElementById("left-panel-sync-btn");
 
-// Editor DOMs
-const noteEditor = document.getElementById("note-editor");
-const editNoteTitle = document.getElementById("edit-note-title");
-const editNoteCategory = document.getElementById("edit-note-category");
-const editNoteTags = document.getElementById("edit-note-tags");
-const editNoteStatus = document.getElementById("edit-note-status");
-const editNoteContent = document.getElementById("edit-note-content");
-const autocompleteDrawer = document.getElementById("autocomplete-drawer");
-const saveNoteBtn = document.getElementById("btn-save-note");
-const cancelEditBtn = document.getElementById("btn-cancel-edit");
+// Timeline elements
+const timelineStream = document.getElementById("timeline-stream");
 
 // SCoA Debate DOM elements
 const scoaTriggerBtn = document.getElementById("scoa-trigger-btn");
@@ -93,68 +85,90 @@ const scoaStartBtn = document.getElementById("scoa-start-btn");
 const scoaProgressContainer = document.getElementById("scoa-progress-container");
 const scoaInputGroup = document.getElementById("scoa-input-group");
 const scoaLiveStageTitle = document.getElementById("scoa-live-stage-title");
-
-// Redesigned SCoA elements
 const scoaDebateRecord = document.getElementById("scoa-debate-record");
 const judgeSecurity = document.getElementById("judge-security");
 const judgePerformance = document.getElementById("judge-performance");
 const judgeUiux = document.getElementById("judge-uiux");
 const judgeModerator = document.getElementById("judge-moderator");
-
 const statusSecurity = document.getElementById("status-security");
 const statusPerformance = document.getElementById("status-performance");
 const statusUiux = document.getElementById("status-uiux");
 const statusModerator = document.getElementById("status-moderator");
-
 const scoaStageSecurity = document.getElementById("scoa-stage-security");
 const scoaStagePerformance = document.getElementById("scoa-stage-performance");
 const scoaStageUiux = document.getElementById("scoa-stage-uiux");
 const scoaStageModerator = document.getElementById("scoa-stage-moderator");
-
 const scoaOutputSecurity = document.getElementById("scoa-output-security");
 const scoaOutputPerformance = document.getElementById("scoa-output-performance");
 const scoaOutputUiux = document.getElementById("scoa-output-uiux");
 const scoaOutputModerator = document.getElementById("scoa-output-moderator");
 
+// Conflict resolution DOM elements
+const conflictModal = document.getElementById("conflict-modal");
+const conflictFilename = document.getElementById("conflict-filename");
+const localDiffContent = document.getElementById("local-diff-content");
+const remoteDiffContent = document.getElementById("remote-diff-content");
+const manualMergeTextarea = document.getElementById("manual-merge-textarea");
+const conflictBtnLocal = document.getElementById("conflict-btn-local");
+const conflictBtnRemote = document.getElementById("conflict-btn-remote");
+const conflictBtnManual = document.getElementById("conflict-btn-manual");
+
+let currentConflictFilepath = "";
+
+// Global graph state
+let globalGraphInstance = null;
+let globalGraphInitialized = false;
+
 // --- INITIALIZATION ---
 window.addEventListener("DOMContentLoaded", async () => {
-    // Setup marked configuration to bypass default link parsing if needed
     marked.setOptions({
         gfm: true,
         breaks: true
     });
     
-    // Load theme preference
+    // Load local theme and settings
     initTheme();
-    
-    // Bind Event Listeners
     setupEventListeners();
     
-    // Load initial data
-    await loadData();
+    // Load local cache queue
+    if (localStorage.getItem("offline-queue")) {
+        try {
+            offlineQueue = JSON.parse(localStorage.getItem("offline-queue"));
+        } catch (e) {
+            offlineQueue = [];
+        }
+    }
     
-    // Check initial git status in background
+    // Load workspace data
+    await loadData();
     checkGitStatus();
+    
+    // Start server heartbeat loop
+    setInterval(heartbeat, 5000);
 });
 
-// Setup UI interactions
+// --- EVENT LISTENERS ---
 function setupEventListeners() {
-    // Search filter
+    // Search
     searchInput.addEventListener("input", (e) => {
         currentSearchQuery = e.target.value.toLowerCase().trim();
-        filterNotes();
+        filterTimeline();
     });
     
-    clearSearchBtn.addEventListener("click", () => {
-        searchInput.value = "";
-        currentSearchQuery = "";
-        filterNotes();
-    });
+    const clearSearchBtn = document.getElementById("clear-search-btn");
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener("click", () => {
+            searchInput.value = "";
+            currentSearchQuery = "";
+            filterTimeline();
+        });
+    }
     
-    // Sync buttons
+    // Sync triggers
     syncBtn.addEventListener("click", handleSync);
+    leftPanelSyncBtn.addEventListener("click", handleSync);
     
-    // Settings modal triggers
+    // Settings Modal
     settingsBtn.addEventListener("click", openSettings);
     settingsClose.addEventListener("click", () => settingsModal.classList.remove("active"));
     window.addEventListener("click", (e) => {
@@ -163,7 +177,7 @@ function setupEventListeners() {
     
     copyTokenBtn.addEventListener("click", () => {
         navigator.clipboard.writeText(settingTokenInput.value);
-        copyTokenBtn.innerText = "Copiado";
+        copyTokenBtn.innerText = "Copiado!";
         setTimeout(() => copyTokenBtn.innerText = "Copiar", 2000);
     });
     
@@ -174,54 +188,27 @@ function setupEventListeners() {
         reindexBtn.innerText = "Forzar Re-indexar Cerebro";
     });
     
-    // Category visual checkboxes
-    document.querySelectorAll(".chk-container input").forEach(chk => {
-        chk.addEventListener("change", () => {
-            const category = chk.getAttribute("data-category");
-            if (chk.checked) {
-                if (!activeCategoryFilters.includes(category)) activeCategoryFilters.push(category);
-            } else {
-                activeCategoryFilters = activeCategoryFilters.filter(c => c !== category);
-            }
-            updateGraphFilters();
-        });
-    });
-    
-    // Folder collapse arrows toggle
-    document.querySelectorAll(".folder-header").forEach(header => {
-        header.addEventListener("click", () => {
-            const folder = header.parentElement;
-            folder.classList.toggle("collapsed");
-        });
-    });
-    
-    // CRUD Note operations
-    newNoteBtn.addEventListener("click", () => startNewNote());
-    dailyNoteBtn.addEventListener("click", () => openOrCreateDailyNote());
-    editNoteBtn.addEventListener("click", () => startEditingNote());
-    deleteNoteBtn.addEventListener("click", () => handleDeleteNote());
-    cancelEditBtn.addEventListener("click", () => cancelEditing());
-    saveNoteBtn.addEventListener("click", handleSaveNote);
-    
-    // Curation operations
-    hudBtnRead.addEventListener("click", () => handleCurationAction("read"));
-    hudBtnPromoteIdea.addEventListener("click", () => handleCurationAction("promote-idea"));
-    hudBtnPromoteSkill.addEventListener("click", () => handleCurationAction("promote-skill"));
-    
-    // Editor helpers (Autocomplete wiki-links)
-    editNoteContent.addEventListener("input", handleEditorInput);
-    editNoteContent.addEventListener("keydown", handleEditorKeyDown);
-    
-    // Category selector shows status field only for errors
-    editNoteCategory.addEventListener("change", (e) => {
-        if (e.target.value === "errors") {
-            editNoteStatus.classList.remove("hidden");
+    // Obsidian deep link triggers
+    btnOpenObsidianActive.addEventListener("click", () => {
+        if (activeNote) {
+            openNoteInObsidian(activeNote);
         } else {
-            editNoteStatus.classList.add("hidden");
+            openVaultInObsidian();
         }
     });
-
-    // SCoA Debate modal events
+    btnOpenObsidianNote.addEventListener("click", () => {
+        if (activeNote) openNoteInObsidian(activeNote);
+    });
+    
+    // Delete note trigger
+    btnDeleteNote.addEventListener("click", handleDeleteNote);
+    
+    // Theme toggle
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener("click", toggleTheme);
+    }
+    
+    // SCoA modal
     if (scoaTriggerBtn) {
         scoaTriggerBtn.addEventListener("click", () => {
             scoaModal.classList.add("active");
@@ -230,36 +217,80 @@ function setupEventListeners() {
             scoaProposal.value = "";
         });
     }
-
     if (scoaClose) {
-        scoaClose.addEventListener("click", () => {
-            scoaModal.classList.remove("active");
-        });
+        scoaClose.addEventListener("click", () => scoaModal.classList.remove("active"));
     }
-
     if (scoaStartBtn) {
         scoaStartBtn.addEventListener("click", startScoaDebate);
     }
-
-    // SCoA Judge Card Tab Clicks
+    
+    // SCoA tabs
     if (judgeSecurity) judgeSecurity.addEventListener("click", () => selectScoaTab("security"));
     if (judgePerformance) judgePerformance.addEventListener("click", () => selectScoaTab("performance"));
     if (judgeUiux) judgeUiux.addEventListener("click", () => selectScoaTab("uiux"));
     if (judgeModerator) judgeModerator.addEventListener("click", () => selectScoaTab("moderator"));
-
-    // Theme Toggle Click
-    if (themeToggleBtn) {
-        themeToggleBtn.addEventListener("click", toggleTheme);
-    }
-
+    
     window.addEventListener("click", (e) => {
-        if (e.target === scoaModal) {
-            scoaModal.classList.remove("active");
-        }
+        if (e.target === scoaModal) scoaModal.classList.remove("active");
+        if (e.target === conflictModal) conflictModal.classList.remove("active");
     });
+    
+    // Conflict modal resolutions
+    conflictBtnLocal.addEventListener("click", () => resolveConflict("local"));
+    conflictBtnRemote.addEventListener("click", () => resolveConflict("remote"));
+    conflictBtnManual.addEventListener("click", () => resolveConflict("manual"));
+    
+    // --- CENTER PANEL TAB SWITCHING ---
+    const tabTimeline = document.getElementById("tab-timeline");
+    const tabGraph = document.getElementById("tab-graph");
+    const viewTimeline = document.getElementById("view-timeline-container");
+    const viewGraph = document.getElementById("view-graph-container");
+    
+    if (tabTimeline && tabGraph && viewTimeline && viewGraph) {
+        tabTimeline.addEventListener("click", () => {
+            tabTimeline.classList.add("active");
+            tabTimeline.style.background = "rgba(187, 154, 247, 0.15)";
+            tabTimeline.style.borderColor = "rgba(187, 154, 247, 0.4)";
+            tabTimeline.style.color = "var(--color-ideas)";
+            tabGraph.classList.remove("active");
+            tabGraph.style.background = "transparent";
+            tabGraph.style.borderColor = "rgba(255, 255, 255, 0.1)";
+            tabGraph.style.color = "var(--text-muted)";
+            viewTimeline.style.display = "flex";
+            viewGraph.classList.add("hidden");
+        });
+        
+        tabGraph.addEventListener("click", () => {
+            tabGraph.classList.add("active");
+            tabGraph.style.background = "rgba(115, 218, 202, 0.15)";
+            tabGraph.style.borderColor = "rgba(115, 218, 202, 0.4)";
+            tabGraph.style.color = "var(--color-skills)";
+            tabTimeline.classList.remove("active");
+            tabTimeline.style.background = "transparent";
+            tabTimeline.style.borderColor = "rgba(255, 255, 255, 0.1)";
+            tabTimeline.style.color = "var(--text-muted)";
+            viewTimeline.style.display = "none";
+            viewGraph.classList.remove("hidden");
+            
+            // Lazy-initialize global graph on first open
+            if (!globalGraphInitialized) {
+                initGlobalGraph();
+                globalGraphInitialized = true;
+            } else {
+                // If data has updated, re-render
+                updateGlobalGraph();
+            }
+        });
+    }
+    
+    // GitHub remote setup button
+    const setRemoteBtn = document.getElementById("set-remote-btn");
+    if (setRemoteBtn) {
+        setRemoteBtn.addEventListener("click", handleSetRemote);
+    }
 }
 
-// Load brain database index
+// --- DATA LOADERS ---
 async function loadData() {
     try {
         const response = await fetch("/api/index");
@@ -269,15 +300,13 @@ async function loadData() {
         graphData = data.graph;
         
         updateStats();
-        populateSidebarLists();
-        updateInbox();
+        await loadInbox();
+        await loadTimeline(1, false);
         
-        // Render or update D3 graph canvas
-        renderGraph();
-        
-        // Restore active note if it still exists
+        // Restore active note if applicable
         if (activeNote) {
-            const updated = Object.values(notes).find(n => n.title.toLowerCase() === activeNote.title.toLowerCase());
+            const rel_path = activeNote.path;
+            const updated = notes[rel_path];
             if (updated) {
                 openNote(updated);
             } else {
@@ -285,593 +314,501 @@ async function loadData() {
             }
         }
     } catch (e) {
-        console.error("Error loading brain data:", e);
+        console.error("Error loading index data:", e);
     }
 }
 
-// Populate stats box
-// Helper for Date diffs in Velocity
-function isWithinLast7Days(dateStr) {
-    if (!dateStr || dateStr.trim() === "" || dateStr === "n/a") return false;
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return false;
-    const now = new Date();
-    const midnightNow = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const midnightDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const diffTime = midnightNow - midnightDate;
-    const diffDays = diffTime / (1000 * 60 * 60 * 24);
-    return diffDays >= 0 && diffDays <= 7;
-}
-
-// Populate stats box
-function updateStats() {
-    const totalNotes = Object.keys(notes).length;
-    statTotalNotes.innerText = totalNotes;
-    statTotalLinks.innerText = graphData.links.length;
-
-    // Maturity Index
-    let connectedCount = 0;
-    Object.values(notes).forEach(note => {
-        const hasValidOutLinks = note.links && note.links.some(linkTitle => notes[linkTitle]);
-        const hasInLinks = note.backlinks && note.backlinks.length > 0;
-        if (hasValidOutLinks || hasInLinks) {
-            connectedCount++;
-        }
-    });
-    const maturityPct = totalNotes > 0 ? Math.round((connectedCount / totalNotes) * 100) : 0;
-    statMaturity.innerText = maturityPct + "%";
-
-    // Velocity
-    let recentNotesCount = 0;
-    Object.values(notes).forEach(note => {
-        const isCreatedRecent = isWithinLast7Days(note.created);
-        const isUpdatedRecent = isWithinLast7Days(note.updated);
-        if (isCreatedRecent || isUpdatedRecent) {
-            recentNotesCount++;
-        }
-    });
-    statVelocity.innerText = recentNotesCount;
-
-    // Top Tags
-    updateTopTags();
-}
-
-function updateTopTags() {
-    const topTagsList = document.getElementById("top-tags-list");
-    if (!topTagsList) return;
-    
-    const tagCounts = {};
-    Object.values(notes).forEach(note => {
-        if (note.tags && Array.isArray(note.tags)) {
-            note.tags.forEach(tag => {
-                const cleanTag = tag.trim();
-                if (cleanTag) {
-                    tagCounts[cleanTag] = (tagCounts[cleanTag] || 0) + 1;
-                }
-            });
-        }
-    });
-    
-    const sortedTags = Object.entries(tagCounts)
-        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-        .slice(0, 5);
+async function updateStats() {
+    try {
+        const res = await fetch("/api/stats");
+        const stats = await res.json();
         
-    topTagsList.innerHTML = "";
-    if (sortedTags.length === 0) {
-        const li = document.createElement("li");
-        li.className = "empty-tags";
-        li.innerText = "No tags recorded";
-        topTagsList.appendChild(li);
+        statTotalNotes.innerText = stats.total_notes;
+        statTotalLinks.innerText = stats.total_connections;
+        statDensity.innerText = stats.graph_density.toFixed(4);
+        statDraftNotes.innerText = stats.draft_notes;
+    } catch (e) {
+        console.error("Stats load failed:", e);
+    }
+}
+
+// --- INBOX CURATION (INLINE TRIAGE PANEL) ---
+async function loadInbox() {
+    try {
+        const res = await fetch("/api/drafts");
+        const drafts = await res.json();
+        
+        inboxFeed.innerHTML = "";
+        
+        if (drafts.length > 0) {
+            inboxCount.innerText = drafts.length;
+            inboxEmpty.classList.add("hidden");
+            
+            drafts.forEach(draft => {
+                // Construct a safe DOM element selector ID
+                const safeId = getSafeId(draft.path);
+                
+                const card = document.createElement("div");
+                card.className = "triage-card";
+                card.id = `triage-card-${safeId}`;
+                
+                // Formatter for tag outputs
+                const tagsList = draft.tags.map(t => `#${t}`).join(", ");
+                
+                card.innerHTML = `
+                    <div class="triage-header">
+                        <span class="source-tag">${draft.source_type || 'Draft'}</span>
+                        <span class="timestamp">${draft.created}</span>
+                    </div>
+                    <div class="triage-title" id="triage-title-display-${safeId}">${draft.title}</div>
+                    <div class="triage-quick-actions">
+                        <button class="btn-triage btn-triage-approve" onclick="triageApprove('${draft.category}', '${draft.filename}', '${safeId}')">Aprobar</button>
+                        <button class="btn-triage btn-triage-edit" onclick="triageToggleEdit('${safeId}')">Editar</button>
+                        <button class="btn-triage btn-triage-discard" onclick="triageDiscard('${draft.category}', '${draft.filename}', '${safeId}')">Descartar</button>
+                    </div>
+                    <div class="metadata-edit-drawer" id="triage-drawer-${safeId}">
+                        <div class="metadata-edit-wrapper">
+                            <div class="triage-input-group">
+                                <label>Título</label>
+                                <input type="text" id="triage-input-title-${safeId}" value="${draft.title}">
+                            </div>
+                            <div class="triage-input-row">
+                                <div class="triage-input-group">
+                                    <label>Categoría</label>
+                                    <select id="triage-input-category-${safeId}">
+                                        <option value="ideas" ${draft.category === 'ideas' ? 'selected' : ''}>Ideas</option>
+                                        <option value="skills" ${draft.category === 'skills' ? 'selected' : ''}>Skills</option>
+                                        <option value="errors" ${draft.category === 'errors' ? 'selected' : ''}>Errors</option>
+                                        <option value="journal" ${draft.category === 'journal' ? 'selected' : ''}>Journal</option>
+                                        <option value="sources" ${draft.category === 'sources' ? 'selected' : ''}>Sources</option>
+                                    </select>
+                                </div>
+                                <div class="triage-input-group">
+                                    <label>Tags (comas)</label>
+                                    <input type="text" id="triage-input-tags-${safeId}" value="${draft.tags.join(', ')}">
+                                </div>
+                            </div>
+                            <div class="triage-drawer-actions">
+                                <button class="btn-drawer-cancel" onclick="triageToggleEdit('${safeId}')">Cancelar</button>
+                                <button class="btn-drawer-confirm" onclick="triageSaveMetadata('${draft.category}', '${draft.filename}', '${safeId}')">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                inboxFeed.appendChild(card);
+            });
+        } else {
+            inboxCount.innerText = "0";
+            inboxEmpty.classList.remove("hidden");
+        }
+    } catch (e) {
+        console.error("Inbox load failed:", e);
+    }
+}
+
+function triageToggleEdit(safeId) {
+    const card = document.getElementById(`triage-card-${safeId}`);
+    const drawer = document.getElementById(`triage-drawer-${safeId}`);
+    if (card && drawer) {
+        card.classList.toggle("editing");
+    }
+}
+
+async function triageSaveMetadata(category, filename, safeId) {
+    const titleVal = document.getElementById(`triage-input-title-${safeId}`).value.trim();
+    const catVal = document.getElementById(`triage-input-category-${safeId}`).value;
+    const tagsVal = document.getElementById(`triage-input-tags-${safeId}`).value;
+    
+    if (!titleVal) {
+        alert("El título de la nota no puede estar vacío.");
         return;
     }
     
-    sortedTags.forEach(([tag, count]) => {
-        const li = document.createElement("li");
-        li.className = "top-tag-item";
-        
-        const nameSpan = document.createElement("span");
-        nameSpan.className = "tag-name";
-        nameSpan.innerText = `#${tag}`;
-        
-        const countSpan = document.createElement("span");
-        countSpan.className = "tag-count";
-        countSpan.innerText = count;
-        
-        li.appendChild(nameSpan);
-        li.appendChild(countSpan);
-        topTagsList.appendChild(li);
-    });
-}
-
-// Populate Folder contents
-function populateSidebarLists() {
-    // Clear list
-    listIdeas.innerHTML = "";
-    listSkills.innerHTML = "";
-    listErrors.innerHTML = "";
-    listJournal.innerHTML = "";
-    listSources.innerHTML = "";
-    
-    Object.values(notes).forEach(note => {
-        const li = document.createElement("li");
-        li.innerText = note.title;
-        li.setAttribute("data-title", note.title);
-        li.addEventListener("click", () => openNote(note));
-        
-        if (activeNote && activeNote.title === note.title) {
-            li.classList.add("active");
-        }
-        
-        switch (note.category) {
-            case "ideas":
-                listIdeas.appendChild(li);
-                break;
-            case "skills":
-                listSkills.appendChild(li);
-                break;
-            case "errors":
-                listErrors.appendChild(li);
-                break;
-            case "journal":
-                listJournal.appendChild(li);
-                break;
-            case "sources":
-                listSources.appendChild(li);
-                break;
-        }
-    });
-}
-
-// Update Inbox badge and contents
-function updateInbox() {
-    inboxList.innerHTML = "";
-    
-    // Find unread source files
-    const unread = Object.values(notes).filter(n => n.category === "sources" && n.status === "unread");
-    
-    if (unread.length > 0) {
-        inboxCard.classList.remove("hide-inbox");
-        inboxCount.innerText = unread.length;
-        
-        unread.forEach(note => {
-            const li = document.createElement("li");
-            li.className = "inbox-item";
-            li.addEventListener("click", () => openNote(note));
-            
-            const titleSpan = document.createElement("span");
-            titleSpan.className = "inbox-item-title";
-            titleSpan.innerText = note.title;
-            
-            const sourceSpan = document.createElement("span");
-            sourceSpan.className = "inbox-item-source";
-            sourceSpan.innerText = note.source_type || "External";
-            
-            li.appendChild(titleSpan);
-            li.appendChild(sourceSpan);
-            inboxList.appendChild(li);
-        });
-    } else {
-        inboxCard.classList.add("hide-inbox");
-        inboxCount.innerText = "0";
-    }
-}
-
-function calculateClusters(visibleNodes, visibleLinks) {
-    if (!visibleNodes || visibleNodes.length === 0) return 0;
-    
-    const getLinkId = (linkNode) => {
-        return (linkNode && typeof linkNode === 'object') ? linkNode.id : linkNode;
+    const tagsArr = tagsVal.split(",").map(t => t.trim().toLowerCase()).filter(t => t.length > 0);
+    const payload = {
+        title: titleVal,
+        category: catVal,
+        tags: tagsArr
     };
     
-    const adj = {};
-    visibleNodes.forEach(node => {
-        adj[node.id] = [];
-    });
-    
-    visibleLinks.forEach(link => {
-        const u = getLinkId(link.source);
-        const v = getLinkId(link.target);
-        if (adj[u] && adj[v]) {
-            adj[u].push(v);
-            adj[v].push(u);
-        }
-    });
-    
-    const visited = new Set();
-    let clustersCount = 0;
-    
-    function dfs(nodeId) {
-        visited.add(nodeId);
-        const neighbors = adj[nodeId] || [];
-        for (const neighbor of neighbors) {
-            if (!visited.has(neighbor)) {
-                dfs(neighbor);
-            }
-        }
-    }
-    
-    visibleNodes.forEach(node => {
-        if (!visited.has(node.id)) {
-            clustersCount++;
-            dfs(node.id);
-        }
-    });
-    
-    return clustersCount;
-}
-
-// --- D3 FORCE GRAPH ENGINE ---
-function renderGraph() {
-    const container = document.getElementById("graph-canvas");
-    container.innerHTML = ""; // Clear
-    
-    // Filter nodes based on UI checklist
-    const visibleNodes = graphData.nodes.filter(n => activeCategoryFilters.includes(n.category));
-    const nodeIds = new Set(visibleNodes.map(n => n.id));
-    
-    // Filter links: only keep edges where both nodes are visible
-    const visibleLinks = graphData.links.filter(l => {
-        const sourceId = typeof l.source === 'object' ? l.source.id : l.source;
-        const targetId = typeof l.target === 'object' ? l.target.id : l.target;
-        return nodeIds.has(sourceId) && nodeIds.has(targetId);
-    });
-
-    // Update clusters count dynamically
-    const clustersCount = calculateClusters(visibleNodes, visibleLinks);
-    const statClustersEl = document.getElementById("stat-clusters");
-    if (statClustersEl) {
-        statClustersEl.innerText = clustersCount;
-    }
-    
-    // Build connection count mapping for node sizing
-    const degrees = {};
-    visibleLinks.forEach(l => {
-        const s = typeof l.source === 'object' ? l.source.id : l.source;
-        const t = typeof l.target === 'object' ? l.target.id : l.target;
-        degrees[s] = (degrees[s] || 0) + 1;
-        degrees[t] = (degrees[t] || 0) + 1;
-    });
-    
-    // Hover highlights states
-    let hoveredNode = null;
-    const neighbors = new Set();
-    
-    const isMinimal = document.body.classList.contains("theme-minimal-dark");
-    
-    graphInstance = ForceGraph()(container)
-        .graphData({ nodes: visibleNodes, links: visibleLinks })
-        .backgroundColor(isMinimal ? "#0c0c0c" : "#09070f")
-        .width(container.clientWidth)
-        .height(container.clientHeight)
-        .nodeCanvasObject((node, ctx, globalScale) => {
-            const deg = degrees[node.id] || 0;
-            const radius = 4 + Math.min(deg * 1.2, 12);
-            
-            // Draw Persistent Neon Ring if Selected or Active
-            const isNoteActive = (activeNote && activeNote.title.toLowerCase() === node.title.toLowerCase());
-            const isNodeSelected = (selectedGraphNode && (selectedGraphNode.id === node.id || selectedGraphNode.title === node.title));
-            const isActive = isNoteActive || isNodeSelected;
-                             
-            const isMinimalTheme = document.body.classList.contains("theme-minimal-dark");
-            
-            const isHovered = hoveredNode && node.id === hoveredNode.id;
-            const isNeighbor = hoveredNode && neighbors.has(node.id);
-                             
-            if (isActive) {
-                ctx.beginPath();
-                ctx.arc(node.x, node.y, radius + 4, 0, 2 * Math.PI, false);
-                ctx.strokeStyle = CATEGORY_COLORS[node.category] || "#bb9af7";
-                ctx.lineWidth = 2.5 / globalScale;
-                if (!isMinimalTheme) {
-                    ctx.shadowColor = CATEGORY_COLORS[node.category] || "#bb9af7";
-                    ctx.shadowBlur = 8;
-                }
-                ctx.stroke();
-                
-                // Reset shadow properties immediately
-                ctx.shadowBlur = 0;
-                ctx.shadowColor = "transparent";
-            }
-            
-            // Draw Core Circle (Solid background)
-            ctx.beginPath();
-            ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI, false);
-            
-            // If another node is hovered, dim non-neighbors
-            if (hoveredNode) {
-                if (!isHovered && !isNeighbor) {
-                    ctx.fillStyle = isMinimalTheme ? "rgba(40, 40, 40, 0.15)" : "rgba(30, 25, 45, 0.15)";
-                } else {
-                    ctx.fillStyle = CATEGORY_COLORS[node.category] || "#ffffff";
-                }
-            } else {
-                ctx.fillStyle = CATEGORY_COLORS[node.category] || "#ffffff";
-            }
-            ctx.fill();
-            
-            // Core outline
-            ctx.strokeStyle = isMinimalTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(255, 255, 255, 0.15)";
-            ctx.lineWidth = 1 / globalScale;
-            ctx.stroke();
-            
-            // --- SELECTIVE LABEL RENDERING ---
-            // Only render text if zoomed in (scale > 0.75), hovered, active, or a neighbor of hovered
-            const shouldDrawLabel = isActive || isHovered || isNeighbor || (globalScale > 0.75);
-            
-            if (shouldDrawLabel) {
-                const fontSize = 10;
-                ctx.font = `${fontSize}px ${isMinimalTheme ? "'JetBrains Mono', monospace" : "'Inter', sans-serif"}`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'top';
-                
-                const textY = node.y + radius + 5;
-                const labelText = node.title;
-                
-                // 1. Draw Background Outline Halo (Obsidian Style)
-                ctx.strokeStyle = isMinimalTheme ? "#0c0c0c" : "#09070f";
-                ctx.lineWidth = 4;
-                ctx.lineJoin = 'round';
-                ctx.strokeText(labelText, node.x, textY);
-                
-                // 2. Draw Filled Text with State-based Coloring
-                if (isActive) {
-                    ctx.fillStyle = CATEGORY_COLORS[node.category] || "#bb9af7";
-                } else if (isHovered) {
-                    ctx.fillStyle = CATEGORY_COLORS[node.category] || "#ffffff";
-                } else if (isNeighbor) {
-                    ctx.fillStyle = isMinimalTheme ? "#e5e5e5" : "rgba(242, 237, 248, 0.95)";
-                } else if (hoveredNode) {
-                    // Zoomed in but dimmed (not connected to hovered node)
-                    ctx.fillStyle = isMinimalTheme ? "rgba(229, 229, 229, 0.12)" : "rgba(242, 237, 248, 0.18)";
-                } else {
-                    // Standard zoomed-in label
-                    ctx.fillStyle = isMinimalTheme ? "#a3a3a3" : "rgba(242, 237, 248, 0.75)";
-                }
-                
-                ctx.fillText(labelText, node.x, textY);
-            }
-        })
-        .nodePointerAreaPaint((node, color, ctx) => {
-            // Define clickable pointer hit area matching the radius + label height
-            const deg = degrees[node.id] || 0;
-            const radius = 4 + Math.min(deg * 1.2, 12);
-            ctx.beginPath();
-            ctx.arc(node.x, node.y, radius + 4, 0, 2 * Math.PI, false);
-            ctx.fillStyle = color;
-            ctx.fill();
-        })
-        .nodeLabel(node => `<div class="node-tooltip"><strong>${node.title}</strong><br/>Category: ${node.category}</div>`)
-        .linkColor(link => {
-            const activeNodeId = activeNote ? activeNote.title : (selectedGraphNode ? selectedGraphNode.id : null);
-            const s = link.source.id || link.source;
-            const t = link.target.id || link.target;
-            
-            if (hoveredNode) {
-                if ((s === hoveredNode.id && neighbors.has(t)) || (t === hoveredNode.id && neighbors.has(s))) {
-                    return "#ffffff"; // Highlight active connecting line
-                }
-                return "rgba(255, 255, 255, 0.02)"; // Dim rest
-            } else if (activeNodeId) {
-                if (s === activeNodeId || t === activeNodeId) {
-                    const activeCat = activeNote ? activeNote.category : (selectedGraphNode ? selectedGraphNode.category : "ideas");
-                    return CATEGORY_COLORS[activeCat] || "#ffffff";
-                }
-                return "rgba(255, 255, 255, 0.03)";
-            }
-            return "rgba(255, 255, 255, 0.08)";
-        })
-        .linkWidth(link => {
-            const activeNodeId = activeNote ? activeNote.title : (selectedGraphNode ? selectedGraphNode.id : null);
-            const s = link.source.id || link.source;
-            const t = link.target.id || link.target;
-            
-            if (hoveredNode) {
-                if ((s === hoveredNode.id) || (t === hoveredNode.id)) return 1.8;
-            } else if (activeNodeId) {
-                if (s === activeNodeId || t === activeNodeId) return 1.8;
-            }
-            return 1.0;
-        })
-        .onNodeClick((node, event) => {
-            if (event) {
-                event.stopPropagation();
-            }
-            
-            let noteId = node.id;
-            if (noteId && typeof noteId === 'object' && noteId.title) {
-                noteId = noteId.title;
-            } else if (noteId && typeof noteId !== 'string') {
-                noteId = String(noteId);
-            }
-            
-            // SINGLE CLICK: Center camera, select node, open note, and highlight in sidebar
-            if (graphInstance) {
-                graphInstance.centerAt(node.x, node.y, 800);
-                graphInstance.zoom(2.2, 800);
-            }
-            
-            selectedGraphNode = node;
-            graphInstance.refresh();
-            
-            // Open note content
-            let note = notes[noteId];
-            if (!note && noteId) {
-                note = Object.values(notes).find(n => n.title.toLowerCase() === noteId.toLowerCase());
-            }
-            
-            if (note) {
-                openNote(note);
-            } else {
-                console.warn("Mismatched node click registry:", noteId);
-            }
-            
-            // Highlight in sidebar list (scroll into view, add active class)
-            const noteTitle = node.title;
-            document.querySelectorAll(".vault-categories li").forEach(li => {
-                if (li.getAttribute("data-title") === noteTitle) {
-                    li.classList.add("active");
-                    li.scrollIntoView({ behavior: "smooth", block: "nearest" });
-                } else {
-                    li.classList.remove("active");
-                }
-            });
-        })
-        .onNodeHover(node => {
-            container.style.cursor = node ? 'pointer' : 'default';
-            if (node === hoveredNode) return;
-            
-            hoveredNode = node;
-            neighbors.clear();
-            
-            if (node) {
-                // Find visible neighbors of hovered node
-                visibleLinks.forEach(l => {
-                    const s = l.source.id || l.source;
-                    const t = l.target.id || l.target;
-                    if (s === node.id) neighbors.add(t);
-                    if (t === node.id) neighbors.add(s);
-                });
-            }
-            
-            graphInstance.refresh(); // Redraw colors
+    if (isOffline) {
+        offlineQueue.push({
+            type: 'metadata',
+            category: category,
+            filepath: filename,
+            payload: payload
         });
-        
-    // 1. Set link distance force
-    graphInstance.d3Force('link')
-        .distance(85)
-        .iterations(2);
-
-    // 2. Configure charge (repulsion force)
-    graphInstance.d3Force('charge')
-        .strength(-160)
-        .distanceMax(400);
-
-    // 3. Add custom collision force using local d3.min.js library (prevents node overlap)
-    if (window.d3 && window.d3.forceCollide) {
-        graphInstance.d3Force('collide', window.d3.forceCollide(node => {
-            const deg = degrees[node.id] || 0;
-            const radius = 4 + Math.min(deg * 1.2, 12);
-            return radius + 16; // Collision bubble radius
-        }).strength(0.8).iterations(2));
-    }
-
-    // 4. Configure centering force
-    graphInstance.d3Force('center')
-        .strength(0.15);
-
-    // Stabilize layout and freeze physics to save CPU
-    graphInstance.d3VelocityDecay(0.4); // Settles faster
-    setTimeout(() => {
-        if (graphInstance) graphInstance.cooldownTicks(60);
-    }, 1000);
-}
-
-// Resize graph on layout container size changes (ResizeObserver)
-const container = document.getElementById("graph-canvas");
-if (container) {
-    const resizeObserver = new ResizeObserver(entries => {
-        for (let entry of entries) {
-            const { width, height } = entry.contentRect;
-            if (graphInstance && width > 0 && height > 0) {
-                // Instantly update force graph dimensions to match container exactly, preventing stretching
-                graphInstance.width(width).height(height);
-            }
-        }
-    });
-    resizeObserver.observe(container);
-}
-
-// Update graph filtering checkboxes
-function updateGraphFilters() {
-    if (graphInstance) {
-        renderGraph();
-    }
-}
-
-// --- SEARCH & FILTER CLIENT SIDE ---
-function filterNotes() {
-    const items = document.querySelectorAll(".vault-categories li");
-    let matchCount = 0;
-    
-    if (currentSearchQuery === "") {
-        searchInfo.classList.add("hidden");
-        items.forEach(li => {
-            li.classList.remove("hidden");
-        });
+        localStorage.setItem("offline-queue", JSON.stringify(offlineQueue));
+        showToast("warning", "Metadatos actualizados localmente en la cola offline.");
+        triageToggleEdit(safeId);
         return;
     }
     
-    items.forEach(li => {
-        const title = li.getAttribute("data-title").toLowerCase();
-        const note = Object.values(notes).find(n => n.title.toLowerCase() === title);
+    try {
+        const url = `/api/notes/metadata/${category}/${encodeURIComponent(filename)}`;
+        const res = await fetch(url, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
         
-        // Search matches note title, tags, or content summary
-        const contentMatch = note ? note.summary.toLowerCase().includes(currentSearchQuery) : false;
-        const tagMatch = note ? note.tags.some(t => t.toLowerCase().includes(currentSearchQuery)) : false;
-        
-        if (title.includes(currentSearchQuery) || contentMatch || tagMatch) {
-            li.classList.remove("hidden");
-            matchCount++;
-        } else {
-            li.classList.add("hidden");
+        if (res.status === 423) {
+            alert("Acción bloqueada: El archivo está abierto en Obsidian o bloqueado por Windows. Cierra el archivo y vuelve a intentarlo.");
+            return;
         }
-    });
-    
-    // Show match results bar
-    searchInfo.classList.remove("hidden");
-    searchCount.innerText = matchCount;
+        
+        const data = await res.json();
+        if (data.status === "success") {
+            showToast("success", "Nota curada con éxito.");
+            await loadData();
+        }
+    } catch (e) {
+        console.error("Metadata save failed:", e);
+        showToast("error", "Fallo al guardar metadatos de borrador.");
+    }
 }
 
-// --- NOTE VIEW & RENDER WORKSPACE ---
-async function openNote(note) {
-    activeNote = note;
+// Optimistic Curations with 8s Undo Toast
+function triageApprove(category, filename, safeId) {
+    const cardEl = document.getElementById(`triage-card-${safeId}`);
+    if (!cardEl) return;
     
-    // Toggle active sidebar item
-    document.querySelectorAll(".vault-categories li").forEach(li => {
-        if (li.getAttribute("data-title") === note.title) {
-            li.classList.add("active");
+    // Check if there is a raw source note content
+    const sourcePath = `${category}/${filename}`;
+    const rawNote = notes[sourcePath];
+    const content = rawNote ? rawNote.summary : "Borrador de captura curado en la consola.";
+    
+    const titleInput = document.getElementById(`triage-input-title-${safeId}`);
+    const catInput = document.getElementById(`triage-input-category-${safeId}`);
+    const tagsInput = document.getElementById(`triage-input-tags-${safeId}`);
+    
+    const finalTitle = titleInput ? titleInput.value.trim() : (rawNote ? rawNote.title : filename.replace(".md", ""));
+    const finalCat = catInput ? catInput.value : category;
+    const finalTags = tagsInput ? tagsInput.value.split(",").map(t => t.trim()).filter(t => t) : (rawNote ? rawNote.tags : []);
+    
+    const payload = {
+        category: finalCat,
+        title: finalTitle,
+        content: content,
+        tags: finalTags
+    };
+    
+    // Apply slide-out approved animation
+    cardEl.classList.add("approved");
+    
+    // Wait for animation transition, then collapse layout heights
+    setTimeout(() => {
+        cardEl.classList.add("collapsing-height");
+    }, 400);
+    
+    // Start timer for 8 seconds
+    const timerId = setTimeout(() => {
+        executeTriageAction(safeId);
+    }, 8000);
+    
+    pendingTriageActions[safeId] = {
+        timerId: timerId,
+        action: "approve",
+        category: category,
+        filename: filename,
+        payload: payload,
+        cardElement: cardEl
+    };
+    
+    showUndoToast(safeId, `Aprobando nota "${finalTitle}"...`);
+}
+
+function triageDiscard(category, filename, safeId) {
+    const cardEl = document.getElementById(`triage-card-${safeId}`);
+    if (!cardEl) return;
+    
+    const titleDisplay = document.getElementById(`triage-title-display-${safeId}`);
+    const finalTitle = titleDisplay ? titleDisplay.innerText : filename;
+    
+    // Apply slide-out discarded animation
+    cardEl.classList.add("discarded");
+    
+    setTimeout(() => {
+        cardEl.classList.add("collapsing-height");
+    }, 400);
+    
+    // Start timer for 8 seconds
+    const timerId = setTimeout(() => {
+        executeTriageAction(safeId);
+    }, 8000);
+    
+    pendingTriageActions[safeId] = {
+        timerId: timerId,
+        action: "discard",
+        category: category,
+        filename: filename,
+        payload: null,
+        cardElement: cardEl
+    };
+    
+    showUndoToast(safeId, `Eliminando borrador "${finalTitle}"...`);
+}
+
+function showUndoToast(safeId, text) {
+    // Check if toast already exists
+    let toast = document.getElementById(`undo-toast-${safeId}`);
+    if (toast) toast.remove();
+    
+    toast = document.createElement("div");
+    toast.className = "toast-notification undo-toast";
+    toast.id = `undo-toast-${safeId}`;
+    
+    toast.innerHTML = `
+        <div style="flex: 1; margin-right: 12px;">
+            <p style="margin: 0; font-size: 12px; font-weight: 500;">${text}</p>
+        </div>
+        <button class="btn-undo-action" onclick="triageUndo('${safeId}')">Deshacer</button>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Auto-remove toast after 8 seconds
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.style.transform = "translateY(20px)";
+            toast.style.opacity = "0";
+            setTimeout(() => toast.remove(), 350);
+        }
+    }, 8000);
+}
+
+function triageUndo(safeId) {
+    const actionObj = pendingTriageActions[safeId];
+    if (!actionObj) return;
+    
+    // Cancel the promotion/deletion timer
+    clearTimeout(actionObj.timerId);
+    
+    // Restore the card UI state
+    const cardEl = actionObj.cardElement;
+    if (cardEl) {
+        cardEl.classList.remove("collapsing-height");
+        setTimeout(() => {
+            cardEl.classList.remove("approved", "discarded");
+        }, 100);
+    }
+    
+    // Clear toast notification
+    const toast = document.getElementById(`undo-toast-${safeId}`);
+    if (toast) {
+        toast.remove();
+    }
+    
+    delete pendingTriageActions[safeId];
+    showToast("success", "Acción cancelada con éxito.");
+}
+
+async function executeTriageAction(safeId) {
+    const actionObj = pendingTriageActions[safeId];
+    if (!actionObj) return;
+    
+    const { action, category, filename, payload } = actionObj;
+    delete pendingTriageActions[safeId];
+    
+    const toast = document.getElementById(`undo-toast-${safeId}`);
+    if (toast) toast.remove();
+    
+    if (isOffline) {
+        offlineQueue.push({
+            type: action === 'approve' ? 'promote' : 'delete',
+            category: category,
+            filepath: filename,
+            payload: payload
+        });
+        localStorage.setItem("offline-queue", JSON.stringify(offlineQueue));
+        showToast("warning", "Acción en cola local (Offline).");
+        await loadData();
+        return;
+    }
+    
+    try {
+        if (action === "approve") {
+            const url = `/api/notes/promote/${category}/${encodeURIComponent(filename)}`;
+            const res = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            if (res.status === 423) {
+                triageRollbackUI(actionObj);
+                alert("Promoción bloqueada: El archivo está abierto en Obsidian o bloqueado por Windows.");
+                return;
+            }
+        } else if (action === "discard") {
+            const url = `/api/notes/${category}/${encodeURIComponent(filename)}`;
+            const res = await fetch(url, { method: "DELETE" });
+            if (res.status === 423) {
+                triageRollbackUI(actionObj);
+                alert("Eliminación bloqueada: El archivo está abierto en Obsidian o bloqueado por Windows.");
+                return;
+            }
+        }
+        await loadData();
+    } catch (e) {
+        console.error("Triage action failed to dispatch:", e);
+        triageRollbackUI(actionObj);
+    }
+}
+
+function triageRollbackUI(actionObj) {
+    const cardEl = actionObj.cardElement;
+    if (cardEl) {
+        cardEl.classList.remove("collapsing-height");
+        setTimeout(() => {
+            cardEl.classList.remove("approved", "discarded");
+        }, 100);
+    }
+    showToast("error", "Error del servidor. Restaurando borrador.");
+}
+
+// --- TIMELINE DE APRENDIZAJE ---
+async function loadTimeline(page = 1, append = false) {
+    try {
+        const query = currentSearchQuery ? `&query=${encodeURIComponent(currentSearchQuery)}` : "";
+        const res = await fetch(`/api/timeline?page=${page}&limit=${timelineLimit}${query}`);
+        const data = await res.json();
+        
+        timelinePage = data.current_page;
+        timelineTotalPages = data.total_pages;
+        
+        if (!append) {
+            timelineStream.innerHTML = "";
         } else {
-            li.classList.remove("active");
+            // Remove previous Ver Más button
+            const oldMoreBtn = document.getElementById("timeline-more-btn");
+            if (oldMoreBtn) oldMoreBtn.remove();
+        }
+        
+        const events = data.events;
+        if (events.length > 0) {
+            events.forEach(event => {
+                const safePath = getSafeId(event.path);
+                
+                const card = document.createElement("div");
+                card.className = `timeline-card ${event.category}`;
+                card.id = `timeline-card-${safePath}`;
+                
+                card.innerHTML = `
+                    <div class="timeline-card-marker"></div>
+                    <div class="timeline-card-header">
+                        <div class="card-meta">
+                            <span class="category-pill color-${event.category}-text">${event.category}</span>
+                            <span class="card-time">${event.date || 'Sin Fecha'}</span>
+                        </div>
+                        <h3 class="card-title">${event.title}</h3>
+                    </div>
+                    <div class="timeline-card-summary" id="timeline-summary-${safePath}">${event.summary}</div>
+                    
+                    <div class="timeline-card-collapsible">
+                        <div class="timeline-card-body-inner markdown-body" id="timeline-body-${safePath}">
+                            <!-- Markdown parsed HTML populated on click expansion -->
+                        </div>
+                    </div>
+                `;
+                
+                // Add expansion trigger on click
+                card.addEventListener("click", (e) => {
+                    // Prevent expansion when clicking nested link nodes
+                    if (e.target.tagName === 'A' || e.target.closest('a')) return;
+                    toggleTimelineCard(event, safePath);
+                });
+                
+                timelineStream.appendChild(card);
+            });
+            
+            // Add Pagination Load More button
+            if (timelinePage < timelineTotalPages) {
+                const moreBtn = document.createElement("button");
+                moreBtn.id = "timeline-more-btn";
+                moreBtn.className = "btn-secondary";
+                moreBtn.style.width = "calc(100% - 48px)";
+                moreBtn.style.marginLeft = "48px";
+                moreBtn.style.marginTop = "10px";
+                moreBtn.innerText = "Ver Más Cronologías";
+                moreBtn.addEventListener("click", () => {
+                    loadTimeline(timelinePage + 1, true);
+                });
+                timelineStream.appendChild(moreBtn);
+            }
+        } else {
+            if (!append) {
+                timelineStream.innerHTML = `<div class="inbox-empty-placeholder">No se encontraron eventos activos en la cronología.</div>`;
+            }
+        }
+    } catch (e) {
+        console.error("Timeline loading failed:", e);
+    }
+}
+
+async function toggleTimelineCard(event, safePath) {
+    const card = document.getElementById(`timeline-card-${safePath}`);
+    const summary = document.getElementById(`timeline-summary-${safePath}`);
+    const bodyInner = document.getElementById(`timeline-body-${safePath}`);
+    
+    if (!card) return;
+    
+    const isExpanded = card.classList.contains("expanded");
+    
+    // Close other expanded cards
+    document.querySelectorAll(".timeline-card.expanded").forEach(el => {
+        if (el !== card) {
+            el.classList.remove("expanded");
+            const otherPath = el.id.replace("timeline-card-", "");
+            const otherSum = document.getElementById(`timeline-summary-${otherPath}`);
+            if (otherSum) otherSum.style.display = "block";
         }
     });
+    
+    if (isExpanded) {
+        card.classList.remove("expanded");
+        if (summary) summary.style.display = "block";
+    } else {
+        card.classList.add("expanded");
+        if (summary) summary.style.display = "none";
+        
+        // Parse and render note content
+        bodyInner.innerHTML = renderMarkdown(event.content);
+        bindWikiLinkPreviews(bodyInner);
+        
+        // Match Sidebar and Note Viewer details
+        const fullNote = notes[event.path];
+        if (fullNote) {
+            openNote(fullNote);
+        }
+    }
+}
+
+function filterTimeline() {
+    timelinePage = 1;
+    loadTimeline(1, false);
+}
+
+// --- NOTE VIEWER & INSPECTOR ---
+async function openNote(note) {
+    activeNote = note;
     
     try {
         const res = await fetch(`/api/notes/${note.category}/${encodeURIComponent(note.filename)}`);
         if (res.status === 404) {
-             alert("El archivo de la nota no existe en el disco.");
-             return;
+            showToast("error", "El archivo de la nota no se encuentra en el disco.");
+            return;
         }
         const fullNote = await res.json();
         
-        // Swap to Viewer mode
-        noteEditor.classList.remove("active");
-        noteViewer.classList.add("active");
-        
-        // Populate Header info
+        // Fill Viewer Header
         viewNoteBadge.innerText = note.category;
-        viewNoteBadge.className = "note-category-badge " + note.category;
+        viewNoteBadge.className = `note-category-badge ${note.category}`;
         viewNoteTitle.innerText = fullNote.title;
         viewNoteDates.innerText = `Creada: ${fullNote.created || "n/a"} • Actualizada: ${fullNote.updated || "n/a"}`;
         
-        // Toggle Curation HUD for source files
-        if (note.category === "sources" && fullNote.status === "unread") {
-            curationHud.classList.remove("hidden");
-            hudSourceType.innerText = fullNote.source_type || "MCP Ingest";
-            if (fullNote.source_url) {
-                hudSourceUrl.href = fullNote.source_url;
-                hudSourceUrl.classList.remove("hidden");
-            } else {
-                hudSourceUrl.classList.add("hidden");
-            }
-        } else {
-            curationHud.classList.add("hidden");
-        }
-        
-        // Parse Markdown body safely (DOMPurify + wikilinks parse)
+        // Render Markdown body safely
         viewNoteBody.innerHTML = renderMarkdown(fullNote.content);
-        
-        // Bind hover preview event listeners for wikilinks
-        bindWikiLinkPreviews();
+        bindWikiLinkPreviews(viewNoteBody);
         
         // Render tags
         viewNoteTags.innerHTML = "";
@@ -884,18 +821,18 @@ async function openNote(note) {
             });
         }
         
-        // Render backlinks
+        // Render Backlinks
         viewNoteBacklinks.innerHTML = "";
-        const backlinkNotes = note.backlinks || [];
-        if (backlinkNotes.length > 0) {
-            backlinkNotes.forEach(title => {
-                const li = document.createElement("li");
-                li.innerText = title;
-                li.addEventListener("click", () => {
-                    const target = notes[title];
-                    if (target) openNote(target);
-                });
-                viewNoteBacklinks.appendChild(li);
+        const backlinks = note.backlinks || [];
+        if (backlinks.length > 0) {
+            backlinks.forEach(pathKey => {
+                const backNote = notes[pathKey];
+                if (backNote) {
+                    const li = document.createElement("li");
+                    li.innerText = backNote.title;
+                    li.addEventListener("click", () => openNote(backNote));
+                    viewNoteBacklinks.appendChild(li);
+                }
             });
         } else {
             const li = document.createElement("li");
@@ -904,27 +841,29 @@ async function openNote(note) {
             viewNoteBacklinks.appendChild(li);
         }
         
-        // Enable footer buttons
-        editNoteBtn.disabled = false;
-        deleteNoteBtn.disabled = false;
+        // Enabled actions
+        btnDeleteNote.disabled = false;
+        btnOpenObsidianNote.disabled = false;
+        
+        // Render local Connection Radar Ego-Graph
+        drawConnectionRadar(note.path);
         
     } catch (e) {
-        console.error("Error opening note:", e);
+        console.error("Inspector open note failed:", e);
     }
 }
 
-// Convert markdown text to HTML, resolving custom wikilinks
 function renderMarkdown(mdText) {
     if (!mdText) return "<p><i>Contenido vacío</i></p>";
     
-    // Replace [[Note Name]] or [[Note Name|Alias]] with custom anchor elements
+    // Parse WikiLinks: [[Target Note]] or [[Target Note|Alias]]
     let processed = mdText.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (match, target, alias) => {
         const noteName = target.trim();
         const display = alias ? alias.trim() : noteName;
         
-        // Check if note exists in notes directory (case-insensitive)
-        const exists = notes[noteName] || Object.keys(notes).some(k => k.toLowerCase() === noteName.toLowerCase());
-        const className = exists ? 'wikilink' : 'wikilink broken';
+        // Check target exists by matching note titles in database
+        const exists = Object.values(notes).some(n => n.title.toLowerCase() === noteName.toLowerCase());
+        const className = exists ? "wikilink" : "wikilink broken";
         
         return `<a class="${className}" href="#" data-note="${noteName}">${display}</a>`;
     });
@@ -933,33 +872,33 @@ function renderMarkdown(mdText) {
     return DOMPurify.sanitize(rawHtml);
 }
 
-// Open note click handler for custom wikilinks
-function openNoteByName(name) {
-    // Find note case-insensitively
-    const match = Object.values(notes).find(n => n.title.toLowerCase() === name.toLowerCase());
-    if (match) {
-        openNote(match);
-    } else {
-        // Create broken link note instantly!
-        if (confirm(`La nota "${name}" no existe. ¿Quieres crearla ahora?`)) {
-            startNewNote(name);
-        }
-    }
-}
-
-// Bind hover and click events on rendered wikilinks
-function bindWikiLinkPreviews() {
-    const links = viewNoteBody.querySelectorAll(".wikilink");
-    links.forEach(a => {
+function bindWikiLinkPreviews(container = document) {
+    const anchors = container.querySelectorAll(".wikilink");
+    anchors.forEach(a => {
         const name = a.getAttribute("data-note");
         
-        // Click listener
+        // Click action
         a.addEventListener("click", (e) => {
             e.preventDefault();
-            openNoteByName(name);
+            const targetNote = Object.values(notes).find(n => n.title.toLowerCase() === name.toLowerCase());
+            if (targetNote) {
+                openNote(targetNote);
+                
+                // Highlight expanded timeline card if it exists
+                const safePath = getSafeId(targetNote.path);
+                const tCard = document.getElementById(`timeline-card-${safePath}`);
+                if (tCard) {
+                    tCard.scrollIntoView({ behavior: "smooth", block: "center" });
+                    if (!tCard.classList.contains("expanded")) {
+                        tCard.click();
+                    }
+                }
+            } else {
+                showToast("warning", `La nota "${name}" no existe. Créala en Obsidian Desktop.`);
+            }
         });
         
-        // Hover popover preview listener
+        // Hover popovers
         let hoverTimeout = null;
         let popoverEl = null;
         
@@ -967,7 +906,6 @@ function bindWikiLinkPreviews() {
             hoverTimeout = setTimeout(() => {
                 const targetNote = Object.values(notes).find(n => n.title.toLowerCase() === name.toLowerCase());
                 
-                // Build popover overlay
                 popoverEl = document.createElement("div");
                 popoverEl.className = "wikilink-popover glass";
                 
@@ -975,32 +913,31 @@ function bindWikiLinkPreviews() {
                 popoverEl.style.top = `${rect.bottom + window.scrollY + 6}px`;
                 popoverEl.style.left = `${rect.left + window.scrollX}px`;
                 
+                // DOMPurify applied inside template strings
                 if (targetNote) {
-                    popoverEl.innerHTML = `
+                    popoverEl.innerHTML = DOMPurify.sanitize(`
                         <div class="popover-header">
                             <span class="popover-title">${targetNote.title}</span>
                             <span class="note-category-badge ${targetNote.category}">${targetNote.category}</span>
                         </div>
                         <div class="popover-body">${targetNote.summary}</div>
                         <div class="popover-footer">
-                            <span class="tag-pill">Conexiones: ${targetNote.links.length}</span>
+                            <span class="tag-pill">Links: ${targetNote.links.length}</span>
                             <span class="tag-pill">Backlinks: ${targetNote.backlinks.length}</span>
                         </div>
-                    `;
+                    `);
                 } else {
-                    popoverEl.innerHTML = `
+                    popoverEl.innerHTML = DOMPurify.sanitize(`
                         <div class="popover-header">
-                            <span class="popover-title" style="color:var(--color-errors)">No Creada</span>
+                            <span class="popover-title" style="color:var(--color-errors)">Enlace Roto</span>
                         </div>
-                        <div class="popover-body">La nota "${name}" no existe todavía en tu cerebro. Haz clic para crearla.</div>
-                    `;
+                        <div class="popover-body">La nota "${name}" no existe en tu cerebro.</div>
+                    `);
                 }
                 
                 document.body.appendChild(popoverEl);
-                // Trigger transition animation
                 setTimeout(() => popoverEl.classList.add("visible"), 20);
-                
-            }, 250); // delay before preview
+            }, 250);
         });
         
         a.addEventListener("mouseleave", () => {
@@ -1024,431 +961,536 @@ function closeNoteView() {
     viewNoteBody.innerHTML = `
         <div class="placeholder-text">
             <h3>🧠 Tu cerebro en red</h3>
-            <p>Haz clic en cualquier nodo del grafo o selecciona una nota en la barra lateral para ver su contenido, conexiones de wiki-links y referencias entrantes.</p>
+            <p>Haz clic en cualquier evento de la cronología o aprueba un borrador en la bandeja de entrada para desplegar sus detalles, backlinks y mapa de conexiones locales.</p>
         </div>
     `;
     viewNoteTags.innerHTML = "";
     viewNoteBacklinks.innerHTML = '<li class="empty-backlinks">Ninguna nota enlaza aquí todavía.</li>';
-    editNoteBtn.disabled = true;
-    deleteNoteBtn.disabled = true;
-    curationHud.classList.add("hidden");
-}
-
-// --- CURATION HUB HANDLER ---
-async function handleCurationAction(action) {
-    if (!activeNote || activeNote.category !== "sources") return;
+    btnDeleteNote.disabled = true;
+    btnOpenObsidianNote.disabled = true;
     
-    try {
-        if (action === "read") {
-            // Update status to read directly
-            const updateData = {
-                title: activeNote.title,
-                content: viewNoteBody.innerText, // Needs raw contents
-                tags: activeNote.tags,
-                status: "read",
-                source_type: activeNote.source_type || "",
-                source_url: activeNote.source_url || ""
-            };
-            
-            // Read raw contents first
-            const rawRes = await fetch(`/api/notes/sources/${encodeURIComponent(activeNote.filename)}`);
-            const rawNote = await rawRes.json();
-            updateData.content = rawNote.content;
-            
-            await fetch(`/api/notes/sources/${encodeURIComponent(activeNote.filename)}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(updateData)
-            });
-            
-            await loadData();
-            
-        } else if (action === "promote-idea" || action === "promote-skill") {
-            const targetCat = action === "promote-idea" ? "ideas" : "skills";
-            const rawRes = await fetch(`/api/notes/sources/${encodeURIComponent(activeNote.filename)}`);
-            const rawNote = await rawRes.json();
-            
-            const payload = {
-                title: activeNote.title,
-                content: rawNote.content,
-                category: targetCat,
-                tags: activeNote.tags.filter(t => t !== "mcp-ingest")
-            };
-            
-            const promoteRes = await fetch(`/api/notes/promote/sources/${encodeURIComponent(activeNote.filename)}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
-            
-            const result = await promoteRes.json();
-            if (result.status === "success") {
-                 // Open promoted note
-                 activeNote = {
-                     title: payload.title,
-                     category: targetCat,
-                     filename: activeNote.filename
-                 };
-            }
-            await loadData();
-        }
-    } catch (e) {
-        console.error("Curation action failed:", e);
-    }
-}
-
-// --- NOTE EDITOR (CRUD) ---
-function startNewNote(initialTitle = "") {
-    // Switch panels
-    noteViewer.classList.remove("active");
-    noteEditor.classList.add("active");
-    
-    editNoteTitle.value = initialTitle;
-    editNoteTitle.disabled = false;
-    editNoteCategory.value = "ideas";
-    editNoteCategory.disabled = false;
-    editNoteTags.value = "";
-    editNoteStatus.value = "";
-    editNoteContent.value = "";
-    editNoteStatus.classList.add("hidden");
-    
-    activeNote = null; // New note mode
-}
-
-function startEditingNote() {
-    if (!activeNote) return;
-    
-    // Fetch raw content
-    fetch(`/api/notes/${activeNote.category}/${encodeURIComponent(activeNote.filename)}`)
-        .then(res => res.json())
-        .then(fullNote => {
-            noteViewer.classList.remove("active");
-            noteEditor.classList.add("active");
-            
-            editNoteTitle.value = fullNote.title;
-            // Lock category/title edits for daily journal logs to prevent broken file mapping
-            if (activeNote.category === "journal") {
-                 editNoteTitle.disabled = true;
-                 editNoteCategory.disabled = true;
-            } else {
-                 editNoteTitle.disabled = false;
-                 editNoteCategory.disabled = false;
-            }
-            
-            editNoteCategory.value = activeNote.category;
-            editNoteTags.value = fullNote.tags.join(", ");
-            editNoteStatus.value = fullNote.status || "";
-            editNoteContent.value = fullNote.content;
-            
-            if (activeNote.category === "errors") {
-                editNoteStatus.classList.remove("hidden");
-            } else {
-                editNoteStatus.classList.add("hidden");
-            }
-        });
-}
-
-function cancelEditing() {
-    noteEditor.classList.remove("active");
-    noteViewer.classList.add("active");
-    if (activeNote) {
-        openNote(activeNote);
-    } else {
-        closeNoteView();
-    }
-}
-
-async function handleSaveNote() {
-    const title = editNoteTitle.value.trim();
-    const category = editNoteCategory.value;
-    const content = editNoteContent.value;
-    const status = editNoteStatus.value;
-    
-    if (!title) {
-        alert("El título de la nota no puede estar vacío.");
-        return;
-    }
-    
-    // Parse tags split by comma
-    const tags = editNoteTags.value.split(",")
-        .map(t => t.trim().toLowerCase())
-        .filter(t => t.length > 0);
-        
-    const filename = activeNote ? activeNote.filename : `${title}.md`;
-    
-    const payload = {
-        title: title,
-        content: content,
-        tags: tags,
-        status: status
-    };
-    
-    try {
-        const url = `/api/notes/${category}/${encodeURIComponent(filename)}`;
-        const res = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        });
-        
-        if (res.status === 400) {
-             const err = await res.json();
-             alert(`Error: ${err.detail}`);
-             return;
-        }
-        
-        // Save state and reload
-        activeNote = {
-            title: title,
-            category: category,
-            filename: filename.endsWith(".md") ? filename : `${filename}.md`
-        };
-        
-        await loadData();
-        
-    } catch (e) {
-        console.error("Save note failed:", e);
-    }
+    const radarSection = document.getElementById("ego-radar-section");
+    if (radarSection) radarSection.classList.add("hidden");
 }
 
 async function handleDeleteNote() {
     if (!activeNote) return;
     
-    if (confirm(`¿Estás seguro de que quieres eliminar la nota "${activeNote.title}"? Esta acción no se puede deshacer.`)) {
-        try {
-            await fetch(`/api/notes/${activeNote.category}/${encodeURIComponent(activeNote.filename)}`, {
-                method: "DELETE"
+    if (confirm(`¿Estás seguro de que quieres eliminar la nota "${activeNote.title}"?`)) {
+        if (isOffline) {
+            offlineQueue.push({
+                type: 'delete',
+                category: activeNote.category,
+                filepath: activeNote.filename
             });
+            localStorage.setItem("offline-queue", JSON.stringify(offlineQueue));
+            showToast("warning", "Nota eliminada localmente (Cola offline).");
+            closeNoteView();
+            await loadData();
+            return;
+        }
+        
+        try {
+            const url = `/api/notes/${activeNote.category}/${encodeURIComponent(activeNote.filename)}`;
+            const res = await fetch(url, { method: "DELETE" });
+            if (res.status === 423) {
+                alert("Acción bloqueada: El archivo está abierto en Obsidian o bloqueado por Windows. Cierra el archivo y vuelve a intentarlo.");
+                return;
+            }
             closeNoteView();
             await loadData();
         } catch (e) {
-            console.error("Delete note failed:", e);
+            console.error("Failed to delete note:", e);
         }
     }
 }
 
-// Daily note: YYYY-MM-DD.md inside journal folder
-async function openOrCreateDailyNote() {
-    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-    const filename = `${today}.md`;
-    const title = `Diario: ${today}`;
+// --- CONNECTION RADAR (LOCAL EGO-GRAPH) ---
+function drawConnectionRadar(notePath) {
+    const canvasEl = document.getElementById("ego-graph-canvas");
+    const radarSection = document.getElementById("ego-radar-section");
+    if (!canvasEl) return;
     
-    // Check if it already exists
-    const match = Object.values(notes).find(n => n.category === "journal" && n.title === title);
-    if (match) {
-        openNote(match);
+    canvasEl.innerHTML = ""; // Clear canvas
+    
+    if (radarSection) radarSection.classList.remove("hidden");
+    
+    // getLinkId handles both string IDs and D3-resolved object references
+    const getLinkId = (node) => {
+        if (!node) return null;
+        if (typeof node === 'object') return node.path || node.id || null;
+        return node;
+    };
+    
+    const centerNode = graphData.nodes.find(n => n.path === notePath || n.id === notePath);
+    if (!centerNode) {
+        // Show a minimal placeholder instead of hiding completely
+        canvasEl.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:11px;flex-direction:column;gap:6px;"><span>🔮</span><span>Sin conexiones aún</span></div>`;
         return;
     }
     
-    // Create new daily note from template
-    try {
-        // Check if template exists
-        const resTemplate = await fetch("/api/notes/templates/journal_entry.md").catch(() => null);
-        let content = `# ${title}\n\n## Achievements Today\n- \n\n## Next Steps\n- `;
-        if (resTemplate && resTemplate.status === 200) {
-             const tempObj = await resTemplate.json();
-             content = tempObj.content.replace(/YYYY-MM-DD/g, today);
+    // Explore neighborhood
+    const hop1 = new Set();
+    const hop2 = new Set();
+    const adjacentLinks = [];
+    
+    // Find 1-Hop connections
+    graphData.links.forEach(l => {
+        const s = getLinkId(l.source);
+        const t = getLinkId(l.target);
+        if (s === notePath) {
+            hop1.add(t);
+            adjacentLinks.push(l);
+        } else if (t === notePath) {
+            hop1.add(s);
+            adjacentLinks.push(l);
         }
+    });
+    
+    // Find 2-Hop connections if neighborhood limit (15 nodes) allows
+    if (hop1.size + 1 < 12) {
+        graphData.links.forEach(l => {
+            const s = getLinkId(l.source);
+            const t = getLinkId(l.target);
+            if (hop1.has(s) && t !== notePath && !hop1.has(t)) {
+                hop2.add(t);
+                adjacentLinks.push(l);
+            } else if (hop1.has(t) && s !== notePath && !hop1.has(s)) {
+                hop2.add(s);
+                adjacentLinks.push(l);
+            }
+        });
+    }
+    
+    // Build node set combining center, 1-hop, and limited 2-hop nodes
+    const nodeIds = new Set([notePath, ...hop1]);
+    for (const id of hop2) {
+        if (nodeIds.size >= 15) break;
+        nodeIds.add(id);
+    }
+    
+    // Map full node data
+    const radarNodes = graphData.nodes.filter(n => nodeIds.has(n.path)).map(n => ({...n}));
+    
+    // Map links
+    const radarLinks = adjacentLinks.filter(l => {
+        const s = getLinkId(l.source);
+        const t = getLinkId(l.target);
+        return nodeIds.has(s) && nodeIds.has(t);
+    }).map(l => ({
+        source: getLinkId(l.source),
+        target: getLinkId(l.target)
+    }));
+    
+    const rawWidth = canvasEl.clientWidth;
+    const rawHeight = canvasEl.clientHeight;
+    const width = rawWidth > 20 ? rawWidth : 380;
+    const height = rawHeight > 20 ? rawHeight : 200;
+    
+    const svg = d3.select(canvasEl)
+        .append("svg")
+        .attr("width", "100%")
+        .attr("height", height)
+        .attr("viewBox", `0 0 ${width} ${height}`);
         
-        const payload = {
-            title: title,
-            content: content,
-            tags: ["journal", "daily"]
-        };
+    const simulation = d3.forceSimulation(radarNodes)
+        .force("link", d3.forceLink(radarLinks).id(d => d.path).distance(50))
+        .force("charge", d3.forceManyBody().strength(-90))
+        .force("center", d3.forceCenter(width / 2, height / 2))
+        .force("collide", d3.forceCollide().radius(22));
         
-        await fetch(`/api/notes/journal/${encodeURIComponent(filename)}`, {
+    // Links lines
+    const link = svg.append("g")
+        .selectAll("line")
+        .data(radarLinks)
+        .enter()
+        .append("line")
+        .attr("stroke", "rgba(255, 255, 255, 0.15)")
+        .attr("stroke-width", 1.5);
+        
+    // Nodes grouping
+    const node = svg.append("g")
+        .selectAll("g")
+        .data(radarNodes)
+        .enter()
+        .append("g")
+        .call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended))
+        .on("click", (event, d) => {
+            event.stopPropagation();
+            const matchingNote = notes[d.path];
+            if (matchingNote) openNote(matchingNote);
+        });
+        
+    node.append("circle")
+        .attr("r", d => d.path === notePath ? 8 : 5)
+        .attr("fill", d => CATEGORY_COLORS[d.category] || "#ffffff")
+        .attr("stroke", d => d.path === notePath ? "#fff" : "rgba(0,0,0,0.3)")
+        .attr("stroke-width", d => d.path === notePath ? 2 : 1)
+        .style("filter", d => d.path === notePath ? `drop-shadow(0px 0px 6px ${CATEGORY_COLORS[d.category] || "#bb9af7"})` : "none");
+        
+    node.append("text")
+        .text(d => d.title)
+        .attr("font-size", "9px")
+        .attr("fill", "rgba(255, 255, 255, 0.85)")
+        .attr("dx", 8)
+        .attr("dy", 3)
+        .attr("pointer-events", "none")
+        .style("text-shadow", "0px 0px 4px #000, 0px 0px 4px #000");
+        
+    simulation.on("tick", () => {
+        link
+            .attr("x1", d => d.source.x)
+            .attr("y1", d => d.source.y)
+            .attr("x2", d => d.target.x)
+            .attr("y2", d => d.target.y);
+            
+        node
+            .attr("transform", d => `translate(${d.x}, ${d.y})`);
+    });
+    
+    function dragstarted(event, d) {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+    }
+    
+    function dragged(event, d) {
+        d.fx = event.x;
+        d.fy = event.y;
+    }
+    
+    function dragended(event, d) {
+        if (!event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+    }
+}
+
+// --- GLOBAL FORCE GRAPH (MAPA GLOBAL) ---
+function initGlobalGraph() {
+    const canvasEl = document.getElementById("graph-canvas");
+    if (!canvasEl || !graphData || graphData.nodes.length === 0) {
+        if (canvasEl) {
+            canvasEl.innerHTML = `
+                <div style="display:flex; align-items:center; justify-content:center; height:100%; color:var(--text-muted); flex-direction:column; gap:12px;">
+                    <span style="font-size:36px;">🕸️</span>
+                    <p style="font-size:12px; text-align:center;">Sin datos de grafo.<br>Crea notas con WikiLinks <code>[[Nota]]</code> para visualizar conexiones.</p>
+                </div>
+            `;
+        }
+        return;
+    }
+    
+    canvasEl.innerHTML = "";
+    
+    const width = canvasEl.clientWidth || 600;
+    const height = canvasEl.clientHeight || 400;
+    
+    // Filter nodes/links based on active category filters
+    const filteredNodes = graphData.nodes.filter(n => activeCategoryFilters.includes(n.category));
+    const filteredNodeIds = new Set(filteredNodes.map(n => n.path));
+    const filteredLinks = graphData.links.filter(l => {
+        const s = (typeof l.source === 'object') ? l.source.path || l.source.id : l.source;
+        const t = (typeof l.target === 'object') ? l.target.path || l.target.id : l.target;
+        return filteredNodeIds.has(s) && filteredNodeIds.has(t);
+    }).map(l => ({
+        source: (typeof l.source === 'object') ? l.source.path || l.source.id : l.source,
+        target: (typeof l.target === 'object') ? l.target.path || l.target.id : l.target
+    }));
+    
+    const nodesData = filteredNodes.map(n => ({...n}));
+    
+    const svg = d3.select(canvasEl)
+        .append("svg")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("viewBox", `0 0 ${width} ${height}`)
+        .style("background", "transparent");
+    
+    // Zoom & Pan
+    const g = svg.append("g");
+    svg.call(d3.zoom()
+        .scaleExtent([0.1, 8])
+        .on("zoom", (event) => g.attr("transform", event.transform))
+    );
+    
+    const simulation = d3.forceSimulation(nodesData)
+        .force("link", d3.forceLink(filteredLinks).id(d => d.path).distance(80))
+        .force("charge", d3.forceManyBody().strength(-120))
+        .force("center", d3.forceCenter(width / 2, height / 2))
+        .force("collide", d3.forceCollide().radius(20));
+    
+    // Arrow markers for directed links
+    svg.append("defs").selectAll("marker")
+        .data(["default"])
+        .enter().append("marker")
+        .attr("id", "arrowhead")
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 18)
+        .attr("refY", 0)
+        .attr("markerWidth", 6)
+        .attr("markerHeight", 6)
+        .attr("orient", "auto")
+        .append("path")
+        .attr("d", "M0,-5L10,0L0,5")
+        .attr("fill", "rgba(255,255,255,0.15)");
+    
+    const link = g.append("g")
+        .selectAll("line")
+        .data(filteredLinks)
+        .enter().append("line")
+        .attr("stroke", "rgba(255, 255, 255, 0.12)")
+        .attr("stroke-width", 1)
+        .attr("marker-end", "url(#arrowhead)");
+    
+    const node = g.append("g")
+        .selectAll("g")
+        .data(nodesData)
+        .enter().append("g")
+        .style("cursor", "pointer")
+        .call(d3.drag()
+            .on("start", (event, d) => {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x; d.fy = d.y;
+            })
+            .on("drag", (event, d) => { d.fx = event.x; d.fy = event.y; })
+            .on("end", (event, d) => {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null; d.fy = null;
+            })
+        )
+        .on("click", (event, d) => {
+            event.stopPropagation();
+            const matchingNote = notes[d.path];
+            if (matchingNote) {
+                openNote(matchingNote);
+                // Highlight node
+                node.selectAll("circle").attr("stroke-width", n => n.path === d.path ? 3 : 1.5);
+            }
+        })
+        .on("mouseenter", function(event, d) {
+            d3.select(this).select("circle")
+                .transition().duration(150)
+                .attr("r", d.path === d.path ? 11 : 8);
+            
+            // Show tooltip
+            const tooltip = document.getElementById("graph-tooltip");
+            if (tooltip) {
+                tooltip.innerHTML = `<strong>${d.title}</strong><br><span style="color:${CATEGORY_COLORS[d.category] || '#fff'}">${d.category}</span>`;
+                tooltip.style.opacity = "1";
+                tooltip.style.left = (event.pageX + 12) + "px";
+                tooltip.style.top = (event.pageY - 20) + "px";
+            }
+        })
+        .on("mousemove", function(event) {
+            const tooltip = document.getElementById("graph-tooltip");
+            if (tooltip) {
+                tooltip.style.left = (event.pageX + 12) + "px";
+                tooltip.style.top = (event.pageY - 20) + "px";
+            }
+        })
+        .on("mouseleave", function() {
+            const tooltip = document.getElementById("graph-tooltip");
+            if (tooltip) tooltip.style.opacity = "0";
+        });
+    
+    node.append("circle")
+        .attr("r", 7)
+        .attr("fill", d => CATEGORY_COLORS[d.category] || "#7aa2f7")
+        .attr("stroke", d => (CATEGORY_COLORS[d.category] || "#7aa2f7") + "88")
+        .attr("stroke-width", 1.5)
+        .style("filter", d => `drop-shadow(0px 0px 5px ${CATEGORY_COLORS[d.category] || "#7aa2f7"}88)`);
+    
+    node.append("text")
+        .text(d => d.title && d.title.length > 22 ? d.title.substring(0, 22) + "…" : d.title)
+        .attr("font-size", "9px")
+        .attr("fill", "rgba(255, 255, 255, 0.7)")
+        .attr("dx", 10)
+        .attr("dy", 3)
+        .attr("pointer-events", "none")
+        .style("text-shadow", "0 0 4px #000, 0 0 4px #000");
+    
+    simulation.on("tick", () => {
+        link
+            .attr("x1", d => d.source.x)
+            .attr("y1", d => d.source.y)
+            .attr("x2", d => d.target.x)
+            .attr("y2", d => d.target.y);
+        node.attr("transform", d => `translate(${d.x}, ${d.y})`);
+    });
+    
+    // Category filter checkboxes — bind ONCE only using a data flag
+    document.querySelectorAll(".graph-filter-chk").forEach(chk => {
+        if (chk.dataset.graphListenerBound) return;
+        chk.dataset.graphListenerBound = "1";
+        chk.addEventListener("change", () => {
+            activeCategoryFilters = Array.from(document.querySelectorAll(".graph-filter-chk:checked"))
+                .map(el => el.getAttribute("data-category"));
+            globalGraphInitialized = false;
+            initGlobalGraph();
+            globalGraphInitialized = true;
+        });
+    });
+    
+    globalGraphInstance = { simulation, svg };
+}
+
+function updateGlobalGraph() {
+    globalGraphInitialized = false;
+    initGlobalGraph();
+    globalGraphInitialized = true;
+}
+
+// --- GITHUB REMOTE SETUP ---
+async function handleSetRemote() {
+    const urlInput = document.getElementById("github-remote-url");
+    const btn = document.getElementById("set-remote-btn");
+    if (!urlInput) return;
+    
+    const remoteUrl = urlInput.value.trim();
+    if (!remoteUrl) {
+        showToast("warning", "Introduce la URL del repositorio de GitHub.");
+        return;
+    }
+    
+    // Basic validation - must look like a git URL
+    if (!remoteUrl.includes("github.com") && !remoteUrl.includes(".git")) {
+        showToast("warning", "Introduce una URL válida de GitHub (ej: https://github.com/user/repo.git).");
+        return;
+    }
+    
+    btn.disabled = true;
+    btn.innerText = "Vinculando...";
+    
+    try {
+        const res = await fetch("/api/git/set-remote", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({ remote_url: remoteUrl })
         });
         
-        activeNote = {
-            title: title,
-            category: "journal",
-            filename: filename
-        };
-        
-        await loadData();
-    } catch (e) {
-        console.error("Error creating daily note:", e);
-    }
-}
-
-// --- WIKILINK AUTOCOMPLETE DRAWER ---
-function handleEditorInput(e) {
-    const textarea = editNoteContent;
-    const value = textarea.value;
-    const selectionEnd = textarea.selectionEnd;
-    
-    // Find if user typed "[[" recently
-    const textBeforeCursor = value.substring(0, selectionEnd);
-    const lastOpenBracket = textBeforeCursor.lastIndexOf("[[");
-    
-    if (lastOpenBracket !== -1 && lastOpenBracket >= textBeforeCursor.lastIndexOf("]]")) {
-        // Trigger drawer autocomplete
-        autocompleteActive = true;
-        autocompleteStartIndex = lastOpenBracket + 2;
-        const query = textBeforeCursor.substring(autocompleteStartIndex).toLowerCase();
-        
-        showAutocompleteDrawer(query, textarea);
-    } else {
-        hideAutocompleteDrawer();
-    }
-}
-
-function handleEditorKeyDown(e) {
-    if (!autocompleteActive) return;
-    
-    const items = autocompleteDrawer.querySelectorAll(".autocomplete-item");
-    if (items.length === 0) return;
-    
-    let selectedIdx = -1;
-    items.forEach((item, idx) => {
-        if (item.classList.contains("selected")) selectedIdx = idx;
-    });
-    
-    if (e.key === "ArrowDown") {
-        e.preventDefault();
-        if (selectedIdx !== -1) items[selectedIdx].classList.remove("selected");
-        const next = (selectedIdx + 1) % items.length;
-        items[next].classList.add("selected");
-        items[next].scrollIntoView({ block: "nearest" });
-    } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        if (selectedIdx !== -1) items[selectedIdx].classList.remove("selected");
-        const prev = (selectedIdx - 1 + items.length) % items.length;
-        items[prev].classList.add("selected");
-        items[prev].scrollIntoView({ block: "nearest" });
-    } else if (e.key === "Enter") {
-        e.preventDefault();
-        if (selectedIdx !== -1) {
-            items[selectedIdx].click();
+        const result = await res.json();
+        if (result.status === "success") {
+            showToast("success", "✅ Repositorio de GitHub vinculado correctamente.");
+            urlInput.value = "";
+            // Refresh git status in settings
+            const statusRes = await fetch("/api/git/status");
+            const status = await statusRes.json();
+            renderGitStatusCard(status);
         } else {
-            items[0].click();
+            showToast("error", `Error: ${result.message}`);
         }
-    } else if (e.key === "Escape") {
-        e.preventDefault();
-        hideAutocompleteDrawer();
+    } catch (e) {
+        showToast("error", "Fallo al vincular el repositorio.");
+        console.error("Set remote failed:", e);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "Vincular Repositorio";
     }
 }
 
-function showAutocompleteDrawer(query, textarea) {
-    // Filter matching notes
-    const allTitles = Object.keys(notes);
-    const matches = allTitles.filter(t => t.toLowerCase().includes(query))
-        .map(t => notes[t])
-        .slice(0, 10); // Limit to 10 entries
-        
-    if (matches.length === 0) {
-        hideAutocompleteDrawer();
-        return;
-    }
+// --- OBSIDIAN DEEP LINK fallbacks ---
+// Helper: opens any obsidian:// URI using an invisible <a> so the page never navigates away
+function _launchObsidianUri(uri, fallbackDelay = 1800) {
+    const a = document.createElement("a");
+    a.href = uri;
+    a.style.display = "none";
+    document.body.appendChild(a);
     
-    autocompleteDrawer.innerHTML = "";
-    matches.forEach((note, idx) => {
-        const item = document.createElement("div");
-        item.className = "autocomplete-item";
-        if (idx === 0) item.classList.add("selected");
-        
-        const titleSpan = document.createElement("span");
-        titleSpan.innerText = note.title;
-        
-        const catSpan = document.createElement("span");
-        catSpan.className = `autocomplete-category ${note.category}`;
-        catSpan.innerText = note.category.substring(0, 4);
-        catSpan.style.backgroundColor = CATEGORY_COLORS[note.category];
-        catSpan.style.color = "#09070f";
-        
-        item.appendChild(titleSpan);
-        item.appendChild(catSpan);
-        
-        item.addEventListener("click", () => {
-            const value = textarea.value;
-            const selectionEnd = textarea.selectionEnd;
-            
-            const before = value.substring(0, autocompleteStartIndex);
-            const after = value.substring(selectionEnd);
-            
-            // Replace [[query with [[Note Title]]
-            textarea.value = before + note.title + "]]" + after;
-            textarea.focus();
-            
-            // Reposition cursor after the closed brackets
-            const newCursorPos = autocompleteStartIndex + note.title.length + 2;
-            textarea.setSelectionRange(newCursorPos, newCursorPos);
-            
-            hideAutocompleteDrawer();
-        });
-        
-        autocompleteDrawer.appendChild(item);
-    });
+    let fallbackTimer = setTimeout(() => {
+        showObsidianFallbackCard(uri);
+    }, fallbackDelay);
     
-    // Reposition the drawer floating under the cursor coordinates
-    // Approximate positioning based on character count (we can place it absolute under textarea)
-    autocompleteDrawer.classList.remove("hidden");
-    const caret = getCaretCoordinates(textarea, textarea.selectionEnd);
-    
-    autocompleteDrawer.style.top = `${Math.min(caret.top + 24, textarea.clientHeight - 120)}px`;
-    autocompleteDrawer.style.left = `${Math.min(caret.left, textarea.clientWidth - 280)}px`;
-}
-
-function hideAutocompleteDrawer() {
-    autocompleteActive = false;
-    autocompleteStartIndex = -1;
-    autocompleteDrawer.classList.add("hidden");
-}
-
-// Approximate caret coordinate calculator
-function getCaretCoordinates(element, position) {
-    const { offsetLeft, offsetTop } = element;
-    // Basic approximate placement coordinates
-    return {
-        top: offsetTop + (element.value.substring(0, position).split('\n').length * 20),
-        left: offsetLeft + 20
+    const cancelFallback = () => {
+        clearTimeout(fallbackTimer);
+        window.removeEventListener("blur", cancelFallback);
     };
+    window.addEventListener("blur", cancelFallback);
+    
+    a.click();
+    setTimeout(() => a.remove(), 200);
+    setTimeout(() => window.removeEventListener("blur", cancelFallback), fallbackDelay + 200);
 }
 
-// --- SETTINGS MODAL DIALOG ---
+function openNoteInObsidian(note) {
+    if (!note) return;
+    
+    // Use vault-name URI so Obsidian doesn't need the path registered.
+    // The vault folder name is "vault" (the last segment of the vault path).
+    const vaultName = "vault";
+    // note.path is like "ideas/My Note.md" — file= must be relative to vault root, without extension is also accepted
+    const fileRelPath = note.path.replace(/\\/g, "/");
+    const obsidianUri = `obsidian://open?vault=${encodeURIComponent(vaultName)}&file=${encodeURIComponent(fileRelPath)}`;
+    
+    _launchObsidianUri(obsidianUri);
+}
+
+function openVaultInObsidian() {
+    const vaultName = "vault";
+    const obsidianUri = `obsidian://open?vault=${encodeURIComponent(vaultName)}`;
+    
+    _launchObsidianUri(obsidianUri);
+}
+
+function showObsidianFallbackCard(uri) {
+    // Dismiss pre-existing fallbacks
+    const existing = document.getElementById("obsidian-fallback-node");
+    if (existing) existing.remove();
+    
+    const vaultPath = "c:\\Users\\Estudiante\\Downloads\\seond-brain\\vault";
+    
+    const div = document.createElement("div");
+    div.id = "obsidian-fallback-node";
+    div.className = "obsidian-fallback-card glass";
+    
+    div.innerHTML = `
+        <div class="fallback-header">
+            <h4>🟪 Configurar Vault de Obsidian</h4>
+        </div>
+        <div class="fallback-content">
+            <p style="color:var(--color-warning); font-weight:600; font-size:11px;">⚠️ Obsidian no tiene el vault registrado.</p>
+            <p style="margin-top:6px;">Realiza estos pasos <strong>una sola vez</strong>:</p>
+            <ol style="padding-left: 16px; font-size:11px; margin-top: 6px; color:var(--text-muted); line-height:1.8;">
+                <li>Abre <strong>Obsidian Desktop</strong></li>
+                <li>Haz clic en <strong>"Abrir otro vault"</strong> (icono de bóveda)</li>
+                <li>Selecciona <strong>"Abrir carpeta como vault"</strong></li>
+                <li>Navega y selecciona esta carpeta:<br>
+                    <code style="font-size:10px; word-break:break-all;">${vaultPath}</code>
+                </li>
+                <li>Una vez abierto el vault, el botón funcionará automáticamente ✅</li>
+            </ol>
+            <div style="display:flex; justify-content:space-between; margin-top:10px; gap:8px;">
+                <button class="btn-dismiss" onclick="document.getElementById('obsidian-fallback-node').remove()">Cerrar</button>
+                <button class="btn-primary" style="font-size:10px; padding:4px 8px;" onclick="navigator.clipboard.writeText('${vaultPath}'); showToast('success', 'Ruta copiada. Pégala en el selector de carpetas de Obsidian.');">Copiar Ruta</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(div);
+}
+
+// --- SETTINGS AND THEME ---
 async function openSettings() {
     settingsModal.classList.add("active");
     settingTokenInput.value = "Obteniendo token...";
     
     try {
-        // Fetch X-Ingest-Token from server. Since it's stored in .env, we fetch git status which has env data, or settings.
-        // Actually, we can fetch git status which runs remote checkout checks. Let's create an endpoint or render the token.
-        // Wait, main.py generates the token. Let's send a call to read the token.
-        // Wait, main.py doesn't have an endpoint for the token? Ah, let's look:
-        // We added token generation but forgot to add a GET /api/settings route?
-        // Wait, in main.py we can access INGEST_TOKEN directly, but we didn't add an explicit endpoint.
-        // Ah! But wait, we can just return it in the Git status or write a quick endpoint.
-        // Actually, we can check main.py. Yes! We have:
-        // We can expose the token securely, or since the backend only binds to 127.0.0.1 (localhost) and the user has full access, we can fetch it.
-        // Let's modify main.py if needed, or did SetupAgent add it?
-        // Wait! Let's check main.py endpoints. We have `GET /api/git/status`.
-        // Let's check if we can add a token API or if we already have it.
-        // Ah, in main.py there is no token endpoint, but we can easily add it! Or we can retrieve it by fetching `/api/git/status` if we include it.
-        // Wait! Let's look at `main.py` lines.
-        // We can add a simple GET /api/settings endpoint to get the INGEST_TOKEN!
-        // Let's see: yes, that is extremely useful. Let's write the fetch logic in app.js and if the backend returns 404, we will add the endpoint to main.py.
-        // Let's see if we can get the token.
-        const res = await fetch("/api/git/status");
-        const status = await res.json();
-        
-        // Wait, did we put token in git status? No, we didn't. Let's write a settings endpoint or get it.
-        // Let's fetch /api/settings. We will add this route to main.py shortly!
         const resSettings = await fetch("/api/settings").catch(() => null);
         if (resSettings && resSettings.status === 200) {
-             const settings = await resSettings.json();
-             settingTokenInput.value = settings.ingest_token;
+            const settings = await resSettings.json();
+            settingTokenInput.value = settings.ingest_token;
         } else {
-             // Fallback: we will add the endpoint in main.py
-             settingTokenInput.value = "INGEST_TOKEN (Recarga el servidor)";
+            settingTokenInput.value = "INGEST_TOKEN (Server offline)";
         }
         
+        const res = await fetch("/api/git/status");
+        const status = await res.json();
         renderGitStatusCard(status);
         
     } catch (e) {
-        console.error("Settings load failed:", e);
+        console.error("Settings loading failed:", e);
     }
 }
 
@@ -1469,50 +1511,86 @@ function renderGitStatusCard(status) {
     `;
 }
 
-// --- GIT SYNCHRONIZER PUSH/PULL ---
+function initTheme() {
+    const savedTheme = localStorage.getItem("app-theme") || "cyber-noir";
+    if (savedTheme === "minimal-dark") {
+        document.body.classList.add("theme-minimal-dark");
+    } else {
+        document.body.classList.remove("theme-minimal-dark");
+    }
+}
+
+function toggleTheme() {
+    const isMinimal = document.body.classList.contains("theme-minimal-dark");
+    if (isMinimal) {
+        document.body.classList.remove("theme-minimal-dark");
+        localStorage.setItem("app-theme", "cyber-noir");
+    } else {
+        document.body.classList.add("theme-minimal-dark");
+        localStorage.setItem("app-theme", "minimal-dark");
+    }
+}
+
+// --- GIT SYNC AND CONFLICT HANDLING ---
 async function handleSync() {
     setSyncState("syncing");
+    showToast("warning", "Iniciando copia de respaldo en segundo plano...");
     
     try {
         const res = await fetch("/api/git/sync", { method: "POST" });
+        
+        if (res.status === 409) {
+            setSyncState("pending");
+            showToast("error", "Ya hay una sincronización en curso.");
+            return;
+        }
+        
         const result = await res.json();
         
         if (result.status === "success") {
             setSyncState("synced");
             showToast("success", result.message);
+            await loadData();
         } else if (result.status === "conflict") {
             setSyncState("conflict");
-            alert(`Conflicto de Sincronización:\n\n${result.message}`);
-            showToast("warning", "Conflicto resuelto con duplicados.");
+            showToast("error", "Conflicto de sincronización detectado. Activando resolución Split-View.");
+            // Open split resolution modal
+            triggerConflictModal(result.conflicts[0] || "conflict-note.md");
         } else {
-            setSyncState("pending"); // local changes or error state
-            showToast("error", `Error de sinc: ${result.message}`);
+            setSyncState("pending");
+            showToast("error", `Fallo: ${result.message}`);
         }
-        
-        // Reload index to fetch any new files pulled from remote
-        await loadData();
-        
     } catch (e) {
         setSyncState("pending");
-        showToast("error", "Fallo de red al intentar sincronizar con GitHub.");
-        console.error("Sync failed:", e);
+        showToast("error", "Fallo de red al intentar sincronizar.");
+        console.error("Sync click error:", e);
     }
 }
 
-// Check git status to update header pill
 async function checkGitStatus() {
     try {
         const res = await fetch("/api/git/status");
         const status = await res.json();
         
+        // Update header pill status
         if (status.has_local_changes) {
             setSyncState("pending");
         } else {
             setSyncState("synced");
         }
+        
+        // Update left panel telemetry git status card
+        if (status.has_remote) {
+            leftPanelGitStatus.innerHTML = `
+                Branch: <code>${status.branch}</code><br/>
+                Cambios locales: <code>${status.has_local_changes ? 'SÍ' : 'NO'}</code>
+            `;
+        } else {
+            leftPanelGitStatus.innerHTML = `<span style="color:var(--color-warning)">Local (Sin origen remoto)</span>`;
+        }
     } catch (e) {
-        // Backend might be offline or starting up
         setSyncState("disconnected");
+        leftPanelGitStatus.innerHTML = `<span style="color:var(--color-danger)">Servidor desconectado</span>`;
     }
 }
 
@@ -1534,79 +1612,167 @@ function setSyncState(state) {
             break;
         case "conflict":
             syncBtn.classList.add("sync-conflict");
-            syncText.innerText = "Conflicto Resuelto";
+            syncText.innerText = "Conflicto";
             break;
         case "disconnected":
         default:
+            syncBtn.classList.remove("sync-synced", "sync-pending", "sync-syncing", "sync-conflict");
             syncText.innerText = "Sin Conexión";
             break;
     }
 }
 
-// Global slide-in toasts
-function showToast(type, message) {
-    const toast = document.createElement("div");
-    toast.className = `toast-notification glass ${type}`;
+// Split-view Git Conflict Resolution Logic
+async function triggerConflictModal(filepath) {
+    currentConflictFilepath = filepath;
+    conflictFilename.innerText = filepath;
+    conflictModal.classList.add("active");
     
-    // Accent colors based on toast type
-    let color = "var(--color-ideas)";
-    let title = "Notificación";
-    if (type === "success") { color = "var(--color-success)"; title = "Éxito"; }
-    if (type === "warning") { color = "var(--color-warning)"; title = "Advertencia"; }
-    if (type === "error") { color = "var(--color-danger)"; title = "Error"; }
+    localDiffContent.innerHTML = "Cargando versión local...";
+    remoteDiffContent.innerHTML = "Cargando versión de la nube...";
+    manualMergeTextarea.value = "";
     
-    toast.innerHTML = `
-        <div style="border-left: 3px solid ${color}; padding-left: 10px;">
-            <strong style="color:${color}; font-size:12px; text-transform:uppercase;">${title}</strong>
-            <p style="font-size:12px; margin-top:2px; color:var(--text-primary);">${message}</p>
-        </div>
-    `;
-    
-    // Style toast overlay positions
-    toast.style.position = "fixed";
-    toast.style.bottom = "20px";
-    toast.style.right = "20px";
-    toast.style.zIndex = "99999";
-    toast.style.minWidth = "260px";
-    toast.style.maxWidth = "360px";
-    toast.style.padding = "10px 14px";
-    toast.style.transition = "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)";
-    toast.style.transform = "translateY(50px)";
-    toast.style.opacity = "0";
-    
-    document.body.appendChild(toast);
-    
-    // Slide up
-    setTimeout(() => {
-        toast.style.transform = "translateY(0)";
-        toast.style.opacity = "1";
-    }, 20);
-    
-    // Fade out and remove
-    setTimeout(() => {
-        toast.style.transform = "translateY(20px)";
-        toast.style.opacity = "0";
-        setTimeout(() => toast.remove(), 350);
-    }, 4000);
+    try {
+        // Fetch conflict note raw contents
+        const parts = filepath.split("/");
+        const category = parts[0];
+        const filename = parts.slice(1).join("/");
+        
+        const localRes = await fetch(`/api/notes/${category}/${encodeURIComponent(filename)}`);
+        const localNote = await localRes.json();
+        
+        localDiffContent.innerHTML = DOMPurify.sanitize(`<pre style="margin:0; padding:0; background:none; border:none;"><code>${localNote.content}</code></pre>`);
+        manualMergeTextarea.value = localNote.content;
+        
+        // Attempt to fetch origin remote note contents to render remote diff side-by-side
+        // Since remote conflict files were renamed to Conflict timestamp copies, we lookup the corresponding copy
+        const cloudCopyKey = Object.keys(notes).find(k => k.includes("Sync Conflict") && k.includes(filename.replace(".md", "")));
+        if (cloudCopyKey) {
+            const cloudNote = notes[cloudCopyKey];
+            const cloudRes = await fetch(`/api/notes/${cloudNote.category}/${encodeURIComponent(cloudNote.filename)}`);
+            const cloudData = await cloudRes.json();
+            remoteDiffContent.innerHTML = DOMPurify.sanitize(`<pre style="margin:0; padding:0; background:none; border:none;"><code>${cloudData.content}</code></pre>`);
+        } else {
+            remoteDiffContent.innerHTML = "<i>No se pudo localizar copia conflictiva remota. Reconcilia localmente o manual.</i>";
+        }
+    } catch (e) {
+        console.error("Conflict parser failed:", e);
+        localDiffContent.innerHTML = "Error cargando nota conflictiva.";
+    }
 }
 
-// --- SCoA DEBATE STREAMING FUNCTIONS ---
+async function resolveConflict(type) {
+    const payload = {
+        filepath: currentConflictFilepath,
+        resolution_type: type,
+        manual_content: type === "manual" ? manualMergeTextarea.value : null
+    };
+    
+    showToast("warning", "Enviando resolución de conflictos...");
+    
+    try {
+        const res = await fetch("/api/git/resolve-conflict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        
+        const result = await res.json();
+        if (result.status === "success") {
+            showToast("success", "Conflicto resuelto con éxito.");
+            conflictModal.classList.remove("active");
+            await loadData();
+        } else {
+            showToast("error", `Error resolviendo: ${result.message}`);
+        }
+    } catch (e) {
+        showToast("error", "Fallo de red al enviar resolución de conflictos.");
+        console.error("Resolve conflict click error:", e);
+    }
+}
 
+// --- OFFLINE HEARTBEAT CHECKS ---
+async function heartbeat() {
+    try {
+        const res = await fetch("/api/settings");
+        if (res.status === 200) {
+            if (isOffline) {
+                isOffline = false;
+                document.getElementById("offline-banner").classList.add("hidden");
+                showToast("success", "Conexión restablecida. Sincronizando cola offline...");
+                await syncOfflineQueue();
+            } else {
+                // Heartbeat succeeded, update git status in background
+                checkGitStatus();
+            }
+        } else {
+            enterOfflineMode();
+        }
+    } catch (e) {
+        enterOfflineMode();
+    }
+}
+
+function enterOfflineMode() {
+    if (!isOffline) {
+        isOffline = true;
+        document.getElementById("offline-banner").classList.remove("hidden");
+        showToast("error", "Servidor desconectado. Modo Offline activado.");
+        setSyncState("disconnected");
+        leftPanelGitStatus.innerHTML = `<span style="color:var(--color-danger)">Offline (Pausado)</span>`;
+    }
+}
+
+async function syncOfflineQueue() {
+    const queue = [...offlineQueue];
+    offlineQueue = [];
+    localStorage.removeItem("offline-queue");
+    
+    for (const task of queue) {
+        try {
+            if (task.type === 'delete') {
+                await fetch(`/api/notes/${task.category}/${encodeURIComponent(task.filepath)}`, { method: "DELETE" });
+            } else if (task.type === 'promote') {
+                await fetch(`/api/notes/promote/${task.category}/${encodeURIComponent(task.filepath)}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(task.payload)
+                });
+            } else if (task.type === 'metadata') {
+                await fetch(`/api/notes/metadata/${task.category}/${encodeURIComponent(task.filepath)}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(task.payload)
+                });
+            }
+        } catch (e) {
+            console.error("Offline task dispatch failed, re-queuing:", task, e);
+            offlineQueue.push(task);
+        }
+    }
+    
+    if (offlineQueue.length > 0) {
+        localStorage.setItem("offline-queue", JSON.stringify(offlineQueue));
+    } else {
+        showToast("success", "Cola offline procesada por completo.");
+    }
+    await loadData();
+}
+
+// --- SCoA DEBATE DELIBERATIONS ---
 async function startScoaDebate() {
     const proposal = scoaProposal.value.trim();
     const category = scoaCategory.value;
-
+    
     if (!proposal) {
         alert("Por favor, ingresa una propuesta técnica para debatir.");
         return;
     }
-
-    // Hide inputs, show progress
+    
     scoaInputGroup.classList.add("hidden");
     scoaProgressContainer.classList.remove("hidden");
     scoaLiveStageTitle.textContent = "Conectando al Tribunal SCoA...";
-
-    // Reset Judge Cards classes and status text
+    
     const judges = [
         { card: judgeSecurity, status: statusSecurity, stage: scoaStageSecurity, output: scoaOutputSecurity },
         { card: judgePerformance, status: statusPerformance, stage: scoaStagePerformance, output: scoaOutputPerformance },
@@ -1620,86 +1786,64 @@ async function startScoaDebate() {
         if (j.stage) j.stage.classList.add("hidden");
         if (j.output) j.output.innerHTML = "";
     });
-
-    // Default active tab to security reviewer on start
+    
     selectScoaTab("security");
-
-    // Initialize accumulated text object
     window.scoaStageTexts = { security: "", performance: "", uiux: "", moderator: "" };
-
+    
     const url = `/api/debate/stream?proposal=${encodeURIComponent(proposal)}&category=${encodeURIComponent(category)}`;
     const eventSource = new EventSource(url);
-
+    
     eventSource.onmessage = function(event) {
         try {
             const data = JSON.parse(event.data);
             handleScoaEvent(data, category, eventSource);
         } catch (e) {
-            console.error("Error al parsear JSON del evento:", e, event.data);
+            console.error("Scoa stream parser error:", e);
         }
     };
-
-    eventSource.onerror = function(err) {
-        console.error("Conexión del debate fallida:", err);
-        scoaLiveStageTitle.textContent = "Error de conexión";
-        showToast("error", "Se perdió el stream o falló la conexión con el tribunal.");
+    
+    eventSource.onerror = function() {
+        scoaLiveStageTitle.textContent = "Error de deliberación";
+        showToast("error", "Conexión del tribunal perdida.");
         eventSource.close();
     };
 }
 
 function handleScoaEvent(event, category, eventSource) {
     if (event.error) {
-        scoaLiveStageTitle.textContent = "Error en el debate";
-        showToast("error", `Error: ${event.error}`);
-        if (eventSource) eventSource.close();
+        scoaLiveStageTitle.textContent = "Fallo del Tribunal";
+        showToast("error", `Fallo: ${event.error}`);
+        eventSource.close();
         return;
     }
-
+    
     const stage = event.stage;
-
+    
     if (event.status === "start") {
         updateJudgeUI(stage, "active");
-        
-        // Auto-switch tab to current deliberating judge
         selectScoaTab(stage);
-
-        let titleText = "";
-        switch (stage) {
-            case "security":
-                titleText = "Revisando Seguridad...";
-                break;
-            case "performance":
-                titleText = "Revisando Rendimiento...";
-                break;
-            case "uiux":
-                titleText = "Revisando Interfaz (UI/UX)...";
-                break;
-            case "moderator":
-                titleText = "Sintetizando Resultados del Tribunal...";
-                break;
-        }
-
+        
+        let titleText = "Justices deliberating...";
+        if (stage === "security") titleText = "Analizando Seguridad...";
+        if (stage === "performance") titleText = "Evaluando Rendimiento...";
+        if (stage === "uiux") titleText = "Evaluando UI/UX y Usabilidad...";
+        if (stage === "moderator") titleText = "Sintetizando Fallo del Tribunal...";
         scoaLiveStageTitle.textContent = titleText;
     } else if (event.chunk) {
-        if (!window.scoaStageTexts) {
-            window.scoaStageTexts = { security: "", performance: "", uiux: "", moderator: "" };
-        }
         window.scoaStageTexts[stage] = (window.scoaStageTexts[stage] || "") + event.chunk;
-        
-        const outputDiv = document.getElementById(`scoa-output-${stage}`);
-        if (outputDiv) {
-            outputDiv.innerHTML = renderMarkdown(window.scoaStageTexts[stage]);
+        const div = document.getElementById(`scoa-output-${stage}`);
+        if (div) {
+            div.innerHTML = renderMarkdown(window.scoaStageTexts[stage]);
         }
-        
         if (scoaDebateRecord) {
             scoaDebateRecord.scrollTop = scoaDebateRecord.scrollHeight;
         }
     } else if (event.status === "done") {
         updateJudgeUI(stage, "done");
     } else if (stage === "file_write" && event.status === "saved") {
-        if (eventSource) eventSource.close();
-        scoaLiveStageTitle.textContent = "Debate Finalizado y Guardado";
-        showToast("success", `Debate guardado con éxito como nota: ${event.filename}`);
+        eventSource.close();
+        scoaLiveStageTitle.textContent = "Debate Guardado";
+        showToast("success", `Fallo de SCoA registrado: ${event.filename}`);
         finalizeDebate(event.filename, category);
     }
 }
@@ -1717,104 +1861,81 @@ function updateJudgeUI(stage, state) {
     
     if (state === "active") {
         if (info.stageEl) info.stageEl.classList.remove("hidden");
-        if (info.card) {
-            info.card.className = `judge-card active ${info.suffix}-active`;
-        }
-        if (info.status) {
-            info.status.textContent = "Deliberating...";
-        }
+        if (info.card) info.card.className = `judge-card active ${info.suffix}-active`;
+        if (info.status) info.status.textContent = "Deliberando...";
     } else if (state === "done") {
-        if (info.card) {
-            info.card.className = `judge-card done ${info.suffix}-done`;
-        }
-        if (info.status) {
-            info.status.textContent = "Done";
-        }
+        if (info.card) info.card.className = `judge-card done ${info.suffix}-done`;
+        if (info.status) info.status.textContent = "Listo";
     }
 }
 
 async function finalizeDebate(filename, category) {
-    // 1. Reload the database index (rebuild index and load notes/graph)
     await loadData();
-
-    // 2. Find the note in our notes registry
-    const match = Object.values(notes).find(n =>
-        n.category === category &&
-        n.filename.toLowerCase() === filename.toLowerCase()
-    );
-
+    const match = Object.values(notes).find(n => n.category === category && n.filename.toLowerCase() === filename.toLowerCase());
+    
     if (match) {
-        // Open the note details view in the sidebar/inspector
         openNote(match);
-        showToast("success", `Debate guardado y abierto: ${match.title}`);
-
-        // Close modal automatically after a short delay so the user can see the final state
         setTimeout(() => {
             scoaModal.classList.remove("active");
-        }, 2000);
-    } else {
-        console.warn(`No se pudo encontrar la nota del debate recién guardada: ${filename} en la categoría: ${category}`);
-        showToast("warning", "El debate finalizó, pero no se pudo abrir la nota automáticamente.");
+        }, 1500);
     }
 }
 
-// --- SCOA DEBATE TAB SWITCHER ---
 function selectScoaTab(stage) {
     const stages = ["security", "performance", "uiux", "moderator"];
     stages.forEach(s => {
         const el = document.getElementById(`scoa-stage-${s}`);
         const card = document.getElementById(`judge-${s}`);
-        
         if (el) {
-            if (s === stage) {
-                el.classList.remove("hidden");
-            } else {
-                el.classList.add("hidden");
-            }
+            if (s === stage) el.classList.remove("hidden");
+            else el.classList.add("hidden");
         }
-        
         if (card) {
-            if (s === stage) {
-                card.classList.add("selected-tab");
-            } else {
-                card.classList.remove("selected-tab");
-            }
+            if (s === stage) card.classList.add("selected-tab");
+            else card.classList.remove("selected-tab");
         }
     });
 }
 
-// --- THEME MANAGEMENT SYSTEM ---
-function initTheme() {
-    const savedTheme = localStorage.getItem("app-theme") || "cyber-noir";
-    if (savedTheme === "minimal-dark") {
-        document.body.classList.add("theme-minimal-dark");
-        if (graphInstance) {
-            graphInstance.backgroundColor("#0c0c0c");
-        }
-    } else {
-        document.body.classList.remove("theme-minimal-dark");
-        if (graphInstance) {
-            graphInstance.backgroundColor("#09070f");
-        }
-    }
+// Global slide-in toasts
+function showToast(type, message) {
+    const toast = document.createElement("div");
+    toast.className = `toast-notification glass ${type}`;
+    
+    let color = "var(--color-ideas)";
+    let title = "Notificación";
+    if (type === "success") { color = "var(--color-success)"; title = "Éxito"; }
+    if (type === "warning") { color = "var(--color-warning)"; title = "Alerta"; }
+    if (type === "error") { color = "var(--color-danger)"; title = "Fallo"; }
+    
+    toast.innerHTML = `
+        <div style="border-left: 3px solid ${color}; padding-left: 10px;">
+            <strong style="color:${color}; font-size:12px; text-transform:uppercase;">${title}</strong>
+            <p style="font-size:12px; margin-top:2px; color:var(--text-primary);">${message}</p>
+        </div>
+    `;
+    
+    toast.style.position = "fixed";
+    toast.style.bottom = "20px";
+    toast.style.right = "20px";
+    toast.style.zIndex = "99999";
+    toast.style.minWidth = "260px";
+    toast.style.maxWidth = "360px";
+    toast.style.padding = "10px 14px";
+    toast.style.transition = "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)";
+    toast.style.transform = "translateY(50px)";
+    toast.style.opacity = "0";
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.transform = "translateY(0)";
+        toast.style.opacity = "1";
+    }, 20);
+    
+    setTimeout(() => {
+        toast.style.transform = "translateY(20px)";
+        toast.style.opacity = "0";
+        setTimeout(() => toast.remove(), 350);
+    }, 4500);
 }
-
-function toggleTheme() {
-    const isMinimal = document.body.classList.contains("theme-minimal-dark");
-    if (isMinimal) {
-        document.body.classList.remove("theme-minimal-dark");
-        localStorage.setItem("app-theme", "cyber-noir");
-        if (graphInstance) {
-            graphInstance.backgroundColor("#09070f");
-            graphInstance.refresh();
-        }
-    } else {
-        document.body.classList.add("theme-minimal-dark");
-        localStorage.setItem("app-theme", "minimal-dark");
-        if (graphInstance) {
-            graphInstance.backgroundColor("#0c0c0c");
-            graphInstance.refresh();
-        }
-    }
-}
-
