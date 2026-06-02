@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 Visual Second Brain</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Offline Cached Vendor Libraries -->
+    <script src="vendor/force-graph.min.js"></script>
+    <script src="vendor/marked.min.js"></script>
+    <script src="vendor/purify.min.js"></script>
+</head>
+<body>
+
+    <!-- Container Global -->
+    <div class="app-container">
+        
+        <!-- Header Principal -->
+        <header class="app-header">
+            <div class="header-logo">
+                <span class="logo-icon">🧠</span>
+                <h1>Second Brain</h1>
+            </div>
+            
+            <div class="header-search">
+                <div class="search-box">
+                    <span class="search-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </span>
+                    <input type="text" id="global-search" placeholder="Buscar ideas, notas, errores, tags..." autocomplete="off">
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <!-- Sync Status glowing pill -->
+                <button id="sync-btn" class="btn-sync">
+                    <span class="sync-dot"></span>
+                    <span class="sync-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                    </span>
+                    <span id="sync-text">Conectando...</span>
+                </button>
+                <button id="theme-toggle-btn" class="btn-icon" title="Cambiar Tema (Cyber-Noir / Minimalista)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+                <button id="settings-btn" class="btn-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                </button>
+            </div>
+        </header>
+        
+        <!-- Main Layout -->
+        <main class="app-main">
+            
+            <!-- Panel Izquierdo: Directorio, Inbox y Filtros -->
+            <section class="panel-left">
+                <!-- Stats quick-view -->
+                <div class="stats-box glass hud-telemetry">
+                    <div class="hud-corner-tl"></div>
+                    <div class="hud-corner-tr"></div>
+                    <div class="hud-corner-bl"></div>
+                    <div class="hud-corner-br"></div>
+                    <div class="stat-item">
+                        <span class="stat-num" id="stat-total-notes">0</span>
+                        <span class="stat-label">Notas</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-num" id="stat-total-links">0</span>
+                        <span class="stat-label">Conexiones</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-num" id="stat-maturity">0%</span>
+                        <span class="stat-label">Maturity</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-num" id="stat-velocity">0.0/d</span>
+                        <span class="stat-label">Velocity</span>
+                    </div>
+                </div>
+
+                <!-- Inbox Curation Section -->
+                <div class="inbox-section glass hide-inbox" id="inbox-card">
+                    <div class="section-title">
+                        <span class="inbox-pulse-dot"></span>
+                        <h3>Buzón MCP Inbox</h3>
+                        <span class="inbox-count" id="inbox-count">0</span>
+                    </div>
+                    <ul class="inbox-list" id="inbox-list">
+                        <!-- Dynamically filled with unread sources -->
+                    </ul>
+                </div>
+                
+                <!-- Category Filters (Visual graph controls) -->
+                <div class="filters-section glass">
+                    <h3>Filtros del Grafo</h3>
+                    <div class="filter-group">
+                        <label class="chk-container">
+                            <input type="checkbox" id="filter-ideas" checked data-category="ideas">
+                            <span class="checkmark color-ideas"></span>
+                            Ideas (Cian)
+                        </label>
+                        <label class="chk-container">
+                            <input type="checkbox" id="filter-skills" checked data-category="skills">
+                            <span class="checkmark color-skills"></span>
+                            Skills (Teal)
+                        </label>
+                        <label class="chk-container">
+                            <input type="checkbox" id="filter-errors" checked data-category="errors">
+                            <span class="checkmark color-errors"></span>
+                            Errores (Coral)
+                        </label>
+                        <label class="chk-container">
+                            <input type="checkbox" id="filter-journal" checked data-category="journal">
+                            <span class="checkmark color-journal"></span>
+                            Diario (Azul)
+                        </label>
+                        <label class="chk-container">
+                            <input type="checkbox" id="filter-sources" checked data-category="sources">
+                            <span class="checkmark color-sources"></span>
+                            Fuentes (Oro)
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- File Tree Folder structure -->
+                <div class="vault-tree-section glass">
+                    <div class="vault-tree-header">
+                        <h3>Vault Notas</h3>
+                        <button id="new-note-btn" class="btn-small" title="Nueva nota">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            Nota
+                        </button>
+                        <button id="scoa-trigger-btn" class="btn-small btn-debate" title="Debatir Propuesta con IA">
+                            🏛️ SCoA
+                        </button>
+                        <button id="daily-note-btn" class="btn-small btn-daily" title="Nota del Día">
+                            📅 Hoy
+                        </button>
+                    </div>
+                    
+                    <!-- Search info count -->
+                    <div id="search-info" class="search-info hidden">
+                        Coincidencias encontradas: <span id="search-count">0</span>
+                        <button id="clear-search-btn">✖</button>
+                    </div>
+
+                    <div class="vault-categories" id="vault-list-container">
+                        <!-- Dynamic Folder Tree lists -->
+                        <div class="folder-group" data-folder="ideas">
+                            <div class="folder-header">
+                                <span class="folder-arrow">▼</span>
+                                <span class="folder-icon">💡</span>
+                                <h4>Ideas</h4>
+                            </div>
+                            <ul class="folder-contents" id="list-ideas"></ul>
+                        </div>
+                        
+                        <div class="folder-group" data-folder="skills">
+                            <div class="folder-header">
+                                <span class="folder-arrow">▼</span>
+                                <span class="folder-icon">🛠️</span>
+                                <h4>Skills</h4>
+                            </div>
+                            <ul class="folder-contents" id="list-skills"></ul>
+                        </div>
+                        
+                        <div class="folder-group" data-folder="errors">
+                            <div class="folder-header">
+                                <span class="folder-arrow">▼</span>
+                                <span class="folder-icon">⚠️</span>
+                                <h4>Errores</h4>
+                            </div>
+                            <ul class="folder-contents" id="list-errors"></ul>
+                        </div>
+                        
+                        <div class="folder-group" data-folder="journal">
+                            <div class="folder-header">
+                                <span class="folder-arrow">▼</span>
+                                <span class="folder-icon">📅</span>
+                                <h4>Diario</h4>
+                            </div>
+                            <ul class="folder-contents" id="list-journal"></ul>
+                        </div>
+                        
+                        <div class="folder-group" data-folder="sources">
+                            <div class="folder-header">
+                                <span class="folder-arrow">▼</span>
+                                <span class="folder-icon">📚</span>
+                                <h4>Fuentes</h4>
+                            </div>
+                            <ul class="folder-contents" id="list-sources"></ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Panel Central: Grafo de Nodos -->
+            <section class="panel-center">
+                <div class="graph-wrapper glass">
+                    <div id="graph-canvas"></div>
+                    <div class="graph-hint">
+                        <span>Arrastrar: Rotar • Rueda: Zoom • Clic: Seleccionar note</span>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Panel Derecho: Inspector de Notas y Editor -->
+            <section class="panel-right">
+                
+                <!-- 1. VISTA DE LECTURA (Markdown Renderizado) -->
+                <article class="note-viewer glass active" id="note-viewer">
+                    <div class="note-viewer-header">
+                        <div class="note-category-badge" id="view-note-badge">IDEAS</div>
+                        <h2 id="view-note-title">Selecciona una nota</h2>
+                        <div class="note-meta-dates" id="view-note-dates">Creada: --/--/---- • Actualizada: --/--/----</div>
+                    </div>
+                    
+                    <!-- Ingest Curation HUD (visible only for source files) -->
+                    <div class="curation-hud hidden" id="curation-hud">
+                        <div class="hud-info">
+                            <span>📥 Ingestado desde <strong id="hud-source-type">NotebookLM</strong></span>
+                            <a href="#" id="hud-source-url" target="_blank" class="hud-link">Abrir Enlace Original ↗</a>
+                        </div>
+                        <div class="hud-actions">
+                            <button id="hud-btn-read" class="btn-hud">Marcar como Leído</button>
+                            <button id="hud-btn-promote-idea" class="btn-hud btn-hud-promote color-ideas-bg">Promover a Idea</button>
+                            <button id="hud-btn-promote-skill" class="btn-hud btn-hud-promote color-skills-bg">Promover a Skill</button>
+                        </div>
+                    </div>
+
+                    <div class="note-viewer-body markdown-body" id="view-note-body">
+                        <div class="placeholder-text">
+                            <h3>🧠 Tu cerebro en red</h3>
+                            <p>Haz clic en cualquier nodo del grafo o selecciona una nota en la barra lateral para ver su contenido, conexiones de wiki-links y referencias entrantes.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="note-tags-container" id="view-note-tags">
+                        <!-- Note Tags list -->
+                    </div>
+                    
+                    <!-- Backlinks display -->
+                    <div class="note-backlinks-section" id="view-note-backlinks-section">
+                        <h4>Enlaces a esta nota (Backlinks)</h4>
+                        <ul class="backlinks-list" id="view-note-backlinks">
+                            <li class="empty-backlinks">Ninguna nota enlaza aquí todavía.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="note-viewer-footer">
+                        <button id="btn-edit-note" class="btn-primary" disabled>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"></path></svg>
+                            Editar Nota
+                        </button>
+                        <button id="btn-delete-note" class="btn-danger" disabled>Eliminar</button>
+                    </div>
+                </article>
+                
+                <!-- 2. VISTA DE EDICION (Markdown Plano) -->
+                <article class="note-editor glass" id="note-editor">
+                    <div class="note-editor-header">
+                        <div class="input-row">
+                            <input type="text" id="edit-note-title" placeholder="Título de la nota..." autocomplete="off">
+                            <select id="edit-note-category">
+                                <option value="ideas">💡 Idea</option>
+                                <option value="skills">🛠️ Skill</option>
+                                <option value="errors">⚠️ Error & Solución</option>
+                                <option value="journal">📅 Diario</option>
+                                <option value="sources">📚 Fuente</option>
+                            </select>
+                        </div>
+                        <div class="input-row-flex">
+                            <input type="text" id="edit-note-tags" placeholder="tags (separados por coma, ej: python, api)..." autocomplete="off">
+                            <select id="edit-note-status" class="hidden">
+                                <option value="">Estado (Sin especificar)</option>
+                                <option value="open">Abierto (Error no resuelto)</option>
+                                <option value="resolved">Resuelto (Error corregido)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="note-editor-workspace">
+                        <!-- Raw textarea text -->
+                        <div class="textarea-wrapper">
+                            <textarea id="edit-note-content" placeholder="Escribe en Markdown aquí... Usa [[Nombre Nota]] para crear conexiones en el grafo."></textarea>
+                            
+                            <!-- Autocomplete Suggestions Drawer -->
+                            <div class="autocomplete-drawer hidden" id="autocomplete-drawer">
+                                <!-- Dynamically filled with matching note lists -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="note-editor-footer">
+                        <button id="btn-save-note" class="btn-primary">Guardar Cambios</button>
+                        <button id="btn-cancel-edit" class="btn-secondary">Cancelar</button>
+                    </div>
+                </article>
+
+                <!-- 3. HUD DASHBOARD STATS (Clusters & Top Tags) -->
+                <div class="hud-dashboard-right glass hud-telemetry" id="hud-dashboard-right">
+                    <div class="hud-corner-tl"></div>
+                    <div class="hud-corner-tr"></div>
+                    <div class="hud-corner-bl"></div>
+                    <div class="hud-corner-br"></div>
+                    
+                    <div class="hud-section-header">
+                        <span class="hud-glow-dot"></span>
+                        <h3>DIAGNÓSTICOS DEL GRAFO</h3>
+                    </div>
+                    
+                    <div class="hud-diagnostics-grid">
+                        <div class="hud-diag-item">
+                            <span class="hud-diag-num" id="stat-clusters">0</span>
+                            <span class="hud-diag-label">Clusters</span>
+                        </div>
+                        <div class="hud-tags-container">
+                            <span class="hud-diag-label">Top Tags</span>
+                            <ul class="top-tags-list" id="top-tags-list">
+                                <!-- Dynamic Top Tags -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal de Configuración / Ajustes -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <h2>Configuración del Sistema</h2>
+                <button class="modal-close" id="settings-close">✖</button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-group">
+                    <h3>Token de Integración Ingesta (MCP)</h3>
+                    <p class="settings-desc">Usa este token en las cabeceras HTTP (`Authorization: Bearer <TOKEN>`) de tus llamadas POST a `/api/ingest` para registrar notas automáticamente desde NotebookLM u otras fuentes.</p>
+                    <div class="token-box">
+                        <input type="text" id="setting-ingest-token" readonly value="Cargando token...">
+                        <button id="copy-token-btn" class="btn-small">Copiar</button>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <h3>Estado del Respaldo Git</h3>
+                    <div id="git-settings-status" class="git-status-card">
+                        <p>Cargando información del repositorio Git...</p>
+                    </div>
+                    <p class="settings-desc">Para vincular este cerebro a un repositorio de GitHub, asegúrate de haber ejecutado <code>git remote add origin &lt;URL_DE_GITHUB&gt;</code> en el directorio del proyecto.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="settings-btn-reindex" class="btn-primary">Forzar Re-indexar Cerebro</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de SCoA Debate Room -->
+    <div class="modal-overlay" id="scoa-modal">
+        <div class="modal-content glass scoa-modal-width">
+            <div class="modal-header">
+                <h2>🏛️ SCoA: Sala del Tribunal de Agentes</h2>
+                <button class="modal-close" id="scoa-close">✖</button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-group" id="scoa-input-group">
+                    <h3>Propuesta Técnica a Debatir</h3>
+                    <p class="settings-desc">Escribe la idea, diseño o decisión técnica que quieres que el Tribunal analice (ej: "Usar IndexedDB local frente a Cookies para guardar tokens").</p>
+                    <textarea id="scoa-proposal" class="scoa-textarea" placeholder="Pega aquí el plan de diseño, código, base de datos o propuesta..."></textarea>
+                    
+                    <div class="control-row-scoa">
+                        <select id="scoa-category" class="scoa-select">
+                            <option value="ideas">💡 Guardar en Ideas</option>
+                            <option value="skills">🛠️ Guardar en Skills</option>
+                            <option value="journal">📅 Guardar en Diario</option>
+                        </select>
+                        <button id="scoa-start-btn" class="btn-primary scoa-launch-btn">Iniciar Argumentos del Tribunal</button>
+                    </div>
+                </div>
+
+                <!-- Live progression status -->
+                <div id="scoa-progress-container" class="scoa-progress hidden">
+                    <div class="scoa-live-header-status">
+                        <span class="live-indicator"></span>
+                        <strong id="scoa-live-stage-title">Justices deliberating...</strong>
+                    </div>
+
+                    <!-- Redesigned SCoA Judges Cards -->
+                    <div class="scoa-judges-grid">
+                        <div id="judge-security" class="judge-card">
+                            <div class="judge-avatar">🛡️</div>
+                            <div class="judge-info">
+                                <span class="judge-name">Security Reviewer</span>
+                                <span class="judge-status" id="status-security">Waiting</span>
+                            </div>
+                        </div>
+                        <div id="judge-performance" class="judge-card">
+                            <div class="judge-avatar">⚡</div>
+                            <div class="judge-info">
+                                <span class="judge-name">Performance Expert</span>
+                                <span class="judge-status" id="status-performance">Waiting</span>
+                            </div>
+                        </div>
+                        <div id="judge-uiux" class="judge-card">
+                            <div class="judge-avatar">🎨</div>
+                            <div class="judge-info">
+                                <span class="judge-name">UI/UX Designer</span>
+                                <span class="judge-status" id="status-uiux">Waiting</span>
+                            </div>
+                        </div>
+                        <div id="judge-moderator" class="judge-card">
+                            <div class="judge-avatar">⚖️</div>
+                            <div class="judge-info">
+                                <span class="judge-name">Chief Justice</span>
+                                <span class="judge-status" id="status-moderator">Waiting</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Redesigned Debate Arguments Record -->
+                    <div class="scoa-debate-record" id="scoa-debate-record">
+                        <div id="scoa-stage-security" class="debate-stage-section hidden">
+                            <div class="stage-section-header security-header">🛡️ Security Reviewer Critique</div>
+                            <div id="scoa-output-security" class="markdown-body"></div>
+                        </div>
+                        <div id="scoa-stage-performance" class="debate-stage-section hidden">
+                            <div class="stage-section-header performance-header">⚡ Performance Expert Critique</div>
+                            <div id="scoa-output-performance" class="markdown-body"></div>
+                        </div>
+                        <div id="scoa-stage-uiux" class="debate-stage-section hidden">
+                            <div class="stage-section-header uiux-header">🎨 UI/UX Designer Critique</div>
+                            <div id="scoa-output-uiux" class="markdown-body"></div>
+                        </div>
+                        <div id="scoa-stage-moderator" class="debate-stage-section hidden">
+                            <div class="stage-section-header moderator-header">⚖️ Chief Justice Synthesis</div>
+                            <div id="scoa-output-moderator" class="markdown-body"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Script principal de la aplicación -->
+    <script src="app.js"></script>
+</body>
+</html>
