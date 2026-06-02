@@ -1011,10 +1011,23 @@ async def rename_note(payload: RenameRequest):
             raise HTTPException(status_code=500, detail=f"Cascade rename failed: {e}")
 
 @app.get("/api/timeline")
-async def get_timeline(page: int = Query(1, ge=1), limit: int = Query(20, ge=1)):
+async def get_timeline(
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1),
+    query: Optional[str] = Query(None),
+    categories: Optional[str] = Query(None)  # comma-separated list e.g. "ideas,skills"
+):
+    # Determine which categories to include
+    active_cats = ["ideas", "errors", "skills", "journal", "sources"]
+    if categories:
+        requested = [c.strip().lower() for c in categories.split(",") if c.strip()]
+        if requested:
+            active_cats = [c for c in active_cats if c in requested]
+
+    search_terms = [t.strip().lower() for t in query.split() if t.strip()] if query else []
+
     events = []
-    categories = ["ideas", "errors", "skills", "journal", "sources"]
-    for cat in categories:
+    for cat in active_cats:
         cat_dir = VAULT_DIR / cat
         if not cat_dir.exists():
             continue
@@ -1028,31 +1041,46 @@ async def get_timeline(page: int = Query(1, ge=1), limit: int = Query(20, ge=1))
                 status = post.get("status")
                 if status != "draft" and status != "unread":
                     created_date = post.get("created", "")
+                    title = post.get("title") or file_path.stem
+                    tags = post.get("tags") or []
                     summary = post.get("summary") or post.get("description")
                     if not summary:
                         clean_text = strip_code_blocks(post.content)
                         clean_text = re.sub(r'[#*`_\-\[\]]', '', clean_text)
                         clean_text = re.sub(r'\s+', ' ', clean_text).strip()
                         summary = clean_text[:120].strip() + "..." if len(clean_text) > 120 else clean_text
-                    
+
+                    # Full-text search filter
+                    if search_terms:
+                        searchable = " ".join([
+                            title.lower(),
+                            str(summary).lower(),
+                            " ".join(str(t).lower() for t in tags),
+                            post.content.lower()
+                        ])
+                        if not all(term in searchable for term in search_terms):
+                            continue
+
                     events.append({
-                        "title": post.get("title") or file_path.stem,
+                        "title": title,
                         "category": cat,
                         "date": str(created_date),
                         "summary": str(summary),
                         "path": file_path.relative_to(VAULT_DIR).as_posix(),
-                        "content": post.content
+                        "filename": file_path.name,
+                        "content": post.content,
+                        "tags": tags
                     })
             except Exception:
                 continue
-                
+
     events.sort(key=lambda x: x["date"], reverse=True)
-    
+
     start_idx = (page - 1) * limit
     end_idx = start_idx + limit
     paginated_events = events[start_idx:end_idx]
-    total_pages = (len(events) + limit - 1) // limit
-    
+    total_pages = max(1, (len(events) + limit - 1) // limit)
+
     return {
         "events": paginated_events,
         "total_pages": total_pages,

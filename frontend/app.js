@@ -152,6 +152,9 @@ function setupEventListeners() {
     // Search
     searchInput.addEventListener("input", (e) => {
         currentSearchQuery = e.target.value.toLowerCase().trim();
+        // Show/hide clear button
+        const clearBtn = document.getElementById("clear-search-btn");
+        if (clearBtn) clearBtn.style.display = currentSearchQuery ? "inline" : "none";
         filterTimeline();
     });
     
@@ -160,7 +163,11 @@ function setupEventListeners() {
         clearSearchBtn.addEventListener("click", () => {
             searchInput.value = "";
             currentSearchQuery = "";
+            clearSearchBtn.style.display = "none";
+            const countEl = document.getElementById("search-result-count");
+            if (countEl) countEl.style.display = "none";
             filterTimeline();
+            searchInput.focus();
         });
     }
     
@@ -670,11 +677,26 @@ function triageRollbackUI(actionObj) {
 async function loadTimeline(page = 1, append = false) {
     try {
         const query = currentSearchQuery ? `&query=${encodeURIComponent(currentSearchQuery)}` : "";
-        const res = await fetch(`/api/timeline?page=${page}&limit=${timelineLimit}${query}`);
+        // Send active category filters to backend
+        const catParam = activeCategoryFilters.length > 0 && activeCategoryFilters.length < 5
+            ? `&categories=${encodeURIComponent(activeCategoryFilters.join(","))}`
+            : "";
+        const res = await fetch(`/api/timeline?page=${page}&limit=${timelineLimit}${query}${catParam}`);
         const data = await res.json();
         
         timelinePage = data.current_page;
         timelineTotalPages = data.total_pages;
+        
+        // Show result count if searching
+        const searchCountEl = document.getElementById("search-result-count");
+        if (searchCountEl) {
+            if (currentSearchQuery) {
+                searchCountEl.textContent = `${data.total_count} resultado${data.total_count !== 1 ? 's' : ''}`;
+                searchCountEl.style.display = "inline";
+            } else {
+                searchCountEl.style.display = "none";
+            }
+        }
         
         if (!append) {
             timelineStream.innerHTML = "";
@@ -693,6 +715,20 @@ async function loadTimeline(page = 1, append = false) {
                 card.className = `timeline-card ${event.category}`;
                 card.id = `timeline-card-${safePath}`;
                 
+                // Highlight search terms in title and summary
+                const highlightText = (text) => {
+                    if (!currentSearchQuery || !text) return text;
+                    const terms = currentSearchQuery.trim().split(/\s+/);
+                    let result = text;
+                    terms.forEach(term => {
+                        if (!term) return;
+                        const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        result = result.replace(new RegExp(`(${escaped})`, 'gi'),
+                            '<mark style="background:rgba(187,154,247,0.3);color:inherit;border-radius:2px;padding:0 2px;">$1</mark>');
+                    });
+                    return result;
+                };
+                
                 card.innerHTML = `
                     <div class="timeline-card-marker"></div>
                     <div class="timeline-card-header">
@@ -700,9 +736,9 @@ async function loadTimeline(page = 1, append = false) {
                             <span class="category-pill color-${event.category}-text">${event.category}</span>
                             <span class="card-time">${event.date || 'Sin Fecha'}</span>
                         </div>
-                        <h3 class="card-title">${event.title}</h3>
+                        <h3 class="card-title">${highlightText(event.title)}</h3>
                     </div>
-                    <div class="timeline-card-summary" id="timeline-summary-${safePath}">${event.summary}</div>
+                    <div class="timeline-card-summary" id="timeline-summary-${safePath}">${highlightText(event.summary)}</div>
                     
                     <div class="timeline-card-collapsible">
                         <div class="timeline-card-body-inner markdown-body" id="timeline-body-${safePath}">
@@ -737,7 +773,16 @@ async function loadTimeline(page = 1, append = false) {
             }
         } else {
             if (!append) {
-                timelineStream.innerHTML = `<div class="inbox-empty-placeholder">No se encontraron eventos activos en la cronología.</div>`;
+                if (currentSearchQuery) {
+                    timelineStream.innerHTML = `
+                        <div class="inbox-empty-placeholder" style="padding:32px 16px; text-align:center;">
+                            <div style="font-size:28px; margin-bottom:12px;">🔍</div>
+                            <div style="font-size:13px; color:var(--text-muted);">Sin resultados para <strong style="color:var(--text-primary);">&quot;${currentSearchQuery}&quot;</strong></div>
+                            <div style="font-size:11px; color:var(--text-placeholder); margin-top:6px;">Prueba con otra búsqueda o amplía los filtros de categoría</div>
+                        </div>`;
+                } else {
+                    timelineStream.innerHTML = `<div class="inbox-empty-placeholder">No se encontraron eventos activos en la cronología.</div>`;
+                }
             }
         }
     } catch (e) {
