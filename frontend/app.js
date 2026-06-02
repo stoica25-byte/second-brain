@@ -591,45 +591,48 @@ function renderGraph() {
             ctx.lineWidth = 1 / globalScale;
             ctx.stroke();
             
-            // Draw Label text below node in Inter or JetBrains Mono
-            const fontSize = 10 / globalScale;
-            ctx.font = `${fontSize}px ${isMinimalTheme ? "'JetBrains Mono', monospace" : "'Inter', sans-serif"}`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            
-            // Draw background label capsule for perfect legibility
-            const textWidth = ctx.measureText(node.title).width;
-            const paddingX = 4;
-            const paddingY = 2;
-            const rectWidth = textWidth + paddingX * 2;
-            const rectHeight = fontSize + paddingY * 2;
-            const rectX = node.x - rectWidth / 2;
-            const rectY = node.y + radius + 4;
-            
-            ctx.beginPath();
-            ctx.fillStyle = isMinimalTheme ? "#121212" : "#09070f";
-            ctx.strokeStyle = isActive ? (CATEGORY_COLORS[node.category] || "#bb9af7") : (isMinimalTheme ? "#262626" : "rgba(255, 255, 255, 0.15)");
-            ctx.lineWidth = 1 / globalScale;
-            
-            // Draw rounded rectangle for glass theme, flat for minimal theme
-            const cornerRad = isMinimalTheme ? 0 : 3;
-            if (ctx.roundRect) {
-                ctx.roundRect(rectX, rectY, rectWidth, rectHeight, cornerRad);
-            } else {
-                ctx.rect(rectX, rectY, rectWidth, rectHeight);
+            // Draw Label text below node in Inter or JetBrains Mono (only if zoom is not too far out)
+            if (globalScale > 0.4) {
+                const fontSize = 10; // Fixed canvas font size for crisp rendering
+                ctx.font = `${fontSize}px ${isMinimalTheme ? "'JetBrains Mono', monospace" : "'Inter', sans-serif"}`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                // Draw background label capsule for perfect legibility
+                const textWidth = ctx.measureText(node.title).width;
+                const paddingX = 5;
+                const paddingY = 3;
+                const rectWidth = textWidth + paddingX * 2;
+                const rectHeight = fontSize + paddingY * 2;
+                const rectX = node.x - rectWidth / 2;
+                const rectY = node.y + radius + 4;
+                
+                ctx.beginPath();
+                ctx.fillStyle = isMinimalTheme ? "#121212" : "#09070f";
+                ctx.strokeStyle = isActive ? (CATEGORY_COLORS[node.category] || "#bb9af7") : (isMinimalTheme ? "#262626" : "rgba(255, 255, 255, 0.15)");
+                ctx.lineWidth = 1.2 / globalScale;
+                
+                // Draw rounded rectangle for glass theme, flat for minimal theme
+                const cornerRad = isMinimalTheme ? 0 : 4;
+                if (ctx.roundRect) {
+                    ctx.roundRect(rectX, rectY, rectWidth, rectHeight, cornerRad);
+                } else {
+                    ctx.rect(rectX, rectY, rectWidth, rectHeight);
+                }
+                ctx.fill();
+                ctx.stroke();
+                
+                // Highlight text if active or hovered
+                if (isActive || (hoveredNode && node.id === hoveredNode.id)) {
+                    ctx.fillStyle = CATEGORY_COLORS[node.category] || '#ffffff';
+                } else if (hoveredNode && !neighbors.has(node.id)) {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+                } else {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                }
+                
+                ctx.fillText(node.title, node.x, rectY + rectHeight / 2);
             }
-            ctx.fill();
-            ctx.stroke();
-            
-            // Highlight text if active or hovered
-            if (isActive || (hoveredNode && node.id === hoveredNode.id)) {
-                ctx.fillStyle = CATEGORY_COLORS[node.category] || '#ffffff';
-            } else if (hoveredNode && !neighbors.has(node.id)) {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-            } else {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-            }
-            ctx.fillText(node.title, node.x, rectY + rectHeight / 2);
         })
         .nodePointerAreaPaint((node, color, ctx) => {
             // Define clickable pointer hit area matching the radius + label height
@@ -677,9 +680,6 @@ function renderGraph() {
                 event.stopPropagation();
             }
             
-            const currentTime = new Date().getTime();
-            const clickDelay = currentTime - lastClickTime;
-            
             let noteId = node.id;
             if (noteId && typeof noteId === 'object' && noteId.title) {
                 noteId = noteId.title;
@@ -687,42 +687,37 @@ function renderGraph() {
                 noteId = String(noteId);
             }
             
-            if (lastClickedNodeId === node.id && clickDelay < 300) {
-                // DOUBLE CLICK: Open note
-                let note = notes[noteId];
-                if (!note && noteId) {
-                    note = Object.values(notes).find(n => n.title.toLowerCase() === noteId.toLowerCase());
-                }
-                
-                if (note) {
-                    openNote(note);
-                } else {
-                    console.warn("Mismatched node click registry:", noteId);
-                }
-            } else {
-                // SINGLE CLICK: Select node, center camera, highlight in sidebar
-                if (graphInstance) {
-                    graphInstance.centerAt(node.x, node.y, 800);
-                    graphInstance.zoom(2.2, 800);
-                }
-                
-                selectedGraphNode = node;
-                graphInstance.refresh();
-                
-                // Highlight in sidebar list (scroll into view, add active class)
-                const noteTitle = node.title;
-                document.querySelectorAll(".vault-categories li").forEach(li => {
-                    if (li.getAttribute("data-title") === noteTitle) {
-                        li.classList.add("active");
-                        li.scrollIntoView({ behavior: "smooth", block: "nearest" });
-                    } else {
-                        li.classList.remove("active");
-                    }
-                });
+            // SINGLE CLICK: Center camera, select node, open note, and highlight in sidebar
+            if (graphInstance) {
+                graphInstance.centerAt(node.x, node.y, 800);
+                graphInstance.zoom(2.2, 800);
             }
             
-            lastClickTime = currentTime;
-            lastClickedNodeId = node.id;
+            selectedGraphNode = node;
+            graphInstance.refresh();
+            
+            // Open note content
+            let note = notes[noteId];
+            if (!note && noteId) {
+                note = Object.values(notes).find(n => n.title.toLowerCase() === noteId.toLowerCase());
+            }
+            
+            if (note) {
+                openNote(note);
+            } else {
+                console.warn("Mismatched node click registry:", noteId);
+            }
+            
+            // Highlight in sidebar list (scroll into view, add active class)
+            const noteTitle = node.title;
+            document.querySelectorAll(".vault-categories li").forEach(li => {
+                if (li.getAttribute("data-title") === noteTitle) {
+                    li.classList.add("active");
+                    li.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                } else {
+                    li.classList.remove("active");
+                }
+            });
         })
         .onNodeHover(node => {
             container.style.cursor = node ? 'pointer' : 'default';
@@ -751,13 +746,20 @@ function renderGraph() {
     }, 1000);
 }
 
-// Resize graph on window resize
-window.addEventListener("resize", () => {
-    const container = document.getElementById("graph-canvas");
-    if (graphInstance && container) {
-        graphInstance.width(container.clientWidth).height(container.clientHeight);
-    }
-});
+// Resize graph on layout container size changes (ResizeObserver)
+const container = document.getElementById("graph-canvas");
+if (container) {
+    const resizeObserver = new ResizeObserver(entries => {
+        for (let entry of entries) {
+            const { width, height } = entry.contentRect;
+            if (graphInstance && width > 0 && height > 0) {
+                // Instantly update force graph dimensions to match container exactly, preventing stretching
+                graphInstance.width(width).height(height);
+            }
+        }
+    });
+    resizeObserver.observe(container);
+}
 
 // Update graph filtering checkboxes
 function updateGraphFilters() {
