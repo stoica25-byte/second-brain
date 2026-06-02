@@ -553,6 +553,9 @@ function renderGraph() {
             const isActive = isNoteActive || isNodeSelected;
                              
             const isMinimalTheme = document.body.classList.contains("theme-minimal-dark");
+            
+            const isHovered = hoveredNode && node.id === hoveredNode.id;
+            const isNeighbor = hoveredNode && neighbors.has(node.id);
                              
             if (isActive) {
                 ctx.beginPath();
@@ -576,7 +579,7 @@ function renderGraph() {
             
             // If another node is hovered, dim non-neighbors
             if (hoveredNode) {
-                if (node.id !== hoveredNode.id && !neighbors.has(node.id)) {
+                if (!isHovered && !isNeighbor) {
                     ctx.fillStyle = isMinimalTheme ? "rgba(40, 40, 40, 0.15)" : "rgba(30, 25, 45, 0.15)";
                 } else {
                     ctx.fillStyle = CATEGORY_COLORS[node.category] || "#ffffff";
@@ -591,47 +594,41 @@ function renderGraph() {
             ctx.lineWidth = 1 / globalScale;
             ctx.stroke();
             
-            // Draw Label text below node in Inter or JetBrains Mono (only if zoom is not too far out)
-            if (globalScale > 0.4) {
-                const fontSize = 10; // Fixed canvas font size for crisp rendering
+            // --- SELECTIVE LABEL RENDERING ---
+            // Only render text if zoomed in (scale > 0.75), hovered, active, or a neighbor of hovered
+            const shouldDrawLabel = isActive || isHovered || isNeighbor || (globalScale > 0.75);
+            
+            if (shouldDrawLabel) {
+                const fontSize = 10;
                 ctx.font = `${fontSize}px ${isMinimalTheme ? "'JetBrains Mono', monospace" : "'Inter', sans-serif"}`;
                 ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
+                ctx.textBaseline = 'top';
                 
-                // Draw background label capsule for perfect legibility
-                const textWidth = ctx.measureText(node.title).width;
-                const paddingX = 5;
-                const paddingY = 3;
-                const rectWidth = textWidth + paddingX * 2;
-                const rectHeight = fontSize + paddingY * 2;
-                const rectX = node.x - rectWidth / 2;
-                const rectY = node.y + radius + 4;
+                const textY = node.y + radius + 5;
+                const labelText = node.title;
                 
-                ctx.beginPath();
-                ctx.fillStyle = isMinimalTheme ? "#121212" : "#09070f";
-                ctx.strokeStyle = isActive ? (CATEGORY_COLORS[node.category] || "#bb9af7") : (isMinimalTheme ? "#262626" : "rgba(255, 255, 255, 0.15)");
-                ctx.lineWidth = 1.2 / globalScale;
+                // 1. Draw Background Outline Halo (Obsidian Style)
+                ctx.strokeStyle = isMinimalTheme ? "#0c0c0c" : "#09070f";
+                ctx.lineWidth = 4;
+                ctx.lineJoin = 'round';
+                ctx.strokeText(labelText, node.x, textY);
                 
-                // Draw rounded rectangle for glass theme, flat for minimal theme
-                const cornerRad = isMinimalTheme ? 0 : 4;
-                if (ctx.roundRect) {
-                    ctx.roundRect(rectX, rectY, rectWidth, rectHeight, cornerRad);
+                // 2. Draw Filled Text with State-based Coloring
+                if (isActive) {
+                    ctx.fillStyle = CATEGORY_COLORS[node.category] || "#bb9af7";
+                } else if (isHovered) {
+                    ctx.fillStyle = CATEGORY_COLORS[node.category] || "#ffffff";
+                } else if (isNeighbor) {
+                    ctx.fillStyle = isMinimalTheme ? "#e5e5e5" : "rgba(242, 237, 248, 0.95)";
+                } else if (hoveredNode) {
+                    // Zoomed in but dimmed (not connected to hovered node)
+                    ctx.fillStyle = isMinimalTheme ? "rgba(229, 229, 229, 0.12)" : "rgba(242, 237, 248, 0.18)";
                 } else {
-                    ctx.rect(rectX, rectY, rectWidth, rectHeight);
-                }
-                ctx.fill();
-                ctx.stroke();
-                
-                // Highlight text if active or hovered
-                if (isActive || (hoveredNode && node.id === hoveredNode.id)) {
-                    ctx.fillStyle = CATEGORY_COLORS[node.category] || '#ffffff';
-                } else if (hoveredNode && !neighbors.has(node.id)) {
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-                } else {
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                    // Standard zoomed-in label
+                    ctx.fillStyle = isMinimalTheme ? "#a3a3a3" : "rgba(242, 237, 248, 0.75)";
                 }
                 
-                ctx.fillText(node.title, node.x, rectY + rectHeight / 2);
+                ctx.fillText(labelText, node.x, textY);
             }
         })
         .nodePointerAreaPaint((node, color, ctx) => {
@@ -739,10 +736,33 @@ function renderGraph() {
             graphInstance.refresh(); // Redraw colors
         });
         
+    // 1. Set link distance force
+    graphInstance.d3Force('link')
+        .distance(85)
+        .iterations(2);
+
+    // 2. Configure charge (repulsion force)
+    graphInstance.d3Force('charge')
+        .strength(-160)
+        .distanceMax(400);
+
+    // 3. Add custom collision force using local d3.min.js library (prevents node overlap)
+    if (window.d3 && window.d3.forceCollide) {
+        graphInstance.d3Force('collide', window.d3.forceCollide(node => {
+            const deg = degrees[node.id] || 0;
+            const radius = 4 + Math.min(deg * 1.2, 12);
+            return radius + 16; // Collision bubble radius
+        }).strength(0.8).iterations(2));
+    }
+
+    // 4. Configure centering force
+    graphInstance.d3Force('center')
+        .strength(0.15);
+
     // Stabilize layout and freeze physics to save CPU
-    graphInstance.d3VelocityDecay(0.3); // Faster settling
+    graphInstance.d3VelocityDecay(0.4); // Settles faster
     setTimeout(() => {
-        if (graphInstance) graphInstance.cooldownTicks(60); // Settlement freeze
+        if (graphInstance) graphInstance.cooldownTicks(60);
     }, 1000);
 }
 
