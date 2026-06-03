@@ -810,6 +810,9 @@ async function toggleTimelineCard(event, safePath) {
     
     if (!card) return;
     
+    // Open in Note Viewer
+    openNote(event);
+    
     const isExpanded = card.classList.contains("expanded");
     
     // Close other expanded cards
