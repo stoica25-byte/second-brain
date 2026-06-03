@@ -840,6 +840,11 @@ function filterTimeline() {
 async function openNote(note) {
     activeNote = note;
     
+    // Reset scroll position to top of Note Viewer
+    if (noteViewer) {
+        noteViewer.scrollTop = 0;
+    }
+    
     try {
         const res = await fetch(`/api/notes/${note.category}/${encodeURIComponent(note.filename)}`);
         if (res.status === 404) {
