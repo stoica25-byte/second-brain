@@ -86,22 +86,29 @@ const scoaProgressContainer = document.getElementById("scoa-progress-container")
 const scoaInputGroup = document.getElementById("scoa-input-group");
 const scoaLiveStageTitle = document.getElementById("scoa-live-stage-title");
 const scoaDebateRecord = document.getElementById("scoa-debate-record");
-const judgeSecurity = document.getElementById("judge-security");
-const judgePerformance = document.getElementById("judge-performance");
-const judgeUiux = document.getElementById("judge-uiux");
-const judgeModerator = document.getElementById("judge-moderator");
-const statusSecurity = document.getElementById("status-security");
-const statusPerformance = document.getElementById("status-performance");
-const statusUiux = document.getElementById("status-uiux");
-const statusModerator = document.getElementById("status-moderator");
-const scoaStageSecurity = document.getElementById("scoa-stage-security");
-const scoaStagePerformance = document.getElementById("scoa-stage-performance");
-const scoaStageUiux = document.getElementById("scoa-stage-uiux");
-const scoaStageModerator = document.getElementById("scoa-stage-moderator");
-const scoaOutputSecurity = document.getElementById("scoa-output-security");
-const scoaOutputPerformance = document.getElementById("scoa-output-performance");
-const scoaOutputUiux = document.getElementById("scoa-output-uiux");
-const scoaOutputModerator = document.getElementById("scoa-output-moderator");
+const judgeJurado = document.getElementById("judge-jurado");
+const judgeFiscalia = document.getElementById("judge-fiscalia");
+const judgeAnalistas = document.getElementById("judge-analistas");
+const judgeTribunal = document.getElementById("judge-tribunal");
+const judgeAbogado = document.getElementById("judge-abogado");
+
+const statusJurado = document.getElementById("status-jurado");
+const statusFiscalia = document.getElementById("status-fiscalia");
+const statusAnalistas = document.getElementById("status-analistas");
+const statusTribunal = document.getElementById("status-tribunal");
+const statusAbogado = document.getElementById("status-abogado");
+
+const scoaStageJurado = document.getElementById("scoa-stage-jurado");
+const scoaStageFiscalia = document.getElementById("scoa-stage-fiscalia");
+const scoaStageAnalistas = document.getElementById("scoa-stage-analistas");
+const scoaStageTribunal = document.getElementById("scoa-stage-tribunal");
+const scoaStageAbogado = document.getElementById("scoa-stage-abogado");
+
+const scoaOutputJurado = document.getElementById("scoa-output-jurado");
+const scoaOutputFiscalia = document.getElementById("scoa-output-fiscalia");
+const scoaOutputAnalistas = document.getElementById("scoa-output-analistas");
+const scoaOutputTribunal = document.getElementById("scoa-output-tribunal");
+const scoaOutputAbogado = document.getElementById("scoa-output-abogado");
 
 // Conflict resolution DOM elements
 const conflictModal = document.getElementById("conflict-modal");
@@ -245,10 +252,11 @@ function setupEventListeners() {
     }
     
     // SCoA tabs
-    if (judgeSecurity) judgeSecurity.addEventListener("click", () => selectScoaTab("security"));
-    if (judgePerformance) judgePerformance.addEventListener("click", () => selectScoaTab("performance"));
-    if (judgeUiux) judgeUiux.addEventListener("click", () => selectScoaTab("uiux"));
-    if (judgeModerator) judgeModerator.addEventListener("click", () => selectScoaTab("moderator"));
+    if (judgeJurado) judgeJurado.addEventListener("click", () => selectScoaTab("jurado"));
+    if (judgeFiscalia) judgeFiscalia.addEventListener("click", () => selectScoaTab("fiscalia"));
+    if (judgeAnalistas) judgeAnalistas.addEventListener("click", () => selectScoaTab("analistas"));
+    if (judgeTribunal) judgeTribunal.addEventListener("click", () => selectScoaTab("tribunal"));
+    if (judgeAbogado) judgeAbogado.addEventListener("click", () => selectScoaTab("abogado"));
     
     // Quick Capture events
     if (btnQuickCapture) {
@@ -2068,10 +2076,11 @@ async function startScoaDebate() {
     scoaLiveStageTitle.textContent = "Conectando al Tribunal SCoA...";
     
     const judges = [
-        { card: judgeSecurity, status: statusSecurity, stage: scoaStageSecurity, output: scoaOutputSecurity },
-        { card: judgePerformance, status: statusPerformance, stage: scoaStagePerformance, output: scoaOutputPerformance },
-        { card: judgeUiux, status: statusUiux, stage: scoaStageUiux, output: scoaOutputUiux },
-        { card: judgeModerator, status: statusModerator, stage: scoaStageModerator, output: scoaOutputModerator }
+        { card: judgeJurado, status: statusJurado, stage: scoaStageJurado, output: scoaOutputJurado },
+        { card: judgeFiscalia, status: statusFiscalia, stage: scoaStageFiscalia, output: scoaOutputFiscalia },
+        { card: judgeAnalistas, status: statusAnalistas, stage: scoaStageAnalistas, output: scoaOutputAnalistas },
+        { card: judgeTribunal, status: statusTribunal, stage: scoaStageTribunal, output: scoaOutputTribunal },
+        { card: judgeAbogado, status: statusAbogado, stage: scoaStageAbogado, output: scoaOutputAbogado }
     ];
     
     judges.forEach(j => {
@@ -2081,8 +2090,8 @@ async function startScoaDebate() {
         if (j.output) j.output.innerHTML = "";
     });
     
-    selectScoaTab("security");
-    window.scoaStageTexts = { security: "", performance: "", uiux: "", moderator: "" };
+    selectScoaTab("jurado");
+    window.scoaStageTexts = { jurado: "", fiscalia: "", analistas: "", tribunal: "", abogado: "" };
     
     const url = `/api/debate/stream?proposal=${encodeURIComponent(proposal)}&category=${encodeURIComponent(category)}`;
     const eventSource = new EventSource(url);
@@ -2112,28 +2121,30 @@ function handleScoaEvent(event, category, eventSource) {
     }
     
     const stage = event.stage;
+    const stageKey = stage === "dictamen" ? "abogado" : stage;
     
     if (event.status === "start") {
-        updateJudgeUI(stage, "active");
-        selectScoaTab(stage);
+        updateJudgeUI(stageKey, "active");
+        selectScoaTab(stageKey);
         
         let titleText = "Justices deliberating...";
-        if (stage === "security") titleText = "Analizando Seguridad...";
-        if (stage === "performance") titleText = "Evaluando Rendimiento...";
-        if (stage === "uiux") titleText = "Evaluando UI/UX y Usabilidad...";
-        if (stage === "moderator") titleText = "Sintetizando Fallo del Tribunal...";
+        if (stage === "jurado") titleText = "Analizando Cohesión...";
+        if (stage === "fiscalia") titleText = "Desmantelando propuesta...";
+        if (stage === "analistas") titleText = "Investigando en internet (Deep Research)...";
+        if (stage === "tribunal") titleText = "Preparando el expediente...";
+        if (stage === "dictamen") titleText = "Dictando Veredicto Final...";
         scoaLiveStageTitle.textContent = titleText;
     } else if (event.chunk) {
-        window.scoaStageTexts[stage] = (window.scoaStageTexts[stage] || "") + event.chunk;
-        const div = document.getElementById(`scoa-output-${stage}`);
+        window.scoaStageTexts[stageKey] = (window.scoaStageTexts[stageKey] || "") + event.chunk;
+        const div = document.getElementById(`scoa-output-${stageKey}`);
         if (div) {
-            div.innerHTML = renderMarkdown(window.scoaStageTexts[stage]);
+            div.innerHTML = renderMarkdown(window.scoaStageTexts[stageKey]);
         }
         if (scoaDebateRecord) {
             scoaDebateRecord.scrollTop = scoaDebateRecord.scrollHeight;
         }
     } else if (event.status === "done") {
-        updateJudgeUI(stage, "done");
+        updateJudgeUI(stageKey, "done");
     } else if (stage === "file_write" && event.status === "saved") {
         eventSource.close();
         scoaLiveStageTitle.textContent = "Debate Guardado";
@@ -2144,10 +2155,11 @@ function handleScoaEvent(event, category, eventSource) {
 
 function updateJudgeUI(stage, state) {
     const cardMap = {
-        security: { card: judgeSecurity, status: statusSecurity, stageEl: scoaStageSecurity, suffix: "security" },
-        performance: { card: judgePerformance, status: statusPerformance, stageEl: scoaStagePerformance, suffix: "performance" },
-        uiux: { card: judgeUiux, status: statusUiux, stageEl: scoaStageUiux, suffix: "uiux" },
-        moderator: { card: judgeModerator, status: statusModerator, stageEl: scoaStageModerator, suffix: "moderator" }
+        jurado: { card: judgeJurado, status: statusJurado, stageEl: scoaStageJurado, suffix: "jurado" },
+        fiscalia: { card: judgeFiscalia, status: statusFiscalia, stageEl: scoaStageFiscalia, suffix: "fiscalia" },
+        analistas: { card: judgeAnalistas, status: statusAnalistas, stageEl: scoaStageAnalistas, suffix: "analistas" },
+        tribunal: { card: judgeTribunal, status: statusTribunal, stageEl: scoaStageTribunal, suffix: "tribunal" },
+        abogado: { card: judgeAbogado, status: statusAbogado, stageEl: scoaStageAbogado, suffix: "abogado" }
     };
     
     const info = cardMap[stage];
@@ -2176,7 +2188,7 @@ async function finalizeDebate(filename, category) {
 }
 
 function selectScoaTab(stage) {
-    const stages = ["security", "performance", "uiux", "moderator"];
+    const stages = ["jurado", "fiscalia", "analistas", "tribunal", "abogado"];
     stages.forEach(s => {
         const el = document.getElementById(`scoa-stage-${s}`);
         const card = document.getElementById(`judge-${s}`);

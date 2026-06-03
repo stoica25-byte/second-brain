@@ -340,54 +340,65 @@
                     </div>
 
                     <!-- Redesigned SCoA Judges Cards -->
-                    <div class="scoa-judges-grid">
-                        <div id="judge-security" class="judge-card">
-                            <div class="judge-avatar">🛡️</div>
-                            <div class="judge-info">
-                                <span class="judge-name">Security Reviewer</span>
-                                <span class="judge-status" id="status-security">Waiting</span>
-                            </div>
-                        </div>
-                        <div id="judge-performance" class="judge-card">
-                            <div class="judge-avatar">⚡</div>
-                            <div class="judge-info">
-                                <span class="judge-name">Performance Expert</span>
-                                <span class="judge-status" id="status-performance">Waiting</span>
-                            </div>
-                        </div>
-                        <div id="judge-uiux" class="judge-card">
-                            <div class="judge-avatar">🎨</div>
-                            <div class="judge-info">
-                                <span class="judge-name">UI/UX Designer</span>
-                                <span class="judge-status" id="status-uiux">Waiting</span>
-                            </div>
-                        </div>
-                        <div id="judge-moderator" class="judge-card">
+                    <div class="scoa-judges-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
+                        <div id="judge-jurado" class="judge-card">
                             <div class="judge-avatar">⚖️</div>
                             <div class="judge-info">
-                                <span class="judge-name">Chief Justice</span>
-                                <span class="judge-status" id="status-moderator">Waiting</span>
+                                <span class="judge-name">El Jurado</span>
+                                <span class="judge-status" id="status-jurado">Waiting</span>
+                            </div>
+                        </div>
+                        <div id="judge-fiscalia" class="judge-card">
+                            <div class="judge-avatar">🔥</div>
+                            <div class="judge-info">
+                                <span class="judge-name">La Fiscalía</span>
+                                <span class="judge-status" id="status-fiscalia">Waiting</span>
+                            </div>
+                        </div>
+                        <div id="judge-analistas" class="judge-card">
+                            <div class="judge-avatar">🔍</div>
+                            <div class="judge-info">
+                                <span class="judge-name">Analistas Web</span>
+                                <span class="judge-status" id="status-analistas">Waiting</span>
+                            </div>
+                        </div>
+                        <div id="judge-tribunal" class="judge-card">
+                            <div class="judge-avatar">🏛️</div>
+                            <div class="judge-info">
+                                <span class="judge-name">El Tribunal</span>
+                                <span class="judge-status" id="status-tribunal">Waiting</span>
+                            </div>
+                        </div>
+                        <div id="judge-abogado" class="judge-card">
+                            <div class="judge-avatar">📜</div>
+                            <div class="judge-info">
+                                <span class="judge-name">Abogado Supremo</span>
+                                <span class="judge-status" id="status-abogado">Waiting</span>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Redesigned Debate Arguments Record -->
                     <div class="scoa-debate-record" id="scoa-debate-record">
-                        <div id="scoa-stage-security" class="debate-stage-section hidden">
-                            <div class="stage-section-header security-header">🛡️ Security Reviewer Critique</div>
-                            <div id="scoa-output-security" class="markdown-body"></div>
+                        <div id="scoa-stage-jurado" class="debate-stage-section hidden">
+                            <div class="stage-section-header security-header">⚖️ Veredicto de Cohesión del Jurado</div>
+                            <div id="scoa-output-jurado" class="markdown-body"></div>
                         </div>
-                        <div id="scoa-stage-performance" class="debate-stage-section hidden">
-                            <div class="stage-section-header performance-header">⚡ Performance Expert Critique</div>
-                            <div id="scoa-output-performance" class="markdown-body"></div>
+                        <div id="scoa-stage-fiscalia" class="debate-stage-section hidden">
+                            <div class="stage-section-header performance-header">🔥 Acusaciones de la Fiscalía</div>
+                            <div id="scoa-output-fiscalia" class="markdown-body"></div>
                         </div>
-                        <div id="scoa-stage-uiux" class="debate-stage-section hidden">
-                            <div class="stage-section-header uiux-header">🎨 UI/UX Designer Critique</div>
-                            <div id="scoa-output-uiux" class="markdown-body"></div>
+                        <div id="scoa-stage-analistas" class="debate-stage-section hidden">
+                            <div class="stage-section-header uiux-header">🔍 Pruebas de los Analistas (Deep Research)</div>
+                            <div id="scoa-output-analistas" class="markdown-body"></div>
                         </div>
-                        <div id="scoa-stage-moderator" class="debate-stage-section hidden">
-                            <div class="stage-section-header moderator-header">⚖️ Chief Justice Synthesis</div>
-                            <div id="scoa-output-moderator" class="markdown-body"></div>
+                        <div id="scoa-stage-tribunal" class="debate-stage-section hidden">
+                            <div class="stage-section-header security-header">🏛️ Expediente Preparado por el Tribunal</div>
+                            <div id="scoa-output-tribunal" class="markdown-body"></div>
+                        </div>
+                        <div id="scoa-stage-abogado" class="debate-stage-section hidden">
+                            <div class="stage-section-header moderator-header">📜 Dictamen del Abogado Supremo</div>
+                            <div id="scoa-output-abogado" class="markdown-body"></div>
                         </div>
                     </div>
                 </div>
@@ -514,6 +525,6 @@
     <div id="graph-tooltip" style="position:fixed; z-index:99999; background:rgba(12,8,29,0.95); border:1px solid rgba(255,255,255,0.12); border-radius:6px; padding:8px 12px; font-size:11px; color:var(--text-primary); pointer-events:none; transition:opacity 0.15s ease; opacity:0; max-width:220px; backdrop-filter:blur(10px); box-shadow: 0 4px 20px rgba(0,0,0,0.6);"></div>
     
     <!-- Script principal de la aplicación -->
-    <script src="app.js?v=16"></script>
+    <script src="app.js?v=17"></script>
 </body>
 </html>

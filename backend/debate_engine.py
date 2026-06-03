@@ -12,40 +12,51 @@ from typing import AsyncGenerator, Any
 
 # System Prompts for specialized Justices (Spanish translation/instruction)
 JUSTICE_PROMPTS = {
-    "security": (
-        "Eres el juez SecurityReviewer en el Tribunal Supremo de Agentes (Supreme Court of Agents).\n"
-        "Tu tarea consiste en analizar la propuesta o diseño técnico buscando implicaciones de seguridad:\n"
-        "1. Identifica vulnerabilidades (inyección, XSS, path traversal, autenticación, fugas de datos).\n"
-        "2. Califícala de A (Ejemplar) a F (Fallas Críticas).\n"
-        "3. Lista las mitigaciones obligatorias de seguridad.\n"
-        "Tu respuesta debe estar completamente en ESPAÑOL. Enfócate ÚNICAMENTE en seguridad. Ignora la velocidad o la estética. Formatea en Markdown con el tag #security."
+    "jurado": (
+        "Eres el Jurado de Cohesión en el Tribunal Supremo de Agentes (Supreme Court of Agents), compuesto virtualmente por 5 jueces:\n"
+        "Juez de Innovación, Juez de Factibilidad, Juez de Alineación Estratégica, Juez de Integración y Juez de Escalabilidad.\n"
+        "Tu tarea es evaluar la propuesta técnica inicial y responder colectivamente sobre su viabilidad y cohesión técnica:\n"
+        "1. ¿Tiene sentido desarrollar esta propuesta? ¿Es técnicamente viable?\n"
+        "2. Evalúa la cohesión arquitectónica y la integración estratégica inicial.\n"
+        "3. Emite un dictamen preliminar (Luz Verde para continuar / Luz Amarilla con dudas / Luz Roja para descartar).\n"
+        "Tu respuesta debe estar completamente en ESPAÑOL. Formatea en Markdown con el tag #jurado."
     ),
-    "performance": (
-        "Eres el juez PerformanceExpert en el Tribunal Supremo de Agentes (Supreme Court of Agents).\n"
-        "Tu tarea consiste en analizar la propuesta o diseño técnico buscando implicaciones de rendimiento:\n"
-        "1. Identifica cuellos de botella, consumo excesivo de CPU/memoria, bloqueos de concurrencia, problemas de E/S de disco o latencia.\n"
-        "2. Califícala de A (Altamente Eficiente) a F (Cuellos de Botella Graves).\n"
-        "3. Lista los pasos de optimización necesarios (caché, índices, modificaciones algorítmicas).\n"
-        "Tu respuesta debe estar completamente en ESPAÑOL. Enfócate ÚNICAMENTE en rendimiento y velocidad. Ignora la seguridad o la experiencia de usuario. Formatea en Markdown con el tag #performance."
+    "fiscalia": (
+        "Eres la Fiscalía (Prosecution) en el Tribunal Supremo de Agentes (Supreme Court of Agents), compuesta virtualmente por 4 jurados:\n"
+        "Fiscal de Huecos Técnicos, Fiscal de Falacias, Fiscal de Riesgos y Fiscal de Fricción.\n"
+        "Tu tarea es actuar como acusador implacable y desmantelar la propuesta técnica buscando todas sus debilidades:\n"
+        "1. Identifica contradicciones, fallas lógicas, huecos de diseño y falacias técnicas en la propuesta.\n"
+        "2. Detalla los riesgos de seguridad (vulnerabilidades, fugas) y la fricción que causará a nivel de usabilidad/desarrollo.\n"
+        "3. Presenta una acusación técnica sólida, argumentando por qué esta idea podría fallar en condiciones reales.\n"
+        "Tu respuesta debe estar completamente en ESPAÑOL. Formatea en Markdown con el tag #fiscalia."
     ),
-    "uiux": (
-        "Eres el juez UIUXDesigner en el Tribunal Supremo de Agentes (Supreme Court of Agents).\n"
-        "Tu tarea consiste en analizar la propuesta o diseño técnico buscando implicaciones de usabilidad:\n"
-        "1. Identifica fricciones del usuario, inconsistencias de interfaz, fallos de estructura de diseño o de accesibilidad.\n"
-        "2. Califícala de A (Fluido/Sin Problemas) a F (Confuso/Fricción Extrema).\n"
-        "3. Sugiere mejoras visuales o de flujo de usuario.\n"
-        "Tu respuesta debe estar completamente en ESPAÑOL. Enfócate ÚNICAMENTE en usabilidad y diseño. Ignora la seguridad o velocidad. Formatea en Markdown con el tag #ui-ux."
+    "analistas": (
+        "Eres el equipo de Analistas de Investigación en el Tribunal Supremo de Agentes (Supreme Court of Agents), compuesto por 3 peritos:\n"
+        "Analista de Datos Web, Analista de Casos de Estudio y Analista de Pruebas de Carga.\n"
+        "Tu tarea es actuar como investigadores contrastando las acusaciones de la Fiscalía utilizando tu herramienta de búsqueda web (Google Search):\n"
+        "1. Busca en la web soluciones existentes, benchmarks reales o casos de fallo documentados relacionados con la propuesta y las acusaciones de la Fiscalía.\n"
+        "2. Presenta pruebas reales (hechos, benchmarks, datos verídicos de internet) para demostrar o desmentir las hipótesis y riesgos de la Fiscalía.\n"
+        "3. Haz una prueba de presión con logística y datos del mundo real.\n"
+        "Tu respuesta debe estar completamente en ESPAÑOL e incluir referencias o enlaces (citaciones) de tus hallazgos. Formatea en Markdown con el tag #analistas."
     ),
-    "moderator": (
-        "Eres el Chief Justice (Juez Presidente) y Moderador del Tribunal Supremo de Agentes (Supreme Court of Agents).\n"
-        "Tu tarea consiste en leer la propuesta original, las tres revisiones de los jueces especializados (Seguridad, Rendimiento, Interfaz de Usuario), "
-        "resolver objetivos en conflicto (ej: controles de seguridad vs. latencia), trazar la Frontera de Pareto y escribir una síntesis unificada.\n"
-        "Tu salida debe estar completamente en ESPAÑOL y contener:\n"
-        "1. Resumen Ejecutivo y Veredicto (Aprobado / Aprobado con Condiciones / Rechazado) con las razones clave.\n"
-        "2. La Frontera de Pareto: análisis claro de los trade-offs (compromisos técnicos).\n"
-        "3. Especificaciones Accionables: pautas de desarrollo combinadas.\n"
-        "4. Tabla Resumen de Calificaciones (Seguridad, Rendimiento, Interfaz).\n"
-        "Formatea en Markdown estructurado con el tag #synthesis."
+    "tribunal": (
+        "Eres el Magistrado del Tribunal de Enjuiciamiento en el Tribunal Supremo de Agentes (Supreme Court of Agents).\n"
+        "Tu tarea consiste en revisar minuciosamente todo el expediente de la causa:\n"
+        "- La propuesta original.\n"
+        "- El veredicto de viabilidad del Jurado.\n"
+        "- Los cargos y fallos expuestos por la Fiscalía.\n"
+        "- Las pruebas y benchmarks contrastados por los Analistas.\n"
+        "Tu función es organizar todo el caso, estructurando de manera neutral los argumentos a favor y los argumentos en contra. Prepara el expediente unificado del caso para que el Abogado Supremo dicte la resolución.\n"
+        "Tu respuesta debe estar completamente en ESPAÑOL. Formatea en Markdown con el tag #tribunal."
+    ),
+    "dictamen": (
+        "Eres el Abogado General del Tribunal Supremo (Chief Advocate) en el Tribunal Supremo de Agentes.\n"
+        "Tu tarea es leer el expediente procesal unificado preparado por el Tribunal de Enjuiciamiento y dictar la resolución y veredicto definitivo de la propuesta.\n"
+        "Tu dictamen debe estar completamente en ESPAÑOL y contener:\n"
+        "1. Resumen Ejecutivo y Veredicto Final Inapelable (Aprobado / Aprobado con Condiciones / Denegado) con la justificación principal.\n"
+        "2. Especificaciones Técnicas y Pautas de Desarrollo: pautas claras de implementación que incluyan las optimizaciones de rendimiento y las mitigaciones de seguridad obligatorias basadas en todo el historial.\n"
+        "3. Tabla de Calificaciones Resumen (Cohesión, Resistencia a fallos, Sustento real y Viabilidad de implementación).\n"
+        "Formatea en Markdown estructurado con el tag #dictamen."
     )
 }
 
@@ -171,7 +182,7 @@ def call_openrouter_stream_sync(api_key: str, system_instruction: str, user_prom
         raise RuntimeError(f"OpenRouter Connection Error: {e}")
 
 
-def call_gemini_stream_sync(api_key: str, system_instruction: str, user_prompt: str):
+def call_gemini_stream_sync(api_key: str, system_instruction: str, user_prompt: str, enable_search: bool = False):
     """Sync generator that tries each model in the fallback chain until one succeeds."""
     last_error = None
     
@@ -185,6 +196,9 @@ def call_gemini_stream_sync(api_key: str, system_instruction: str, user_prompt: 
             "systemInstruction": {"parts": [{"text": system_instruction}]},
             "generationConfig": {"temperature": 0.2}
         }
+        if enable_search:
+            payload["tools"] = [{"google_search": {}}]
+            
         data = json.dumps(payload).encode("utf-8")
         req = urllib.request.Request(
             url,
@@ -242,7 +256,7 @@ def call_gemini_stream_sync(api_key: str, system_instruction: str, user_prompt: 
 
 async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str = "ideas") -> AsyncGenerator[dict, None]:
     """Async generator wrapper that executes the debate stages sequentially."""
-    stages = ["security", "performance", "uiux", "moderator"]
+    stages = ["jurado", "fiscalia", "analistas", "tribunal", "dictamen"]
     critiques = {}
     
     # Identify title
@@ -253,20 +267,36 @@ async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str =
         yield {"stage": stage, "status": "start"}
         
         # Build prompt history for current agent
-        if stage == "moderator":
+        if stage == "jurado":
+            prompt = proposal
+        elif stage == "fiscalia":
             prompt = (
                 f"Propuesta Original:\n{proposal}\n\n"
-                f"Crítica del Juez de Seguridad:\n{critiques['security']}\n\n"
-                f"Crítica del Juez de Rendimiento:\n{critiques['performance']}\n\n"
-                f"Crítica del Juez de UI/UX:\n{critiques['uiux']}"
+                f"Veredicto del Jurado de Cohesión:\n{critiques['jurado']}"
             )
-        else:
-            prompt = proposal
+        elif stage == "analistas":
+            prompt = (
+                f"Propuesta Original:\n{proposal}\n\n"
+                f"Veredicto del Jurado de Cohesión:\n{critiques['jurado']}\n\n"
+                f"Acusación de la Fiscalía:\n{critiques['fiscalia']}"
+            )
+        elif stage == "tribunal":
+            prompt = (
+                f"Propuesta Original:\n{proposal}\n\n"
+                f"Veredicto del Jurado de Cohesión:\n{critiques['jurado']}\n\n"
+                f"Acusación de la Fiscalía:\n{critiques['fiscalia']}\n\n"
+                f"Investigación de los Analistas:\n{critiques['analistas']}"
+            )
+        elif stage == "dictamen":
+            prompt = (
+                f"Expediente del Caso Preparado por el Tribunal:\n{critiques['tribunal']}"
+            )
             
         full_text = ""
         try:
             # Run blocking stream in the loop's default executor
             loop = asyncio.get_running_loop()
+            enable_search = (stage == "analistas")
             
             if isinstance(api_key_or_keys, dict):
                 openrouter_key = api_key_or_keys.get("OPENROUTER_API_KEY")
@@ -274,11 +304,11 @@ async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str =
                 if openrouter_key:
                     iterator = call_openrouter_stream_sync(openrouter_key, JUSTICE_PROMPTS[stage], prompt)
                 elif gemini_key:
-                    iterator = call_gemini_stream_sync(gemini_key, JUSTICE_PROMPTS[stage], prompt)
+                    iterator = call_gemini_stream_sync(gemini_key, JUSTICE_PROMPTS[stage], prompt, enable_search=enable_search)
                 else:
                     raise ValueError("No API key available for debate.")
             else:
-                iterator = call_gemini_stream_sync(api_key_or_keys, JUSTICE_PROMPTS[stage], prompt)
+                iterator = call_gemini_stream_sync(api_key_or_keys, JUSTICE_PROMPTS[stage], prompt, enable_search=enable_search)
 
             
             def get_next():
@@ -318,7 +348,7 @@ async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str =
         file_path = vault_path / f"{filename}-{timestamp}.md"
         
     # Extract short summary for Frontmatter
-    summary_match = re.search(r'(?:Executive Summary|Resumen Ejecutivo)\s*(.+)', critiques["moderator"], re.IGNORECASE)
+    summary_match = re.search(r'(?:Executive Summary|Resumen Ejecutivo)\s*(.+)', critiques["dictamen"], re.IGNORECASE)
     summary = ""
     if summary_match:
          summary = summary_match.group(1).strip()
@@ -355,11 +385,12 @@ async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str =
     
     content = (
         f"# Debate SCoA: {title}\n\n"
-        f"## El Veredicto del Tribunal\n\n{critiques['moderator']}\n\n"
-        f"## Actas del Tribunal\n\n"
-        f"### Crítica del Juez de Seguridad\n{critiques['security']}\n\n"
-        f"### Crítica del Juez de Rendimiento\n{critiques['performance']}\n\n"
-        f"### Crítica del Juez de UI/UX\n{critiques['uiux']}\n"
+        f"## El Dictamen del Abogado Supremo\n\n{critiques['dictamen']}\n\n"
+        f"## Actas y Expediente del Tribunal\n\n"
+        f"### ⚖️ Veredicto de Cohesión del Jurado\n{critiques['jurado']}\n\n"
+        f"### 🔥 Acusaciones de la Fiscalía\n{critiques['fiscalia']}\n\n"
+        f"### 🔍 Pruebas de los Analistas (Deep Research)\n{critiques['analistas']}\n\n"
+        f"### 🏛️ Expediente Preparado por el Tribunal\n{critiques['tribunal']}\n"
     )
     
     if auto_links:
