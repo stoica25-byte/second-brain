@@ -10,48 +10,47 @@ from datetime import datetime
 from pathlib import Path
 from typing import AsyncGenerator, Any
 
-# System Prompts for specialized Justices
+# System Prompts for specialized Justices (Spanish translation/instruction)
 JUSTICE_PROMPTS = {
     "security": (
-        "You are the SecurityReviewer justice on the Supreme Court of Agents.\n"
-        "Your task is to analyze the technical proposal or design for security implications:\n"
-        "1. Identify vulnerabilities (injection, XSS, path traversal, authentication, leaks).\n"
-        "2. Rate the proposal's security from A (Exemplary) to F (Critical issues).\n"
-        "3. List mandatory security mitigations.\n"
-        "Focus ONLY on security. Ignore speed or aesthetics. Format in Markdown with tag #security."
+        "Eres el juez SecurityReviewer en el Tribunal Supremo de Agentes (Supreme Court of Agents).\n"
+        "Tu tarea consiste en analizar la propuesta o diseño técnico buscando implicaciones de seguridad:\n"
+        "1. Identifica vulnerabilidades (inyección, XSS, path traversal, autenticación, fugas de datos).\n"
+        "2. Califícala de A (Ejemplar) a F (Fallas Críticas).\n"
+        "3. Lista las mitigaciones obligatorias de seguridad.\n"
+        "Tu respuesta debe estar completamente en ESPAÑOL. Enfócate ÚNICAMENTE en seguridad. Ignora la velocidad o la estética. Formatea en Markdown con el tag #security."
     ),
     "performance": (
-        "You are the PerformanceExpert justice on the Supreme Court of Agents.\n"
-        "Your task is to analyze the technical proposal or design for efficiency implications:\n"
-        "1. Identify bottlenecks, CPU/memory bloat, lock contentions, disk I/O issues, or latency.\n"
-        "2. Rate the proposal's performance from A (Highly Efficient) to F (Severe Bottlenecks).\n"
-        "3. List optimization steps (caching, indices, algorithm modifications).\n"
-        "Focus ONLY on speed. Ignore security or UX. Format in Markdown with tag #performance."
+        "Eres el juez PerformanceExpert en el Tribunal Supremo de Agentes (Supreme Court of Agents).\n"
+        "Tu tarea consiste en analizar la propuesta o diseño técnico buscando implicaciones de rendimiento:\n"
+        "1. Identifica cuellos de botella, consumo excesivo de CPU/memoria, bloqueos de concurrencia, problemas de E/S de disco o latencia.\n"
+        "2. Califícala de A (Altamente Eficiente) a F (Cuellos de Botella Graves).\n"
+        "3. Lista los pasos de optimización necesarios (caché, índices, modificaciones algorítmicas).\n"
+        "Tu respuesta debe estar completamente en ESPAÑOL. Enfócate ÚNICAMENTE en rendimiento y velocidad. Ignora la seguridad o la experiencia de usuario. Formatea en Markdown con el tag #performance."
     ),
     "uiux": (
-        "You are the UIUXDesigner justice on the Supreme Court of Agents.\n"
-        "Your task is to analyze the technical proposal or design for usability implications:\n"
-        "1. Identify user friction, layout inconsistencies, layout structure issues, accessibility flaws.\n"
-        "2. Rate the proposal's developer/user experience from A (Seamless) to F (Confusing/High Friction).\n"
-        "3. Suggest visual or user-flow improvements.\n"
-        "Focus ONLY on usability and design. Ignore security or speed. Format in Markdown with tag #ui-ux."
+        "Eres el juez UIUXDesigner en el Tribunal Supremo de Agentes (Supreme Court of Agents).\n"
+        "Tu tarea consiste en analizar la propuesta o diseño técnico buscando implicaciones de usabilidad:\n"
+        "1. Identifica fricciones del usuario, inconsistencias de interfaz, fallos de estructura de diseño o de accesibilidad.\n"
+        "2. Califícala de A (Fluido/Sin Problemas) a F (Confuso/Fricción Extrema).\n"
+        "3. Sugiere mejoras visuales o de flujo de usuario.\n"
+        "Tu respuesta debe estar completamente en ESPAÑOL. Enfócate ÚNICAMENTE en usabilidad y diseño. Ignora la seguridad o velocidad. Formatea en Markdown con el tag #ui-ux."
     ),
     "moderator": (
-        "You are the Chief Justice and Moderator of the Supreme Court of Agents.\n"
-        "Your task is to read the original proposal, the three specialized reviews (Security, Performance, UIUX), "
-        "resolve any conflicting goals (e.g. security checks vs. latency), map the Pareto Frontier, and write a unified synthesis.\n"
-        "Your output must contain:\n"
-        "1. Executive Summary & Verdict (Approved / Approved with Conditions / Rejected) with core reasons.\n"
-        "2. The Pareto Frontier: clear analysis of the trade-offs.\n"
-        "3. Actionable Specifications: combined implementation guidelines.\n"
-        "4. Summary Grade Table (Security, Performance, UI/UX).\n"
-        "Format in structured Markdown with tag #synthesis."
+        "Eres el Chief Justice (Juez Presidente) y Moderador del Tribunal Supremo de Agentes (Supreme Court of Agents).\n"
+        "Tu tarea consiste en leer la propuesta original, las tres revisiones de los jueces especializados (Seguridad, Rendimiento, Interfaz de Usuario), "
+        "resolver objetivos en conflicto (ej: controles de seguridad vs. latencia), trazar la Frontera de Pareto y escribir una síntesis unificada.\n"
+        "Tu salida debe estar completamente en ESPAÑOL y contener:\n"
+        "1. Resumen Ejecutivo y Veredicto (Aprobado / Aprobado con Condiciones / Rechazado) con las razones clave.\n"
+        "2. La Frontera de Pareto: análisis claro de los trade-offs (compromisos técnicos).\n"
+        "3. Especificaciones Accionables: pautas de desarrollo combinadas.\n"
+        "4. Tabla Resumen de Calificaciones (Seguridad, Rendimiento, Interfaz).\n"
+        "Formatea en Markdown estructurado con el tag #synthesis."
     )
 }
 
 def get_api_keys() -> dict:
-    keys = {"GEMINI_API_KEY": "", "OPENROUTER_API_KEY": ""}
-    # 1. Look in Environment
+    keys = {"GEMINI_API_KEY": "", "OPENROUTER_API_KEY": ""}    # 1. Look in Environment
     if os.environ.get("GEMINI_API_KEY"):
         keys["GEMINI_API_KEY"] = os.environ["GEMINI_API_KEY"]
     if os.environ.get("OPENROUTER_API_KEY"):
@@ -256,10 +255,10 @@ async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str =
         # Build prompt history for current agent
         if stage == "moderator":
             prompt = (
-                f"Original Proposal:\n{proposal}\n\n"
-                f"Security Justice Critique:\n{critiques['security']}\n\n"
-                f"Performance Justice Critique:\n{critiques['performance']}\n\n"
-                f"UI/UX Justice Critique:\n{critiques['uiux']}"
+                f"Propuesta Original:\n{proposal}\n\n"
+                f"Crítica del Juez de Seguridad:\n{critiques['security']}\n\n"
+                f"Crítica del Juez de Rendimiento:\n{critiques['performance']}\n\n"
+                f"Crítica del Juez de UI/UX:\n{critiques['uiux']}"
             )
         else:
             prompt = proposal
@@ -319,7 +318,7 @@ async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str =
         file_path = vault_path / f"{filename}-{timestamp}.md"
         
     # Extract short summary for Frontmatter
-    summary_match = re.search(r'Executive Summary\s*(.+)', critiques["moderator"], re.IGNORECASE)
+    summary_match = re.search(r'(?:Executive Summary|Resumen Ejecutivo)\s*(.+)', critiques["moderator"], re.IGNORECASE)
     summary = ""
     if summary_match:
          summary = summary_match.group(1).strip()
@@ -327,7 +326,7 @@ async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str =
          summary = re.sub(r'\s+', ' ', summary).strip()
          summary = summary[:120] + "..." if len(summary) > 120 else summary
     if not summary:
-         summary = f"SCoA Debate resolution concerning: {title}"
+         summary = f"Resolución de Debate de SCoA sobre: {title}"
 
     # Auto-link scanning
     index_file = project_root / "vault" / "brain_index.json"
@@ -344,7 +343,7 @@ async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str =
             
     frontmatter = (
         "---\n"
-        f"title: \"SCoA Debate: {title}\"\n"
+        f"title: \"Debate SCoA: {title}\"\n"
         f"category: \"{category}\"\n"
         f"tags: [\"scoa-debate\", \"{category}\"]\n"
         f"created: \"{datetime.now().strftime('%Y-%m-%d')}\"\n"
@@ -355,16 +354,16 @@ async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str =
     )
     
     content = (
-        f"# SCoA Debate: {title}\n\n"
-        f"## The Court Verdict\n\n{critiques['moderator']}\n\n"
-        f"## The Court Records\n\n"
-        f"### Security Reviewer Critique\n{critiques['security']}\n\n"
-        f"### Performance Expert Critique\n{critiques['performance']}\n\n"
-        f"### UI/UX Designer Critique\n{critiques['uiux']}\n"
+        f"# Debate SCoA: {title}\n\n"
+        f"## El Veredicto del Tribunal\n\n{critiques['moderator']}\n\n"
+        f"## Actas del Tribunal\n\n"
+        f"### Crítica del Juez de Seguridad\n{critiques['security']}\n\n"
+        f"### Crítica del Juez de Rendimiento\n{critiques['performance']}\n\n"
+        f"### Crítica del Juez de UI/UX\n{critiques['uiux']}\n"
     )
     
     if auto_links:
-        content += "\n--- \n### Auto-detected Connections\n"
+        content += "\n--- \n### Conexiones Auto-detectadas\n"
         for link in set(auto_links):
             content += f"- [[{link}]]\n"
             
