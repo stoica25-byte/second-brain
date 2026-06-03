@@ -330,6 +330,59 @@ def get_semantic_links(api_key_or_keys: Any, proposal: str, notes_list: List[dic
         return []
 
 
+def generate_short_title(api_key_or_keys: Any, proposal: str) -> str:
+
+    """Generates a short, concise title (4-8 words) from a long proposal using the LLM."""
+    first_line = proposal.split("\n")[0].strip()
+    first_line_clean = re.sub(r'^(?:#\s*)?', '', first_line).strip()
+    
+    if len(first_line_clean) <= 60:
+        return first_line_clean
+        
+    system_instruction = (
+        "Eres un resumidor preciso. Tu tarea es leer la propuesta técnica del usuario "
+        "y devolver un título corto y conciso (máximo 8 palabras) en español que resuma el tema principal. "
+        "No agregues puntuación, comillas ni texto introductorio. Devuelve únicamente el título."
+    )
+    
+    gemini_key = ""
+    openrouter_key = ""
+    if isinstance(api_key_or_keys, dict):
+        gemini_key = api_key_or_keys.get("GEMINI_API_KEY") or ""
+        openrouter_key = api_key_or_keys.get("OPENROUTER_API_KEY") or ""
+    elif isinstance(api_key_or_keys, str):
+        if api_key_or_keys.startswith("sk-or-"):
+            openrouter_key = api_key_or_keys
+        else:
+            gemini_key = api_key_or_keys
+
+    response_text = ""
+    if gemini_key:
+        try:
+            iterator = call_gemini_stream_sync(gemini_key, system_instruction, proposal)
+            response_text = "".join(list(iterator))
+        except Exception:
+            pass
+            
+    if not response_text and openrouter_key:
+        try:
+            iterator = call_openrouter_stream_sync(openrouter_key, system_instruction, proposal)
+            response_text = "".join(list(iterator))
+        except Exception:
+            pass
+            
+    clean_title = response_text.strip().strip('"\'#* ')
+    if clean_title and len(clean_title) < 100:
+        return clean_title
+        
+    # Fallback to simple word-based truncation
+    words = first_line_clean.split()
+    fallback_title = " ".join(words[:8])
+    if len(first_line_clean) > len(fallback_title):
+        fallback_title += "..."
+    return fallback_title
+
+
 async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str = "ideas") -> AsyncGenerator[dict, None]:
     """Async generator wrapper that executes the debate stages sequentially."""
     stages = ["jurado", "fiscalia", "analistas", "tribunal", "dictamen"]
@@ -337,7 +390,7 @@ async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str =
     
     # Identify title
     title_match = re.search(r'^(?:#\s*)?(.+)', proposal)
-    title = title_match.group(1).strip() if title_match else "SCoA Debate Proposal"
+    raw_title = title_match.group(1).strip() if title_match else "SCoA Debate Proposal"
     
     for stage in stages:
         yield {"stage": stage, "status": "start"}
@@ -407,6 +460,9 @@ async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str =
         critiques[stage] = full_text
         yield {"stage": stage, "status": "done", "full_text": full_text}
 
+    # Generate clean short title using LLM or fallback if it's too long
+    title = generate_short_title(api_key_or_keys, raw_title)
+
     # Write SCoA debate file to vault
     project_root = Path(__file__).resolve().parent.parent
     vault_path = project_root / "vault" / category
@@ -424,15 +480,16 @@ async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str =
         file_path = vault_path / f"{filename}-{timestamp}.md"
         
     # Extract short summary for Frontmatter
-    summary_match = re.search(r'(?:Executive Summary|Resumen Ejecutivo)\s*(.+)', critiques["dictamen"], re.IGNORECASE)
-    summary = ""
-    if summary_match:
-         summary = summary_match.group(1).strip()
-         summary = re.sub(r'[#*`_\-\[\]]', '', summary)
-         summary = re.sub(r'\s+', ' ', summary).strip()
-         summary = summary[:120] + "..." if len(summary) > 120 else summary
-    if not summary:
-         summary = f"Resolución de Debate de SCoA sobre: {title}"
+    veredicto_match = re.search(r'\*\*Veredicto:\*\*\s*(.+)', critiques["dictamen"], re.IGNORECASE)
+    veredicto = veredicto_match.group(1).strip().replace("**", "").replace("*", "") if veredicto_match else ""
+    
+    if veredicto:
+        summary = f"Dictamen SCoA: {veredicto} | {title}"
+    else:
+        summary = f"Resolución de Debate de SCoA sobre: {title}"
+        
+    summary = summary[:150] + "..." if len(summary) > 150 else summary
+
 
     # Auto-link scanning
     index_file = project_root / "vault" / "brain_index.json"
