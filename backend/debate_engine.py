@@ -115,7 +115,7 @@ def _parse_api_error(http_err) -> str:
 def call_openrouter_stream_sync(api_key: str, system_instruction: str, user_prompt: str):
     url = "https://openrouter.ai/api/v1/chat/completions"
     payload = {
-        "model": "meta-llama/llama-3-8b-instruct:free",
+        "model": "openrouter/free",
         "messages": [
             {"role": "system", "content": system_instruction},
             {"role": "user", "content": user_prompt}
@@ -123,6 +123,7 @@ def call_openrouter_stream_sync(api_key: str, system_instruction: str, user_prom
         "temperature": 0.2,
         "stream": True
     }
+
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(
         url,
