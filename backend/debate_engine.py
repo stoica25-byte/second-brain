@@ -65,52 +65,108 @@ def get_api_key() -> str:
                         return line.strip().split("=", 1)[1].strip('"\' ')
     return ""
 
-def call_gemini_stream_sync(api_key: str, system_instruction: str, user_prompt: str):
-    """Sync generator calling Gemini API via raw urllib requests."""
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?key={api_key}"
-    payload = {
-        "contents": [{"parts": [{"text": user_prompt}]}],
-        "systemInstruction": {"parts": [{"text": system_instruction}]},
-        "generationConfig": {"temperature": 0.2}
-    }
-    data = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(
-        url, 
-        data=data, 
-        headers={"Content-Type": "application/json"}
-    )
-    
+# Model fallback chain — tried in order if the previous one hits quota/404
+MODEL_FALLBACK_CHAIN = [
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-lite",
+    "gemini-1.5-flash-latest",
+    "gemini-1.5-flash-8b",
+]
+
+def _parse_api_error(http_err) -> str:
+    """Returns a clean human-readable error from an HTTPError response."""
     try:
-        with urllib.request.urlopen(req) as response:
-            buffer = ""
-            for chunk in response:
-                if not chunk:
-                    continue
-                buffer += chunk.decode("utf-8", errors="ignore")
-                
-                # Search for `"text": "..."` keys in the streaming buffer
-                matches = list(re.finditer(r'"text"\s*:\s*"((?:[^"\\]|\\.)*)"', buffer))
-                if not matches:
-                    continue
-                
-                last_end = 0
-                for match in matches:
-                    text_escaped = match.group(1)
-                    try:
-                        # Safely decode escape characters via JSON loader
-                        text_decoded = json.loads(f'"{text_escaped}"')
-                        yield text_decoded
-                    except Exception:
-                        text_decoded = text_escaped.replace('\\n', '\n').replace('\\t', '\t').replace('\\"', '"')
-                        yield text_decoded
-                    last_end = match.end()
-                
-                if last_end > 0:
-                    buffer = buffer[last_end:]
-    except urllib.error.HTTPError as e:
-        raise RuntimeError(f"HTTP Error {e.code}: {e.read().decode('utf-8', errors='ignore')}")
-    except Exception as e:
-        raise RuntimeError(f"Connection failed: {e}")
+        body = http_err.read().decode("utf-8", errors="ignore")
+        data = json.loads(body)
+        # Unwrap list wrapper if present
+        if isinstance(data, list):
+            data = data[0] if data else {}
+        err = data.get("error", {})
+        code = err.get("code", http_err.code)
+        message = err.get("message", "Unknown API error")
+        if code == 429 or "RESOURCE_EXHAUSTED" in str(err.get("status", "")):
+            return (
+                f"⚠️ Cuota de Gemini agotada (429).\n"
+                f"Has superado el límite gratuito diario de la API.\n"
+                f"Opciones:\n"
+                f"  • Espera ~24h a que se restablezca la cuota\n"
+                f"  • Activa facturación en https://ai.google.dev\n"
+                f"  • Usa otra API key en Configuración"
+            )
+        if code == 404:
+            return f"❌ Modelo no disponible (404): {message}"
+        return f"Error {code}: {message}"
+    except Exception:
+        return f"HTTP Error {http_err.code}: respuesta no interpretable"
+
+def call_gemini_stream_sync(api_key: str, system_instruction: str, user_prompt: str):
+    """Sync generator that tries each model in the fallback chain until one succeeds."""
+    last_error = None
+    
+    for model in MODEL_FALLBACK_CHAIN:
+        url = (
+            f"https://generativelanguage.googleapis.com/v1beta/models/"
+            f"{model}:streamGenerateContent?key={api_key}"
+        )
+        payload = {
+            "contents": [{"parts": [{"text": user_prompt}]}],
+            "systemInstruction": {"parts": [{"text": system_instruction}]},
+            "generationConfig": {"temperature": 0.2}
+        }
+        data = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(
+            url,
+            data=data,
+            headers={"Content-Type": "application/json"}
+        )
+        
+        try:
+            with urllib.request.urlopen(req) as response:
+                buffer = ""
+                for chunk in response:
+                    if not chunk:
+                        continue
+                    buffer += chunk.decode("utf-8", errors="ignore")
+                    matches = list(re.finditer(r'"text"\s*:\s*"((?:[^"\\]|\\.)*)"', buffer))
+                    if not matches:
+                        continue
+                    last_end = 0
+                    for match in matches:
+                        text_escaped = match.group(1)
+                        try:
+                            text_decoded = json.loads(f'"{text_escaped}"')
+                            yield text_decoded
+                        except Exception:
+                            text_decoded = (
+                                text_escaped
+                                .replace('\\n', '\n')
+                                .replace('\\t', '\t')
+                                .replace('\\"', '"')
+                            )
+                            yield text_decoded
+                        last_end = match.end()
+                    if last_end > 0:
+                        buffer = buffer[last_end:]
+            return  # success — stop trying fallbacks
+            
+        except urllib.error.HTTPError as e:
+            clean_msg = _parse_api_error(e)
+            last_error = clean_msg
+            # Only retry on 429 (quota) or 404 (model not found); fail fast on 400/401
+            if e.code in (429, 404, 503):
+                continue  # try next model
+            raise RuntimeError(clean_msg)
+        except Exception as e:
+            last_error = f"Error de conexión: {e}"
+            raise RuntimeError(last_error)
+    
+    # All models exhausted
+    raise RuntimeError(
+        last_error or
+        "⚠️ Todos los modelos de Gemini han agotado su cuota.\n"
+        "Espera 24h o activa facturación en https://ai.google.dev"
+    )
+
 
 async def run_debate_stream(proposal: str, api_key: str, category: str = "ideas") -> AsyncGenerator[dict, None]:
     """Async generator wrapper that executes the debate stages sequentially."""
