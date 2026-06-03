@@ -178,6 +178,11 @@
   },
   "active": "33c7cda3827fefaf",
   "lastOpenFiles": [
+    "skills/CSS Grid Collapsible Animation Pattern.md",
+    "skills/DOM Scroll Positioning Patterns.md",
+    "errors/ScrollIntoView Desplaza Contenedor Equivocado.md",
+    "errors/Browser Cache Impide Cargar JS Actualizado.md",
+    "errors/ScrollIntoView Conflicto con CSS Transitions.md",
     "skills/Obsidian URI Protocol.md",
     "skills/JavaScript Event Listener Patterns.md",
     "skills/CSS Utility Classes Pattern.md",

@@ -72,3 +72,37 @@ Sesión de debugging y desarrollo de nuevas funcionalidades en la consola web de
 - [[CSS Hidden Class Sin Efecto]]
 - [[Event Listeners Duplicados D3 Graph]]
 - [[Obsidian Vault Not Found Error]]
+
+---
+
+# Sesión Tarde (12:00 - 12:45)
+
+## Bugs Resueltos
+
+### 🔴 Click en conexión navega al medio/final de la nota
+- **Causa 1**: `scrollIntoView` calculaba la posición de scroll **durante** la transición CSS de `grid-template-rows` (300ms), cuando las alturas eran intermedias
+- **Causa 2**: `scrollIntoView` desplazaba el contenedor padre equivocado (`timeline-viewport` en vez de `timeline-stream`) por tener dos `overflow-y: auto` anidados
+- **Fix**: Desactivar transiciones con clase `no-transitions`, forzar reflow con `.offsetHeight`, calcular offset exacto con `getBoundingClientRect()`, y usar `scrollTo()` sobre el contenedor correcto
+
+### 🟡 Browser cache impedía cargar JS actualizado
+- **Causa**: Chrome/Edge cachean agresivamente `app.js` y no lo recargan aunque el archivo cambie en el servidor
+- **Fix**: Cache-buster `app.js?v=14` → `v=15`. Instrucción al usuario de usar `Ctrl+F5`
+
+## Notas Creadas Hoy
+
+### Errores
+- [[ScrollIntoView Conflicto con CSS Transitions]]
+- [[ScrollIntoView Desplaza Contenedor Equivocado]]
+- [[Browser Cache Impide Cargar JS Actualizado]]
+
+### Skills
+- [[DOM Scroll Positioning Patterns]]
+- [[CSS Grid Collapsible Animation Pattern]]
+
+## Aprendizajes de la Sesión
+- `scrollIntoView` es impredecible en layouts multi-panel → usar `getBoundingClientRect` + `scrollTo`
+- Nunca calcular posiciones de scroll durante transiciones CSS → desactivar primero
+- Un solo `overflow-y: auto` por columna del DOM, nunca anidar dos
+- Siempre usar cache-busting en archivos estáticos en desarrollo
+- `.offsetHeight` fuerza un reflow síncrono → útil para obtener dimensiones finales tras un cambio de clase
+
