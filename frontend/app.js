@@ -860,7 +860,52 @@ async function openNote(note) {
         viewNoteDates.innerText = `Creada: ${fullNote.created || "n/a"} • Actualizada: ${fullNote.updated || "n/a"}`;
         
         const safeId = getSafeId(note.path);
-        const activeCard = document.getElementById(`timeline-card-${safeId}`);
+        let activeCard = document.getElementById(`timeline-card-${safeId}`);
+        
+        // If the card is not found in the DOM, let's clear filters (search query & category filter) and reload
+        if (!activeCard) {
+            let filtersCleared = false;
+            
+            const categoryChk = document.querySelector(`.graph-filter-chk[data-category="${note.category}"]`);
+            if (categoryChk && !categoryChk.checked) {
+                categoryChk.checked = true;
+                activeCategoryFilters = Array.from(
+                    document.querySelectorAll(".graph-filter-chk:checked")
+                ).map(el => el.getAttribute("data-category"));
+                filtersCleared = true;
+            }
+            
+            if (currentSearchQuery) {
+                currentSearchQuery = "";
+                if (searchInput) searchInput.value = "";
+                const clearSearchBtn = document.getElementById("clear-search-btn");
+                if (clearSearchBtn) clearSearchBtn.style.display = "none";
+                const countEl = document.getElementById("search-result-count");
+                if (countEl) countEl.style.display = "none";
+                filtersCleared = true;
+            }
+            
+            if (filtersCleared) {
+                if (globalGraphInitialized) {
+                    updateGlobalGraph();
+                }
+                await loadTimeline(1, false);
+                activeCard = document.getElementById(`timeline-card-${safeId}`);
+            }
+            
+            // If still not found (e.g. because it's on page 2 or deeper), set search query to note title to force it onto page 1
+            if (!activeCard) {
+                currentSearchQuery = note.title;
+                if (searchInput) searchInput.value = note.title;
+                const clearSearchBtn = document.getElementById("clear-search-btn");
+                if (clearSearchBtn) clearSearchBtn.style.display = "inline";
+                if (globalGraphInitialized) {
+                    updateGlobalGraph();
+                }
+                await loadTimeline(1, false);
+                activeCard = document.getElementById(`timeline-card-${safeId}`);
+            }
+        }
         
         // Render Note Viewer Body (Draft / Fallback or Outgoing Connections list)
         if (note.status === "draft" || note.status === "unread" || !activeCard) {
@@ -972,13 +1017,16 @@ async function openNote(note) {
                 bodyInner.innerHTML = renderMarkdown(fullNote.content);
                 bindWikiLinkPreviews(bodyInner);
             }
-            activeCard.scrollIntoView({ behavior: "smooth", block: "start" });
+            // Wrap scrollIntoView in a short delay so the card's grid layout transition has started expanding
+            setTimeout(() => {
+                activeCard.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 100);
         }
         
         // Reset scroll position to top of Note Viewer after layout settles
         setTimeout(() => {
             if (noteViewer) noteViewer.scrollTop = 0;
-        }, 50);
+        }, 150);
         
     } catch (e) {
         console.error("Inspector open note failed:", e);
