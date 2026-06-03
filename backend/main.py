@@ -506,32 +506,34 @@ async def file_watcher_background_task():
                 except Exception as e:
                     print(f"Error rebuilding index in background watcher: {e}")
 
+def sync_run_git(args: List[str], env: dict, cwd: str) -> tuple:
+    try:
+        res = subprocess.run(
+            ["git"] + args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=env,
+            cwd=cwd,
+            timeout=15.0
+        )
+        return res.returncode, res.stdout.decode("utf-8", errors="ignore").strip(), res.stderr.decode("utf-8", errors="ignore").strip()
+    except subprocess.TimeoutExpired:
+        return -2, "", "Git command timed out after 15 seconds"
+    except Exception as e:
+        return -1, "", str(e)
+
 # Async Git Command Helper
 async def run_git_command(args: List[str]) -> tuple:
     env = os.environ.copy()
     env["GIT_TERMINAL_PROMPT"] = "0"
     env["GIT_SSH_COMMAND"] = "ssh -o BatchMode=yes"
     try:
-        proc = await asyncio.create_subprocess_exec(
-            "git", *args,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-            env=env,
-            cwd=str(PROJECT_ROOT)
-        )
-        try:
-            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=15.0)
-            return proc.returncode, stdout.decode("utf-8", errors="ignore").strip(), stderr.decode("utf-8", errors="ignore").strip()
-        except asyncio.TimeoutExpired:
-            try:
-                proc.kill()
-            except Exception:
-                pass
-            return -2, "", "Git command timed out after 15 seconds"
+        return await asyncio.to_thread(sync_run_git, args, env, str(PROJECT_ROOT))
     except Exception as e:
         import traceback
         traceback.print_exc()
         return -1, "", str(e)
+
 
 # Conflict isolation rename wrapper
 def rename_file_safe_retry(src: Path, dst: Path):
