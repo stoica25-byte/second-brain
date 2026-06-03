@@ -361,12 +361,15 @@ async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str =
     # Auto-link scanning
     index_file = project_root / "vault" / "brain_index.json"
     auto_links = []
+    full_text_to_scan = proposal + "\n" + "\n".join(critiques.values())
     if index_file.exists():
         try:
             with open(index_file, "r", encoding="utf-8") as f:
                 idx = json.load(f)
                 for note_title in idx.get("notes", {}).keys():
-                    if len(note_title) > 3 and note_title.lower() in proposal.lower():
+                    if note_title.lower() == title.lower():
+                        continue
+                    if len(note_title) > 3 and note_title.lower() in full_text_to_scan.lower():
                         auto_links.append(note_title)
         except Exception:
             pass
