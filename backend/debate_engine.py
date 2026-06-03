@@ -8,7 +8,7 @@ import urllib.request
 import urllib.error
 from datetime import datetime
 from pathlib import Path
-from typing import AsyncGenerator, Any
+from typing import AsyncGenerator, Any, List
 
 # System Prompts for specialized Justices (Spanish translation/instruction)
 JUSTICE_PROMPTS = {
@@ -254,6 +254,82 @@ def call_gemini_stream_sync(api_key: str, system_instruction: str, user_prompt: 
     )
 
 
+def get_semantic_links(api_key_or_keys: Any, proposal: str, notes_list: List[dict]) -> List[str]:
+    """Uses Gemini or OpenRouter API to semantically evaluate and recommend relevant existing notes to link."""
+    if not notes_list:
+        return []
+        
+    gemini_key = ""
+    openrouter_key = ""
+    if isinstance(api_key_or_keys, dict):
+        gemini_key = api_key_or_keys.get("GEMINI_API_KEY") or ""
+        openrouter_key = api_key_or_keys.get("OPENROUTER_API_KEY") or ""
+    elif isinstance(api_key_or_keys, str):
+        if api_key_or_keys.startswith("sk-or-"):
+            openrouter_key = api_key_or_keys
+        else:
+            gemini_key = api_key_or_keys
+
+    system_instruction = (
+        "Eres un clasificador semántico para una base de conocimiento personal (Second Brain).\n"
+        "Tu tarea consiste en analizar la propuesta técnica del usuario y determinar qué notas existentes en el sistema "
+        "tienen una relación semántica estrecha con la propuesta (por tecnologías compartidas, conceptos técnicos comunes o área de arquitectura).\n"
+        "Devuelve ÚNICAMENTE un array JSON que contenga los nombres exactos (filename) de las notas recomendadas, sin explicaciones ni formato markdown de código. "
+        "Ejemplo de salida:\n"
+        "[\"Nota A\", \"Nota B\"]\n"
+        "Si ninguna nota es relevante, devuelve un array vacío []."
+    )
+    
+    # Format notes list as a clean bulleted list for context
+    notes_context = "\n".join([
+        f"- Nota: \"{n['filename']}\" | Título: \"{n['title']}\" | Tags: {', '.join(n['tags'])}"
+        for n in notes_list
+    ])
+    
+    user_prompt = (
+        f"Propuesta Técnica a Evaluar:\n{proposal}\n\n"
+        f"Notas Existentes en el Sistema:\n{notes_context}\n\n"
+        f"Recomienda cuáles de las notas existentes son relevantes para enlazar semánticamente con la propuesta técnica."
+    )
+    
+    response_text = ""
+    
+    # 1. Try Gemini first if key is present
+    if gemini_key:
+        try:
+            iterator = call_gemini_stream_sync(gemini_key, system_instruction, user_prompt)
+            response_text = "".join(list(iterator))
+        except Exception:
+            pass
+            
+    # 2. Fallback to OpenRouter if Gemini failed or wasn't provided
+    if not response_text and openrouter_key:
+        try:
+            iterator = call_openrouter_stream_sync(openrouter_key, system_instruction, user_prompt)
+            response_text = "".join(list(iterator))
+        except Exception:
+            pass
+            
+    if not response_text:
+        return []
+        
+    try:
+        # Clean up any potential markdown backticks or markdown wrapping
+        response_text = re.sub(r'```(?:json)?|```', '', response_text).strip()
+        
+        # Extract JSON list
+        match = re.search(r'\[\s*".*?"\s*\]|\[\s*\]', response_text, re.DOTALL)
+        if match:
+            return json.loads(match.group(0))
+        
+        # Fallback manual regex parsing if json decoding fails
+        items = re.findall(r'"([^"]+)"', response_text)
+        return [item.strip() for item in items if item.strip()]
+    except Exception:
+        # Fail silently and return empty list on API or parsing failures
+        return []
+
+
 async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str = "ideas") -> AsyncGenerator[dict, None]:
     """Async generator wrapper that executes the debate stages sequentially."""
     stages = ["jurado", "fiscalia", "analistas", "tribunal", "dictamen"]
@@ -361,6 +437,7 @@ async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str =
     # Auto-link scanning
     index_file = project_root / "vault" / "brain_index.json"
     auto_links = []
+    notes_list = []
     full_text_to_scan = proposal + "\n" + "\n".join(critiques.values())
     if index_file.exists():
         try:
@@ -369,6 +446,13 @@ async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str =
                 for note_key, note_info in idx.get("notes", {}).items():
                     note_title = note_info.get("title", "")
                     note_filename = Path(note_info.get("filename", "")).stem
+                    
+                    # Store in list for semantic search later
+                    notes_list.append({
+                        "filename": note_filename,
+                        "title": note_title,
+                        "tags": note_info.get("tags", [])
+                    })
                     
                     if note_filename == filename or note_title.lower() == title.lower() or note_filename.lower() == title.lower():
                         continue
@@ -385,6 +469,19 @@ async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str =
                         
                     if match_found and link_name:
                         auto_links.append(link_name)
+        except Exception:
+            pass
+            
+    # LLM-based Semantic Linking (AI-driven classification)
+    if api_key_or_keys and notes_list:
+        try:
+            semantic_recommendations = get_semantic_links(api_key_or_keys, proposal, notes_list)
+            for rec in semantic_recommendations:
+                # Sanity filter: avoid linking to itself or duplicates
+                if rec != filename and rec not in auto_links:
+                    # Double-check that it exists in the notes list
+                    if any(n["filename"] == rec for n in notes_list):
+                        auto_links.append(rec)
         except Exception:
             pass
             
@@ -437,20 +534,31 @@ def main():
     parser.add_argument("--api-key", help="Gemini API Key override")
     args = parser.parse_args()
     
-    api_key = args.api_key or get_api_key()
-    if not api_key:
-        print("Error: GEMINI_API_KEY not found in environment or .env files.", file=sys.stderr)
-        sys.exit(1)
+    if args.api_key:
+        keys = args.api_key
+    else:
+        keys = get_api_keys()
+        
+    if isinstance(keys, dict):
+        if not keys.get("GEMINI_API_KEY") and not keys.get("OPENROUTER_API_KEY"):
+            print("Error: Neither GEMINI_API_KEY nor OPENROUTER_API_KEY found in environment or .env files.", file=sys.stderr)
+            sys.exit(1)
+    else:
+        if not keys:
+            print("Error: API Key override is empty.", file=sys.stderr)
+            sys.exit(1)
         
     print(f"\n=== Commencing SCoA Debate Room ({args.category.upper()}) ===")
     
     async def run():
-        async for msg in run_debate_stream(args.prompt, api_key, args.category):
+        async for msg in run_debate_stream(args.prompt, keys, args.category):
             stage = msg["stage"]
             if "status" in msg and msg["status"] == "start":
                 print(f"\n>>> Calling {stage.upper()} Justice...")
             elif "chunk" in msg:
-                print(msg["chunk"], end="", flush=True)
+                # Decode chunk in ascii to prevent terminal encoding failures
+                clean_chunk = msg["chunk"].encode("ascii", "ignore").decode("ascii")
+                print(clean_chunk, end="", flush=True)
             elif "status" in msg and msg["status"] == "saved":
                 print(f"\n\n[SUCCESS] Debate logged to vault: {msg['path']}")
             elif "error" in msg:
