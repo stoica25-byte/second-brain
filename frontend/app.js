@@ -914,6 +914,15 @@ async function openNote(note) {
     }
 }
 
+function normalizeString(str) {
+    if (!str) return "";
+    return str
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") // Remove accents
+        .replace(/[^a-z0-9]/g, "");     // Remove all non-alphanumeric chars
+}
+
 function renderMarkdown(mdText) {
     if (!mdText) return "<p><i>Contenido vacío</i></p>";
     
@@ -924,11 +933,11 @@ function renderMarkdown(mdText) {
         const noteName = target.trim();
         const display = alias ? alias.trim() : noteName;
         
-        // Check target exists by matching note titles, filenames (without .md), or paths in database
+        // Check target exists by matching normalized titles, filenames (without .md), or paths in database
         const exists = Object.values(notes).some(n => 
-            n.title.toLowerCase() === noteName.toLowerCase() ||
-            n.filename.replace(/\.md$/, "").toLowerCase() === noteName.toLowerCase() ||
-            n.path.replace(/\.md$/, "").toLowerCase() === noteName.toLowerCase()
+            normalizeString(n.title) === normalizeString(noteName) ||
+            normalizeString(n.filename.replace(/\.md$/, "")) === normalizeString(noteName) ||
+            normalizeString(n.path.replace(/\.md$/, "")) === normalizeString(noteName)
         );
         const className = exists ? "wikilink" : "wikilink broken";
         
@@ -955,11 +964,12 @@ function bindWikiLinkPreviews(container = document) {
         
         const findTargetNote = () => {
             return Object.values(notes).find(n => 
-                n.title.toLowerCase() === name.toLowerCase() ||
-                n.filename.replace(/\.md$/, "").toLowerCase() === name.toLowerCase() ||
-                n.path.replace(/\.md$/, "").toLowerCase() === name.toLowerCase()
+                normalizeString(n.title) === normalizeString(name) ||
+                normalizeString(n.filename.replace(/\.md$/, "")) === normalizeString(name) ||
+                normalizeString(n.path.replace(/\.md$/, "")) === normalizeString(name)
             );
         };
+
         
         // Click action
         a.addEventListener("click", (e) => {
