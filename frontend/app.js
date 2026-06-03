@@ -368,6 +368,7 @@ async function loadInbox() {
                         <span class="timestamp">${draft.created}</span>
                     </div>
                     <div class="triage-title" id="triage-title-display-${safeId}" style="cursor: pointer; text-decoration: underline;" onclick="openDraftInViewer('${draft.category}', '${draft.filename.replace(/'/g, "\\'")}', '${draft.path.replace(/'/g, "\\'")}', '${draft.title.replace(/'/g, "\\'")}')" title="Haga clic para ver el contenido completo de la nota">${draft.title}</div>
+                    <div class="triage-body markdown-body">${renderMarkdown(draft.content)}</div>
                     <div class="triage-quick-actions">
                         <button class="btn-triage btn-triage-approve" onclick="triageApprove('${draft.category}', '${draft.filename}', '${safeId}')">Aprobar</button>
                         <button class="btn-triage btn-triage-edit" onclick="triageToggleEdit('${safeId}')">Editar</button>
@@ -752,20 +753,23 @@ async function loadTimeline(page = 1, append = false) {
                         <h3 class="card-title">${highlightText(event.title)}</h3>
                     </div>
                     <div class="timeline-card-summary" id="timeline-summary-${safePath}">${highlightText(event.summary)}</div>
-                    
-                    <div class="timeline-card-collapsible">
-                        <div class="timeline-card-body-inner markdown-body" id="timeline-body-${safePath}">
-                            <!-- Markdown parsed HTML populated on click expansion -->
-                        </div>
-                    </div>
                 `;
                 
-                // Add expansion trigger on click
+                // Add click handler to select and open note
                 card.addEventListener("click", (e) => {
-                    // Prevent expansion when clicking nested link nodes
                     if (e.target.tagName === 'A' || e.target.closest('a')) return;
-                    toggleTimelineCard(event, safePath);
+                    
+                    document.querySelectorAll(".timeline-card").forEach(el => el.classList.remove("selected"));
+                    card.classList.add("selected");
+                    
+                    const matchingNote = notes[event.path] || event;
+                    openNote(matchingNote);
                 });
+                
+                // Highlight if this is the currently active note
+                if (activeNote && activeNote.path === event.path) {
+                    card.classList.add("selected");
+                }
                 
                 timelineStream.appendChild(card);
             });
@@ -800,47 +804,6 @@ async function loadTimeline(page = 1, append = false) {
         }
     } catch (e) {
         console.error("Timeline loading failed:", e);
-    }
-}
-
-async function toggleTimelineCard(event, safePath) {
-    const card = document.getElementById(`timeline-card-${safePath}`);
-    const summary = document.getElementById(`timeline-summary-${safePath}`);
-    const bodyInner = document.getElementById(`timeline-body-${safePath}`);
-    
-    if (!card) return;
-    
-    // Open in Note Viewer
-    openNote(event);
-    
-    const isExpanded = card.classList.contains("expanded");
-    
-    // Close other expanded cards
-    document.querySelectorAll(".timeline-card.expanded").forEach(el => {
-        if (el !== card) {
-            el.classList.remove("expanded");
-            const otherPath = el.id.replace("timeline-card-", "");
-            const otherSum = document.getElementById(`timeline-summary-${otherPath}`);
-            if (otherSum) otherSum.style.display = "block";
-        }
-    });
-    
-    if (isExpanded) {
-        card.classList.remove("expanded");
-        if (summary) summary.style.display = "block";
-    } else {
-        card.classList.add("expanded");
-        if (summary) summary.style.display = "none";
-        
-        // Parse and render note content
-        bodyInner.innerHTML = renderMarkdown(event.content);
-        bindWikiLinkPreviews(bodyInner);
-        
-        // Match Sidebar and Note Viewer details
-        const fullNote = notes[event.path];
-        if (fullNote) {
-            openNote(fullNote);
-        }
     }
 }
 
@@ -908,6 +871,27 @@ async function openNote(note) {
         
         // Render local Connection Radar Ego-Graph
         drawConnectionRadar(note.path);
+        
+        // Highlight corresponding node in global graph if visible
+        if (window.d3) {
+            d3.selectAll(".graph-node-group circle")
+                .transition().duration(200)
+                .attr("stroke-width", n => n.path === note.path ? 3.5 : 1.5)
+                .attr("stroke", n => n.path === note.path ? "#ffffff" : (CATEGORY_COLORS[n.category] || "#7aa2f7") + "88")
+                .attr("r", n => n.path === note.path ? 11 : 7)
+                .style("filter", n => n.path === note.path 
+                    ? `drop-shadow(0px 0px 8px ${CATEGORY_COLORS[n.category] || "#7aa2f7"})` 
+                    : `drop-shadow(0px 0px 5px ${CATEGORY_COLORS[n.category] || "#7aa2f7"}88)`);
+        }
+        
+        // Mark corresponding timeline card as selected and scroll it into view
+        const safeId = getSafeId(note.path);
+        document.querySelectorAll(".timeline-card").forEach(el => el.classList.remove("selected"));
+        const activeCard = document.getElementById(`timeline-card-${safeId}`);
+        if (activeCard) {
+            activeCard.classList.add("selected");
+            activeCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
         
     } catch (e) {
         console.error("Inspector open note failed:", e);
@@ -1346,6 +1330,8 @@ function initGlobalGraph() {
         .selectAll("g")
         .data(nodesData)
         .enter().append("g")
+        .attr("class", "graph-node-group")
+        .attr("data-path", d => d.path)
         .style("cursor", "pointer")
         .call(d3.drag()
             .on("start", (event, d) => {

@@ -561,6 +561,24 @@ button:hover {
     margin-bottom: 10px;
     word-break: break-word;
 }
+.triage-body {
+    font-size: 11px;
+    line-height: 1.4;
+    max-height: 120px;
+    overflow-y: auto;
+    margin: 8px 0 12px 0;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(224, 175, 104, 0.05);
+    color: var(--text-muted);
+}
+.triage-body p {
+    margin-bottom: 6px;
+}
+.triage-body p:last-child {
+    margin-bottom: 0;
+}
 
 .triage-quick-actions {
     display: flex;
@@ -851,6 +869,15 @@ button:hover {
     transform: translateX(4px);
     background: rgba(255, 255, 255, 0.02);
 }
+.timeline-card.selected {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+.timeline-card.selected.ideas { border-color: rgba(187, 154, 247, 0.5); box-shadow: 0 0 15px rgba(187, 154, 247, 0.12); }
+.timeline-card.selected.skills { border-color: rgba(115, 218, 202, 0.5); box-shadow: 0 0 15px rgba(115, 218, 202, 0.12); }
+.timeline-card.selected.errors { border-color: rgba(247, 118, 142, 0.5); box-shadow: 0 0 15px rgba(247, 118, 142, 0.12); }
+.timeline-card.selected.journal { border-color: rgba(122, 162, 247, 0.5); box-shadow: 0 0 15px rgba(122, 162, 247, 0.12); }
+.timeline-card.selected.sources { border-color: rgba(224, 175, 104, 0.5); box-shadow: 0 0 15px rgba(224, 175, 104, 0.12); }
 
 /* Category indicator line marker */
 .timeline-card-marker {
