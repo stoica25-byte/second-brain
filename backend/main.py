@@ -24,7 +24,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field
 import frontmatter
 import aiofiles
-from debate_engine import run_debate_stream, get_api_key
+from debate_engine import run_debate_stream, get_api_key, get_api_keys
 from contextlib import asynccontextmanager
 
 # Resolve paths relative to project root (parent of backend folder)
@@ -1407,18 +1407,19 @@ async def get_settings():
 
 @app.get("/api/debate/stream")
 async def api_debate_stream(proposal: str, category: str = "ideas"):
-    api_key = get_api_key()
-    if not api_key:
-        raise HTTPException(status_code=400, detail="GEMINI_API_KEY not configured in backend/.env")
+    keys = get_api_keys()
+    if not keys.get("GEMINI_API_KEY") and not keys.get("OPENROUTER_API_KEY"):
+        raise HTTPException(status_code=400, detail="Ni GEMINI_API_KEY ni OPENROUTER_API_KEY están configuradas en el archivo .env")
         
     async def sse_generator():
         try:
-            async for event in run_debate_stream(proposal, api_key, category):
+            async for event in run_debate_stream(proposal, keys, category):
                 yield f"data: {json.dumps(event)}\n\n"
         except Exception as e:
             yield f"data: {json.dumps({'error': str(e)})}\n\n"
             
     return StreamingResponse(sse_generator(), media_type="text/event-stream")
+
 
 # Serve Frontend static files
 app.mount("/", StaticFiles(directory=str(PROJECT_ROOT / "frontend"), html=True), name="frontend")

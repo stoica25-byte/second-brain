@@ -8,7 +8,7 @@ import urllib.request
 import urllib.error
 from datetime import datetime
 from pathlib import Path
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Any
 
 # System Prompts for specialized Justices
 JUSTICE_PROMPTS = {
@@ -49,21 +49,34 @@ JUSTICE_PROMPTS = {
     )
 }
 
-def get_api_key() -> str:
+def get_api_keys() -> dict:
+    keys = {"GEMINI_API_KEY": "", "OPENROUTER_API_KEY": ""}
     # 1. Look in Environment
     if os.environ.get("GEMINI_API_KEY"):
-        return os.environ["GEMINI_API_KEY"]
+        keys["GEMINI_API_KEY"] = os.environ["GEMINI_API_KEY"]
+    if os.environ.get("OPENROUTER_API_KEY"):
+        keys["OPENROUTER_API_KEY"] = os.environ["OPENROUTER_API_KEY"]
     
     # 2. Look in local .env files
     project_root = Path(__file__).resolve().parent.parent
     env_paths = [project_root / ".env", project_root / "backend" / ".env"]
     for path in env_paths:
         if path.exists():
-            with open(path, "r", encoding="utf-8") as f:
-                for line in f:
-                    if line.strip().startswith("GEMINI_API_KEY="):
-                        return line.strip().split("=", 1)[1].strip('"\' ')
-    return ""
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line_stripped = line.strip()
+                        if line_stripped.startswith("GEMINI_API_KEY="):
+                            keys["GEMINI_API_KEY"] = line_stripped.split("=", 1)[1].strip('"\' ')
+                        elif line_stripped.startswith("OPENROUTER_API_KEY="):
+                            keys["OPENROUTER_API_KEY"] = line_stripped.split("=", 1)[1].strip('"\' ')
+            except Exception:
+                pass
+    return keys
+
+def get_api_key() -> str:
+    keys = get_api_keys()
+    return keys["GEMINI_API_KEY"] or keys["OPENROUTER_API_KEY"]
 
 # Model fallback chain — tried in order if the previous one hits quota/404
 MODEL_FALLBACK_CHAIN = [
@@ -91,13 +104,72 @@ def _parse_api_error(http_err) -> str:
                 f"Opciones:\n"
                 f"  • Espera ~24h a que se restablezca la cuota\n"
                 f"  • Activa facturación en https://ai.google.dev\n"
-                f"  • Usa otra API key en Configuración"
+                f"  • Usa otra API key en Configuración o configura OPENROUTER_API_KEY en .env"
             )
         if code == 404:
             return f"❌ Modelo no disponible (404): {message}"
         return f"Error {code}: {message}"
     except Exception:
         return f"HTTP Error {http_err.code}: respuesta no interpretable"
+
+def call_openrouter_stream_sync(api_key: str, system_instruction: str, user_prompt: str):
+    url = "https://openrouter.ai/api/v1/chat/completions"
+    payload = {
+        "model": "meta-llama/llama-3-8b-instruct:free",
+        "messages": [
+            {"role": "system", "content": system_instruction},
+            {"role": "user", "content": user_prompt}
+        ],
+        "temperature": 0.2,
+        "stream": True
+    }
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=data,
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+            "HTTP-Referer": "https://github.com/stoica25-byte/second-brain",
+            "X-Title": "Second Brain Console"
+        }
+    )
+    try:
+        with urllib.request.urlopen(req) as response:
+            buffer = ""
+            for chunk in response:
+                if not chunk:
+                    continue
+                buffer += chunk.decode("utf-8", errors="ignore")
+                while "\n" in buffer:
+                    line, buffer = buffer.split("\n", 1)
+                    line = line.strip()
+                    if not line:
+                        continue
+                    if line.startswith("data:"):
+                        data_content = line[5:].strip()
+                        if data_content == "[DONE]":
+                            break
+                        try:
+                            json_data = json.loads(data_content)
+                            choices = json_data.get("choices", [])
+                            if choices:
+                                delta = choices[0].get("delta", {})
+                                content = delta.get("content", "")
+                                if content:
+                                    yield content
+                        except Exception:
+                            pass
+    except urllib.error.HTTPError as e:
+        try:
+            body = e.read().decode("utf-8", errors="ignore")
+            err_msg = json.loads(body).get("error", {}).get("message", str(e))
+        except Exception:
+            err_msg = str(e)
+        raise RuntimeError(f"OpenRouter Error {e.code}: {err_msg}")
+    except Exception as e:
+        raise RuntimeError(f"OpenRouter Connection Error: {e}")
+no interpretable"
 
 def call_gemini_stream_sync(api_key: str, system_instruction: str, user_prompt: str):
     """Sync generator that tries each model in the fallback chain until one succeeds."""
@@ -168,7 +240,7 @@ def call_gemini_stream_sync(api_key: str, system_instruction: str, user_prompt: 
     )
 
 
-async def run_debate_stream(proposal: str, api_key: str, category: str = "ideas") -> AsyncGenerator[dict, None]:
+async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str = "ideas") -> AsyncGenerator[dict, None]:
     """Async generator wrapper that executes the debate stages sequentially."""
     stages = ["security", "performance", "uiux", "moderator"]
     critiques = {}
@@ -195,7 +267,19 @@ async def run_debate_stream(proposal: str, api_key: str, category: str = "ideas"
         try:
             # Run blocking stream in the loop's default executor
             loop = asyncio.get_running_loop()
-            iterator = call_gemini_stream_sync(api_key, JUSTICE_PROMPTS[stage], prompt)
+            
+            if isinstance(api_key_or_keys, dict):
+                openrouter_key = api_key_or_keys.get("OPENROUTER_API_KEY")
+                gemini_key = api_key_or_keys.get("GEMINI_API_KEY")
+                if openrouter_key:
+                    iterator = call_openrouter_stream_sync(openrouter_key, JUSTICE_PROMPTS[stage], prompt)
+                elif gemini_key:
+                    iterator = call_gemini_stream_sync(gemini_key, JUSTICE_PROMPTS[stage], prompt)
+                else:
+                    raise ValueError("No API key available for debate.")
+            else:
+                iterator = call_gemini_stream_sync(api_key_or_keys, JUSTICE_PROMPTS[stage], prompt)
+
             
             def get_next():
                 try:
