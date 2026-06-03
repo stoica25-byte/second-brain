@@ -1071,8 +1071,6 @@ function drawConnectionRadar(notePath) {
     
     canvasEl.innerHTML = ""; // Clear canvas
     
-    if (radarSection) radarSection.classList.remove("hidden");
-    
     // getLinkId handles both string IDs and D3-resolved object references
     const getLinkId = (node) => {
         if (!node) return null;
@@ -1081,11 +1079,6 @@ function drawConnectionRadar(notePath) {
     };
     
     const centerNode = graphData.nodes.find(n => n.path === notePath || n.id === notePath);
-    if (!centerNode) {
-        // Show a minimal placeholder instead of hiding completely
-        canvasEl.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:11px;flex-direction:column;gap:6px;"><span>🔮</span><span>Sin conexiones aún</span></div>`;
-        return;
-    }
     
     // Explore neighborhood
     const hop1 = new Set();
@@ -1104,6 +1097,14 @@ function drawConnectionRadar(notePath) {
             adjacentLinks.push(l);
         }
     });
+    
+    if (!centerNode || adjacentLinks.length === 0) {
+        if (radarSection) radarSection.classList.add("hidden");
+        return;
+    }
+    
+    if (radarSection) radarSection.classList.remove("hidden");
+
     
     // Find 2-Hop connections if neighborhood limit (15 nodes) allows
     if (hop1.size + 1 < 12) {
