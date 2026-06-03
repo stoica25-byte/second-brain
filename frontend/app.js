@@ -975,6 +975,11 @@ async function openNote(note) {
             activeCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
         }
         
+        // Reset scroll position to top of Note Viewer after layout settles
+        setTimeout(() => {
+            if (noteViewer) noteViewer.scrollTop = 0;
+        }, 50);
+        
     } catch (e) {
         console.error("Inspector open note failed:", e);
     }
