@@ -1973,3 +1973,49 @@ body.theme-minimal-dark .judge-card.selected-tab {
     box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
 }
 
+/* Quick Capture and Top Tags Styles */
+.btn-capture {
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px;
+    font-size: 10.5px;
+    font-weight: 600;
+    justify-content: center;
+    gap: 6px;
+    display: flex;
+    align-items: center;
+}
+
+.top-tag-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10.5px;
+    padding: 3px 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.top-tag-item:hover {
+    background: rgba(187, 154, 247, 0.1);
+    border-color: rgba(187, 154, 247, 0.4);
+    color: var(--color-ideas);
+}
+
+.top-tag-item .tag-name {
+    font-weight: 500;
+}
+
+.top-tag-item .tag-count {
+    font-size: 9px;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 1px 4px;
+    border-radius: 8px;
+    color: var(--text-muted);
+}
+
+

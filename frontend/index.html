@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🧠 Consola Visual Second Brain</title>
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
     
     <!-- Google Fonts: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -76,10 +76,14 @@
             <section class="panel-left">
                 
                 <!-- Botón Principal: Obsidian Deep Link -->
-                <div class="obsidian-trigger-container">
+                <div class="obsidian-trigger-container" style="display: flex; flex-direction: column; gap: 8px;">
                     <button class="btn-obsidian-trigger" id="btn-open-obsidian-active">
                         <span class="obsidian-trigger-icon">🟪</span>
                         ABRIR EN OBSIDIAN
+                    </button>
+                    <button class="btn-primary btn-capture" id="btn-quick-capture" style="width: 100%; justify-content: center; font-size: 10.5px; padding: 10px; font-weight: 600; gap: 6px; display: flex; align-items: center;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                        NUEVA CAPTURA (Ctrl+N)
                     </button>
                 </div>
                 
@@ -119,6 +123,17 @@
                     <button id="left-panel-sync-btn" class="btn-primary" style="width: 100%; justify-content: center; font-size: 10.5px; padding: 6px;">
                         Backup Remoto
                     </button>
+                </div>
+
+                <!-- Top Tags Widget -->
+                <div class="tags-widget-section glass" style="padding: 14px; margin-top: 4px; display: flex; flex-direction: column; gap: 8px;">
+                    <div class="section-title" style="margin-bottom: 4px;">
+                        <span class="tag-dot" style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--color-skills); box-shadow: 0 0 6px var(--color-skills);"></span>
+                        <h3 style="font-size: 10px; text-transform: uppercase;">Tags Populares</h3>
+                    </div>
+                    <div id="top-tags-container" class="top-tags-grid" style="display: flex; flex-wrap: wrap; gap: 6px;">
+                        <!-- Poblado por JS -->
+                    </div>
                 </div>
             </section>
             
@@ -445,10 +460,60 @@
         </div>
     </div>
     
+    <!-- Modal de Captura Rápida (Quick Capture) -->
+    <div class="modal-overlay" id="quick-capture-modal">
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <h2>Nueva Captura Rápida</h2>
+                <button class="modal-close" id="capture-close">✖</button>
+            </div>
+            <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label for="capture-title" style="font-size: 11px; text-transform: uppercase; color: var(--text-muted);">Título de la Nota</label>
+                    <input type="text" id="capture-title" placeholder="Ej: Nueva idea de diseño o Nota de error..." style="width: 100%; padding: 8px 12px; background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-family: inherit; font-size: 12px; outline: none;">
+                </div>
+                
+                <div style="display: flex; gap: 12px;">
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                        <label for="capture-category" style="font-size: 11px; text-transform: uppercase; color: var(--text-muted);">Categoría</label>
+                        <select id="capture-category" style="width: 100%; padding: 8px 12px; background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-family: inherit; font-size: 12px; outline: none; cursor: pointer;">
+                            <option value="ideas">💡 Ideas</option>
+                            <option value="skills">🛠️ Skills</option>
+                            <option value="errors">⚠️ Errores</option>
+                            <option value="journal">📅 Diario</option>
+                            <option value="sources">📚 Fuentes</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                        <label for="capture-status" style="font-size: 11px; text-transform: uppercase; color: var(--text-muted);">Estado</label>
+                        <select id="capture-status" style="width: 100%; padding: 8px 12px; background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-family: inherit; font-size: 12px; outline: none; cursor: pointer;">
+                            <option value="draft">📝 Borrador (Draft)</option>
+                            <option value="active">🟢 Activa (Active)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label for="capture-tags" style="font-size: 11px; text-transform: uppercase; color: var(--text-muted);">Etiquetas (Separadas por comas)</label>
+                    <input type="text" id="capture-tags" placeholder="Ej: javascript, css, refactor" style="width: 100%; padding: 8px 12px; background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-family: inherit; font-size: 12px; outline: none;">
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 4px; flex: 1;">
+                    <label for="capture-content" style="font-size: 11px; text-transform: uppercase; color: var(--text-muted);">Contenido (Markdown)</label>
+                    <textarea id="capture-content" placeholder="Escribe tu nota aquí..." style="width: 100%; height: 160px; min-height: 120px; padding: 8px 12px; background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-family: inherit; font-size: 12px; outline: none; resize: vertical;"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="capture-cancel-btn" class="btn-secondary" style="padding: 8px 16px;">Cancelar</button>
+                <button id="capture-save-btn" class="btn-primary" style="padding: 8px 16px;">Guardar Nota</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Graph Tooltip (floating) -->
     <div id="graph-tooltip" style="position:fixed; z-index:99999; background:rgba(12,8,29,0.95); border:1px solid rgba(255,255,255,0.12); border-radius:6px; padding:8px 12px; font-size:11px; color:var(--text-primary); pointer-events:none; transition:opacity 0.15s ease; opacity:0; max-width:220px; backdrop-filter:blur(10px); box-shadow: 0 4px 20px rgba(0,0,0,0.6);"></div>
     
     <!-- Script principal de la aplicación -->
-    <script src="app.js?v=15"></script>
+    <script src="app.js?v=16"></script>
 </body>
 </html>

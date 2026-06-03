@@ -138,6 +138,14 @@ class RenameRequest(BaseModel):
     filename: str
     new_title: str
 
+class CapturePayload(BaseModel):
+    title: str
+    category: str
+    content: str
+    tags: List[str] = []
+    status: str = "draft"
+
+
 # Helper: Clean filenames
 def sanitize_filename(name: str) -> str:
     clean = re.sub(r'[\\/*?:"<>|]', "", name)
@@ -909,6 +917,44 @@ async def ingest_note(payload: IngestPayload, authorization: Optional[str] = Hea
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Ingestion write error: {e}")
 
+@app.post("/api/notes/capture")
+async def capture_note(payload: CapturePayload):
+    category = payload.category
+    if category not in CATEGORY_MAP:
+        raise HTTPException(status_code=400, detail="Categoría inválida")
+        
+    filename = sanitize_filename(payload.title)
+    if not filename:
+        raise HTTPException(status_code=400, detail="Título inválido")
+        
+    filepath = f"{filename}.md"
+    file_path = get_secure_path(category, filepath)
+    
+    async with write_lock:
+        base_name = filename
+        counter = 1
+        while file_path.exists():
+            filepath = f"{base_name}-{counter}.md"
+            file_path = get_secure_path(category, filepath)
+            counter += 1
+            
+        post = frontmatter.Post(payload.content)
+        post.metadata["title"] = payload.title
+        post.metadata["category"] = category
+        post.metadata["tags"] = payload.tags or []
+        post.metadata["status"] = payload.status or "draft"
+        post.metadata["created"] = datetime.now().strftime("%Y-%m-%d")
+        post.metadata["updated"] = datetime.now().strftime("%Y-%m-%d")
+        
+        try:
+            await save_note_atomically(file_path, frontmatter.dumps(post))
+            await rebuild_index_internal()
+            return {"status": "success", "filepath": filepath, "category": category}
+        except HTTPException as he:
+            raise he
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error al guardar la nota capturada: {e}")
+
 @app.post("/api/notes/promote/{category}/{filepath:path}")
 async def promote_note(category: str, filepath: str, target: NotePromote):
     source_path = get_secure_path(category, filepath)
@@ -1046,7 +1092,7 @@ async def get_timeline(
         if requested:
             active_cats = [c for c in active_cats if c in requested]
 
-    search_terms = [t.strip().lower() for t in query.split() if t.strip()] if query else []
+    search_terms = [t.strip().lower().lstrip('#') for t in query.split() if t.strip()] if query else []
 
     events = []
     for cat in active_cats:

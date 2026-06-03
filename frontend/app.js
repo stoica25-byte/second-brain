@@ -113,6 +113,19 @@ const conflictBtnLocal = document.getElementById("conflict-btn-local");
 const conflictBtnRemote = document.getElementById("conflict-btn-remote");
 const conflictBtnManual = document.getElementById("conflict-btn-manual");
 
+// Quick Capture and Top Tags elements
+const btnQuickCapture = document.getElementById("btn-quick-capture");
+const quickCaptureModal = document.getElementById("quick-capture-modal");
+const captureClose = document.getElementById("capture-close");
+const captureCancelBtn = document.getElementById("capture-cancel-btn");
+const captureSaveBtn = document.getElementById("capture-save-btn");
+const captureTitle = document.getElementById("capture-title");
+const captureCategory = document.getElementById("capture-category");
+const captureStatus = document.getElementById("capture-status");
+const captureTags = document.getElementById("capture-tags");
+const captureContent = document.getElementById("capture-content");
+const topTagsContainer = document.getElementById("top-tags-container");
+
 let currentConflictFilepath = "";
 
 // Global graph state
@@ -237,9 +250,55 @@ function setupEventListeners() {
     if (judgeUiux) judgeUiux.addEventListener("click", () => selectScoaTab("uiux"));
     if (judgeModerator) judgeModerator.addEventListener("click", () => selectScoaTab("moderator"));
     
+    // Quick Capture events
+    if (btnQuickCapture) {
+        btnQuickCapture.addEventListener("click", () => {
+            quickCaptureModal.classList.add("active");
+            captureTitle.value = "";
+            captureContent.value = "";
+            captureTags.value = "";
+            captureCategory.value = "ideas";
+            captureStatus.value = "draft";
+            setTimeout(() => captureTitle.focus(), 100);
+        });
+    }
+    if (captureClose) {
+        captureClose.addEventListener("click", () => quickCaptureModal.classList.remove("active"));
+    }
+    if (captureCancelBtn) {
+        captureCancelBtn.addEventListener("click", () => quickCaptureModal.classList.remove("active"));
+    }
+    if (captureSaveBtn) {
+        captureSaveBtn.addEventListener("click", saveCapturedNote);
+    }
+    
+    // Keyboard shortcuts (Ctrl+K to search, Ctrl+N to quick capture)
+    window.addEventListener("keydown", (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            if (searchInput) {
+                searchInput.focus();
+                searchInput.select();
+            }
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'n') {
+            e.preventDefault();
+            if (quickCaptureModal) {
+                quickCaptureModal.classList.add("active");
+                captureTitle.value = "";
+                captureContent.value = "";
+                captureTags.value = "";
+                captureCategory.value = "ideas";
+                captureStatus.value = "draft";
+                setTimeout(() => captureTitle.focus(), 100);
+            }
+        }
+    });
+    
     window.addEventListener("click", (e) => {
         if (e.target === scoaModal) scoaModal.classList.remove("active");
         if (e.target === conflictModal) conflictModal.classList.remove("active");
+        if (e.target === quickCaptureModal) quickCaptureModal.classList.remove("active");
     });
     
     // Conflict modal resolutions
@@ -322,6 +381,8 @@ async function loadData() {
         
         notes = data.notes;
         graphData = data.graph;
+        
+        renderTopTags();
         
         updateStats();
         await loadInbox();
@@ -2172,3 +2233,114 @@ function showToast(type, message) {
         setTimeout(() => toast.remove(), 350);
     }, 4500);
 }
+
+// Renders the top tags widget in the left panel
+function renderTopTags() {
+    if (!topTagsContainer) return;
+    
+    const tagCounts = {};
+    Object.values(notes).forEach(note => {
+        if (note.tags && Array.isArray(note.tags)) {
+            note.tags.forEach(tag => {
+                const cleanedTag = tag.trim().toLowerCase();
+                if (cleanedTag) {
+                    tagCounts[cleanedTag] = (tagCounts[cleanedTag] || 0) + 1;
+                }
+            });
+        }
+    });
+    
+    // Sort tags by frequency desc
+    const sortedTags = Object.entries(tagCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10);
+        
+    topTagsContainer.innerHTML = "";
+    if (sortedTags.length === 0) {
+        topTagsContainer.innerHTML = `<span style="font-size: 10px; color: var(--text-muted); padding: 4px;">Sin etiquetas</span>`;
+        return;
+    }
+    
+    sortedTags.forEach(([tag, count]) => {
+        const tagEl = document.createElement("div");
+        tagEl.className = "top-tag-item";
+        tagEl.innerHTML = `
+            <span class="tag-name">#${tag}</span>
+            <span class="tag-count">${count}</span>
+        `;
+        tagEl.addEventListener("click", () => {
+            searchInput.value = `#${tag}`;
+            currentSearchQuery = `#${tag}`;
+            const clearBtn = document.getElementById("clear-search-btn");
+            if (clearBtn) clearBtn.style.display = "inline";
+            filterTimeline();
+            searchInput.focus();
+        });
+        topTagsContainer.appendChild(tagEl);
+    });
+}
+
+// Sends captured note details to FastAPI backend
+async function saveCapturedNote() {
+    const title = captureTitle.value.trim();
+    const category = captureCategory.value;
+    const status = captureStatus.value;
+    const tagsString = captureTags.value.trim();
+    const content = captureContent.value.trim();
+    
+    if (!title) {
+        showToast("error", "El título es obligatorio");
+        captureTitle.focus();
+        return;
+    }
+    if (!content) {
+        showToast("error", "El contenido en Markdown es obligatorio");
+        captureContent.focus();
+        return;
+    }
+    
+    const tags = tagsString ? tagsString.split(",").map(t => t.trim()).filter(t => t) : [];
+    
+    captureSaveBtn.disabled = true;
+    captureSaveBtn.innerText = "Guardando...";
+    
+    try {
+        const response = await fetch("/api/notes/capture", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                title,
+                category,
+                content,
+                tags,
+                status
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showToast("success", "¡Nota capturada con éxito!");
+            quickCaptureModal.classList.remove("active");
+            
+            // Clean values
+            captureTitle.value = "";
+            captureTags.value = "";
+            captureContent.value = "";
+            
+            // Reload index, notes, and rebuild tags
+            await loadData();
+        } else {
+            showToast("error", "Fallo al guardar: " + (data.detail || "Error desconocido"));
+        }
+    } catch (e) {
+        console.error(e);
+        showToast("error", "Error de red al guardar la nota");
+    } finally {
+        captureSaveBtn.disabled = false;
+        captureSaveBtn.innerText = "Guardar Nota";
+    }
+}
+
