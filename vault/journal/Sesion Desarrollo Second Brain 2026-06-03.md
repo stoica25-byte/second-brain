@@ -154,3 +154,28 @@ Sesión de debugging y desarrollo de nuevas funcionalidades en la consola web de
 - [index.html](file:///c:/Users/Estudiante/Downloads/benchmark/index.html)
 - [style.css](file:///c:/Users/Estudiante/Downloads/benchmark/style.css)
 - [app.js](file:///c:/Users/Estudiante/Downloads/benchmark/app.js)
+
+---
+
+# Sesión Noche (19:15 - 19:35)
+
+## Características Implementadas
+
+### 💡 Mini-Motor de Orquestación de Tareas por DAG
+- Creado sistema completo en `c:\Users\Estudiante\Downloads\benchmark\dag_orchestrator/`.
+- **Backend (FastAPI)**: Implementada validación de ciclos basada en el **algoritmo de Kahn** y DFS. Scheduler de tareas concurrentes asíncronas con `asyncio.Event` de Python, máquina de estados completa y simulación de tiempos/fallos.
+- **WebSockets**: Servidor WebSocket que gestiona de manera aislada suscripciones individuales a logs en tiempo real por cada nodo, además de enviar el estado global a todos los clientes.
+- **Frontend (D3.js & Vanilla)**: Visualización en tiempo real con D3 force simulation, soporte completo de zoom, pan, drag & drop de nodos y marcadores dirigidos (flechas).
+- **Consola de Logs**: Panel lateral con transiciones fluidas de CSS, consola con colores para tipos de log y sistema de **auto-scroll inteligente** que se pausa si el usuario sube a leer y se reanuda si baja al final.
+- **Prevención de fugas y duplicados**: Uso de delegación de eventos en el SVG de D3 y desactivación/desuscripción limpia de sockets al cerrar paneles.
+
+## Código Creado
+- [main.py](file:///c:/Users/Estudiante/Downloads/benchmark/dag_orchestrator/backend/main.py)
+- [index.html](file:///c:/Users/Estudiante/Downloads/benchmark/dag_orchestrator/frontend/index.html)
+- [style.css](file:///c:/Users/Estudiante/Downloads/benchmark/dag_orchestrator/frontend/style.css)
+- [app.js](file:///c:/Users/Estudiante/Downloads/benchmark/dag_orchestrator/frontend/app.js)
+
+## Notas Creadas
+- [[FastAPI StaticFiles Directorio No Encontrado]]
+- [[Asyncio Event Scheduler para DAG]]
+

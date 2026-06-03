@@ -178,6 +178,9 @@
   },
   "active": "33c7cda3827fefaf",
   "lastOpenFiles": [
+    "skills/Asyncio Event Scheduler para DAG.md",
+    "errors/FastAPI StaticFiles Directorio No Encontrado.md",
+    "skills/SCoA API Integration and Free Tier.md",
     "journal/Sesion Desarrollo Second Brain 2026-06-03.md",
     "errors/Event Listeners Duplicados D3 Graph.md",
     "skills/CSS Grid Collapsible Animation Pattern.md",
@@ -202,7 +205,6 @@
     "ideas/Second Brain Console Arquitectura.md",
     "skills/Git Remote Setup desde Web App.md",
     "skills/Obsidian URI Protocol Integracion.md",
-    "templates/error_solution.md",
-    "templates/journal_entry.md"
+    "templates/error_solution.md"
   ]
 }
