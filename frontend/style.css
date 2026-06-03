@@ -1023,7 +1023,7 @@ button:hover {
 }
 .note-viewer-body {
     flex: 1;
-    overflow-y: auto;
+    overflow: visible;
     padding-right: 6px;
     margin-bottom: 16px;
 }
