@@ -1,5 +1,5 @@
 ---
-title: "Obsidian URI Protocol - Integración con Apps Web"
+title: "Obsidian URI Protocol"
 category: skills
 status: active
 tags:
@@ -76,6 +76,7 @@ El vault debe estar registrado en Obsidian al menos una vez:
 ## El `NOMBRE_VAULT` es el nombre de la carpeta
 Si el vault está en `C:\proyectos\mi-brain\vault`, el nombre es `vault`.
 
-## Conectado a
-- [[Obsidian Vault Not Found Error]]
+---
+*Notas Relacionadas:*
+- [[Error: Obsidian Vault Not Found al abrir desde URI]]
 - [[Second Brain Console - Arquitectura]]

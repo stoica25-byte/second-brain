@@ -295,12 +295,32 @@ async def perform_draft_decay() -> int:
     return decay_count
 
 # Helper: Rebuild Index JSON with multi-map mapping & proximity
+def normalize_string(s: str) -> str:
+    if not s:
+        return ""
+    import unicodedata
+    # Normalize to NFD and remove diacritics
+    s_norm = unicodedata.normalize('NFKD', s)
+    s_clean = "".join([c for c in s_norm if not unicodedata.combining(c)])
+    # Lowercase and keep only alphanumeric
+    return re.sub(r'[^a-z0-9]', '', s_clean.lower())
+
 async def rebuild_index_internal() -> dict:
     await perform_draft_decay()
     
     notes = {}
     title_to_rel_paths = {}  # Dict[str, List[str]] to support duplicate titles
     
+    # Register helper for multiple keys mapping
+    def register_path(key: str, rel_path: str):
+        norm_key = normalize_string(key)
+        if not norm_key:
+            return
+        if norm_key not in title_to_rel_paths:
+            title_to_rel_paths[norm_key] = []
+        if rel_path not in title_to_rel_paths[norm_key]:
+            title_to_rel_paths[norm_key].append(rel_path)
+
     # First Pass: Register paths and construct title maps (excluding archives)
     for category, folder_path in CATEGORY_MAP.items():
         folder = Path(folder_path)
@@ -319,11 +339,10 @@ async def rebuild_index_internal() -> dict:
                 
                 rel_path = file_path.relative_to(VAULT_DIR).as_posix()
                 
-                # Multi-map lists for collision management
-                title_lower = title.lower()
-                if title_lower not in title_to_rel_paths:
-                    title_to_rel_paths[title_lower] = []
-                title_to_rel_paths[title_lower].append(rel_path)
+                # Multi-map lists for collision management: match title, filename, and path
+                register_path(title, rel_path)
+                register_path(file_path.stem, rel_path)
+                register_path(file_path.relative_to(VAULT_DIR).with_suffix("").as_posix(), rel_path)
                 
                 summary = post.get("summary") or post.get("description")
                 if not summary:
@@ -369,7 +388,7 @@ async def rebuild_index_internal() -> dict:
             
             resolved_links = []
             for raw_link in raw_links:
-                target_key = raw_link.lower()
+                target_key = normalize_string(raw_link)
                 resolved_path = resolve_proximity(rel_path, target_key, title_to_rel_paths)
                 if resolved_path:
                     resolved_links.append(resolved_path)
@@ -381,6 +400,7 @@ async def rebuild_index_internal() -> dict:
             note_data["links"] = resolved_links
         except Exception as e:
             print(f"Error resolving links in {rel_path}: {e}")
+
             
     # Build D3 Graph Nodes & Links
     graph_nodes = []

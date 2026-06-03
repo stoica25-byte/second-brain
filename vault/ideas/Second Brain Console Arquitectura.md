@@ -102,5 +102,5 @@ Obsidian (.md files) → FastAPI (rebuild_index) → brain_index.json
 ## Conectado a
 - [[D3js Force Graph Implementacion]]
 - [[Git Remote Setup desde Web App]]
-- [[Obsidian URI Protocol Integracion]]
+- [[Obsidian URI Protocol]]
 - [[Agent Debate Protocol]]
