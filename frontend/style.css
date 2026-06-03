@@ -1179,6 +1179,34 @@ button:hover {
     padding-left: 0;
 }
 
+/* Outgoing Connections (Conectado a) list */
+.connections-list {
+    list-style-type: disc;
+    margin-left: 20px;
+    margin-top: 8px;
+    margin-bottom: 16px;
+}
+.connections-list li {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    transition: color 0.2s ease;
+}
+.connections-list li.connection-item:hover {
+    color: var(--color-ideas);
+}
+.connections-list li.unresolved {
+    color: var(--color-errors);
+    text-decoration: line-through;
+    opacity: 0.65;
+}
+.empty-connections {
+    list-style-type: none;
+    margin-left: 0;
+    color: var(--text-placeholder);
+    font-style: italic;
+}
+
 .note-viewer-footer {
     display: flex;
     gap: 12px;

@@ -753,17 +753,24 @@ async function loadTimeline(page = 1, append = false) {
                         <h3 class="card-title">${highlightText(event.title)}</h3>
                     </div>
                     <div class="timeline-card-summary" id="timeline-summary-${safePath}">${highlightText(event.summary)}</div>
+                    <div class="timeline-card-collapsible">
+                        <div class="timeline-card-body-inner markdown-body" id="timeline-body-${safePath}"></div>
+                    </div>
                 `;
                 
-                // Add click handler to select and open note
+                // Add click handler to select, open note, and toggle expansion
                 card.addEventListener("click", (e) => {
                     if (e.target.tagName === 'A' || e.target.closest('a')) return;
                     
-                    document.querySelectorAll(".timeline-card").forEach(el => el.classList.remove("selected"));
-                    card.classList.add("selected");
-                    
-                    const matchingNote = notes[event.path] || event;
-                    openNote(matchingNote);
+                    const isExpanded = card.classList.contains("expanded");
+                    if (isExpanded) {
+                        card.classList.remove("expanded");
+                        const summaryEl = document.getElementById(`timeline-summary-${safePath}`);
+                        if (summaryEl) summaryEl.style.display = "block";
+                    } else {
+                        const matchingNote = notes[event.path] || event;
+                        openNote(matchingNote);
+                    }
                 });
                 
                 // Highlight if this is the currently active note
@@ -830,9 +837,49 @@ async function openNote(note) {
         viewNoteTitle.innerText = fullNote.title;
         viewNoteDates.innerText = `Creada: ${fullNote.created || "n/a"} • Actualizada: ${fullNote.updated || "n/a"}`;
         
-        // Render Markdown body safely
-        viewNoteBody.innerHTML = renderMarkdown(fullNote.content);
-        bindWikiLinkPreviews(viewNoteBody);
+        const safeId = getSafeId(note.path);
+        const activeCard = document.getElementById(`timeline-card-${safeId}`);
+        
+        // Render Note Viewer Body (Draft / Fallback or Outgoing Connections list)
+        if (note.status === "draft" || note.status === "unread" || !activeCard) {
+            // Show full note body text
+            viewNoteBody.innerHTML = renderMarkdown(fullNote.content);
+            bindWikiLinkPreviews(viewNoteBody);
+        } else {
+            // Show "Conectado a" connections list
+            let connectionsHtml = `<h4>Conectado a</h4><ul class="connections-list">`;
+            let hasLinks = false;
+            if (note.links && note.links.length > 0) {
+                note.links.forEach(targetPath => {
+                    if (targetPath.startsWith("unresolved/")) {
+                        const rawLink = targetPath.replace("unresolved/", "");
+                        connectionsHtml += `<li class="connection-item unresolved">[[${rawLink}]] (roto)</li>`;
+                        hasLinks = true;
+                    } else {
+                        const targetNote = notes[targetPath];
+                        if (targetNote) {
+                            connectionsHtml += `<li class="connection-item" data-path="${targetPath}" style="cursor:pointer; color:var(--color-primary); text-decoration:underline;">${targetNote.title}</li>`;
+                            hasLinks = true;
+                        }
+                    }
+                });
+            }
+            if (!hasLinks) {
+                connectionsHtml += `<li class="empty-connections">Ninguna nota conectada.</li>`;
+            }
+            connectionsHtml += `</ul>`;
+            
+            viewNoteBody.innerHTML = connectionsHtml;
+            
+            // Add click listeners to connection items
+            viewNoteBody.querySelectorAll(".connection-item").forEach(item => {
+                item.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    const path = item.getAttribute("data-path");
+                    if (path && notes[path]) openNote(notes[path]);
+                });
+            });
+        }
         
         // Render tags
         viewNoteTags.innerHTML = "";
@@ -884,12 +931,25 @@ async function openNote(note) {
                     : `drop-shadow(0px 0px 5px ${CATEGORY_COLORS[n.category] || "#7aa2f7"}88)`);
         }
         
-        // Mark corresponding timeline card as selected and scroll it into view
-        const safeId = getSafeId(note.path);
-        document.querySelectorAll(".timeline-card").forEach(el => el.classList.remove("selected"));
-        const activeCard = document.getElementById(`timeline-card-${safeId}`);
+        // Mark corresponding timeline card as selected, expand it, and scroll it into view
+        document.querySelectorAll(".timeline-card").forEach(el => {
+            if (el.id !== `timeline-card-${safeId}`) {
+                el.classList.remove("selected", "expanded");
+                const otherPath = el.id.replace("timeline-card-", "");
+                const otherSum = document.getElementById(`timeline-summary-${otherPath}`);
+                if (otherSum) otherSum.style.display = "block";
+            }
+        });
+        
         if (activeCard) {
-            activeCard.classList.add("selected");
+            activeCard.classList.add("selected", "expanded");
+            const summary = document.getElementById(`timeline-summary-${safeId}`);
+            if (summary) summary.style.display = "none";
+            const bodyInner = document.getElementById(`timeline-body-${safeId}`);
+            if (bodyInner) {
+                bodyInner.innerHTML = renderMarkdown(fullNote.content);
+                bindWikiLinkPreviews(bodyInner);
+            }
             activeCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
         }
         
