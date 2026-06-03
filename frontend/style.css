@@ -833,7 +833,7 @@ button:hover {
 /* Timeline scroll viewport */
 .timeline-viewport {
     position: relative;
-    overflow-y: auto;
+    overflow: hidden;
     flex: 1;
     padding: 10px 24px;
 }
@@ -857,6 +857,13 @@ button:hover {
     display: flex;
     flex-direction: column;
     gap: 20px;
+}
+
+/* Scroll target transitions management */
+.timeline-stream.no-transitions .timeline-card,
+.timeline-stream.no-transitions .timeline-card-collapsible {
+    transition: none !important;
+    transform: none !important;
 }
 
 .timeline-day-group {

@@ -860,50 +860,53 @@ async function openNote(note) {
         viewNoteDates.innerText = `Creada: ${fullNote.created || "n/a"} • Actualizada: ${fullNote.updated || "n/a"}`;
         
         const safeId = getSafeId(note.path);
-        let activeCard = document.getElementById(`timeline-card-${safeId}`);
-        
-        // If the card is not found in the DOM, let's clear filters (search query & category filter) and reload
-        if (!activeCard) {
-            let filtersCleared = false;
+        let activeCard = null;
+        if (note.status !== "draft" && note.status !== "unread") {
+            activeCard = document.getElementById(`timeline-card-${safeId}`);
             
-            const categoryChk = document.querySelector(`.graph-filter-chk[data-category="${note.category}"]`);
-            if (categoryChk && !categoryChk.checked) {
-                categoryChk.checked = true;
-                activeCategoryFilters = Array.from(
-                    document.querySelectorAll(".graph-filter-chk:checked")
-                ).map(el => el.getAttribute("data-category"));
-                filtersCleared = true;
-            }
-            
-            if (currentSearchQuery) {
-                currentSearchQuery = "";
-                if (searchInput) searchInput.value = "";
-                const clearSearchBtn = document.getElementById("clear-search-btn");
-                if (clearSearchBtn) clearSearchBtn.style.display = "none";
-                const countEl = document.getElementById("search-result-count");
-                if (countEl) countEl.style.display = "none";
-                filtersCleared = true;
-            }
-            
-            if (filtersCleared) {
-                if (globalGraphInitialized) {
-                    updateGlobalGraph();
-                }
-                await loadTimeline(1, false);
-                activeCard = document.getElementById(`timeline-card-${safeId}`);
-            }
-            
-            // If still not found (e.g. because it's on page 2 or deeper), set search query to note title to force it onto page 1
+            // If the card is not found in the DOM, let's clear filters (search query & category filter) and reload
             if (!activeCard) {
-                currentSearchQuery = note.title;
-                if (searchInput) searchInput.value = note.title;
-                const clearSearchBtn = document.getElementById("clear-search-btn");
-                if (clearSearchBtn) clearSearchBtn.style.display = "inline";
-                if (globalGraphInitialized) {
-                    updateGlobalGraph();
+                let filtersCleared = false;
+                
+                const categoryChk = document.querySelector(`.graph-filter-chk[data-category="${note.category}"]`);
+                if (categoryChk && !categoryChk.checked) {
+                    categoryChk.checked = true;
+                    activeCategoryFilters = Array.from(
+                        document.querySelectorAll(".graph-filter-chk:checked")
+                    ).map(el => el.getAttribute("data-category"));
+                    filtersCleared = true;
                 }
-                await loadTimeline(1, false);
-                activeCard = document.getElementById(`timeline-card-${safeId}`);
+                
+                if (currentSearchQuery) {
+                    currentSearchQuery = "";
+                    if (searchInput) searchInput.value = "";
+                    const clearSearchBtn = document.getElementById("clear-search-btn");
+                    if (clearSearchBtn) clearSearchBtn.style.display = "none";
+                    const countEl = document.getElementById("search-result-count");
+                    if (countEl) countEl.style.display = "none";
+                    filtersCleared = true;
+                }
+                
+                if (filtersCleared) {
+                    if (globalGraphInitialized) {
+                        updateGlobalGraph();
+                    }
+                    await loadTimeline(1, false);
+                    activeCard = document.getElementById(`timeline-card-${safeId}`);
+                }
+                
+                // If still not found (e.g. because it's on page 2 or deeper), set search query to note title to force it onto page 1
+                if (!activeCard) {
+                    currentSearchQuery = note.title;
+                    if (searchInput) searchInput.value = note.title;
+                    const clearSearchBtn = document.getElementById("clear-search-btn");
+                    if (clearSearchBtn) clearSearchBtn.style.display = "inline";
+                    if (globalGraphInitialized) {
+                        updateGlobalGraph();
+                    }
+                    await loadTimeline(1, false);
+                    activeCard = document.getElementById(`timeline-card-${safeId}`);
+                }
             }
         }
         
@@ -1009,6 +1012,11 @@ async function openNote(note) {
         });
         
         if (activeCard) {
+            // Temporarily disable transitions to instantly collapse other cards & expand this card to calculate exact heights
+            if (timelineStream) {
+                timelineStream.classList.add("no-transitions");
+            }
+
             activeCard.classList.add("selected", "expanded");
             const summary = document.getElementById(`timeline-summary-${safeId}`);
             if (summary) summary.style.display = "none";
@@ -1017,10 +1025,28 @@ async function openNote(note) {
                 bodyInner.innerHTML = renderMarkdown(fullNote.content);
                 bindWikiLinkPreviews(bodyInner);
             }
-            // Wrap scrollIntoView in a short delay so the card's grid layout transition has started expanding
+            
+            // Force layout reflow so the browser updates all heights instantly
+            activeCard.offsetHeight;
+
+            // Calculate the exact target scroll position within timelineStream
+            if (timelineStream) {
+                const relativeTop = activeCard.getBoundingClientRect().top - timelineStream.getBoundingClientRect().top + timelineStream.scrollTop;
+                // Add a small 10px offset for visual margin at the top
+                const targetScroll = Math.max(0, relativeTop - 10);
+                
+                timelineStream.scrollTo({
+                    top: targetScroll,
+                    behavior: "smooth"
+                });
+            }
+            
+            // Restore transitions after a short delay so manual clicks still animate
             setTimeout(() => {
-                activeCard.scrollIntoView({ behavior: "smooth", block: "start" });
-            }, 100);
+                if (timelineStream) {
+                    timelineStream.classList.remove("no-transitions");
+                }
+            }, 350);
         }
         
         // Reset scroll position to top of Note Viewer after layout settles
