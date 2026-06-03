@@ -917,6 +917,8 @@ async function openNote(note) {
 function renderMarkdown(mdText) {
     if (!mdText) return "<p><i>Contenido vacío</i></p>";
     
+    console.log("renderMarkdown input:", mdText.substring(0, 100) + "...");
+    
     // Parse WikiLinks: [[Target Note]] or [[Target Note|Alias]]
     let processed = mdText.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (match, target, alias) => {
         const noteName = target.trim();
@@ -929,9 +931,18 @@ function renderMarkdown(mdText) {
         return `<a class="${className}" href="#" data-note="${noteName}">${display}</a>`;
     });
     
-    const rawHtml = marked.parse(processed);
-    return DOMPurify.sanitize(rawHtml);
+    try {
+        const rawHtml = marked.parse(processed);
+        console.log("marked.parse output (first 100 chars):", typeof rawHtml === 'string' ? rawHtml.substring(0, 100) : rawHtml);
+        const sanitized = DOMPurify.sanitize(rawHtml);
+        console.log("DOMPurify.sanitize output (first 100 chars):", sanitized.substring(0, 100));
+        return sanitized;
+    } catch (err) {
+        console.error("Error during markdown parsing/sanitization:", err);
+        return `<p style="color:red;">Error de renderizado: ${err.message}</p>`;
+    }
 }
+
 
 function bindWikiLinkPreviews(container = document) {
     const anchors = container.querySelectorAll(".wikilink");
