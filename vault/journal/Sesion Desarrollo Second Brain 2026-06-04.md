@@ -47,6 +47,15 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
 ### Skills
 - [[SCoA AI-Driven Semantic Linking with Fallback]]
 
+## Desarrollo del Dashboard de Control Remoto (Antigravity & Second Brain)
+- **Logros**:
+  - Integración del widget de monitorización para Antigravity IDE (`#widget-antigravity`) en la interfaz del HUD.
+  - Implementación de la visualización del estado de conexión de Antigravity en tiempo real mediante llamadas al backend proxy en `/api/antigravity/status`.
+  - Creación de simulación de telemetría de CPU y RAM para los agentes activos de Antigravity con barras de progreso animadas en el frontend.
+  - Control de configuración dinámico para la URL del editor local y almacenamiento persistente local.
+  - Habilitado de cache-busting en los assets estáticos incrementando la versión a la versión 2.
+  - Verificación exitosa de los servicios de Second Brain y Antigravity en los puertos locales.
+
 ## Conectado a
 - [[Welcome Hub]]
 - [[Agent Debate Protocol]]
