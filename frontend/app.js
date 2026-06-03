@@ -295,6 +295,23 @@ function setupEventListeners() {
     if (setRemoteBtn) {
         setRemoteBtn.addEventListener("click", handleSetRemote);
     }
+    
+    // Left panel collapse toggle listener
+    const toggleLeftBtn = document.getElementById("toggle-left-panel-btn");
+    const panelLeft = document.querySelector(".panel-left");
+    if (toggleLeftBtn && panelLeft) {
+        toggleLeftBtn.addEventListener("click", () => {
+            const isCollapsed = panelLeft.classList.toggle("collapsed");
+            toggleLeftBtn.innerHTML = isCollapsed ? "▶" : "◀";
+            if (isCollapsed) {
+                toggleLeftBtn.style.left = "0px";
+                toggleLeftBtn.setAttribute("title", "Expandir Panel Izquierdo");
+            } else {
+                toggleLeftBtn.style.left = "290px";
+                toggleLeftBtn.setAttribute("title", "Contraer Panel Izquierdo");
+            }
+        });
+    }
 }
 
 // --- DATA LOADERS ---
