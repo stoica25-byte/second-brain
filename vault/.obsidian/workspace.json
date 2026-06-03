@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "ef0e7344426a98b3",
+        "id": "3a5bb11fd9a6828e",
         "type": "tabs",
         "children": [
           {
-            "id": "224803cc2cee14fe",
+            "id": "33c7cda3827fefaf",
             "type": "leaf",
             "state": {
               "type": "graph",
@@ -176,8 +176,12 @@
       "bases:Crear nueva base": false
     }
   },
-  "active": "224803cc2cee14fe",
+  "active": "33c7cda3827fefaf",
   "lastOpenFiles": [
+    "Sin título.md",
+    "Sin título.base",
+    "Sin nombre",
+    "ideas/scoa-debate-mejor-plan-a-seguir-para-hacer.md",
     "errors/Obsidian Vault Not Found Error.md",
     "errors/CSS Hidden Class Sin Efecto.md",
     "skills/D3js Force Graph Implementacion.md",
