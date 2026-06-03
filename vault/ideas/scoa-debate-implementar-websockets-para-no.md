@@ -418,4 +418,6 @@ Con base en los **hallazgos y referencias** expuestos, la acusación de la Fisca
 
 **Recomendación final:**  
 Aprobar la propuesta **solo si se incluye una especificación técnica detallada** que aborde los puntos señalados por la Fiscalía. De lo contrario, se recomienda rechazarla hasta que se resuelvan las omisiones críticas.
-
+--- 
+### Conexiones Auto-detectadas
+- [[Welcome Hub]]

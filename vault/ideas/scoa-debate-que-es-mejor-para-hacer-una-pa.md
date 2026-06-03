@@ -171,3 +171,6 @@ La veredicto es **Aprobado con Condiciones**, con énfasis en ajustes técnicos 
 - **NoSQL** puede ser la mejor opción si la aplicación necesita gran flexibilidad y cambios frecuentes de esquema, pero exige un UI más complejo y dinámico (calificación **C**).  
 
 Implementar los patrones de diseño sugeridos (formularios dinámicos, validación contextual, presentación clara de datos anidados o relacionales) reducirá la fricción del usuario y mejorará la accesibilidad global, independientemente del motor de base de datos elegido.
+--- 
+### Conexiones Auto-detectadas
+- [[Welcome Hub]]

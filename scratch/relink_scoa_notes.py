@@ -15,12 +15,12 @@ def relink_existing():
     try:
         with open(index_file, "r", encoding="utf-8") as f:
             idx = json.load(f)
-            note_titles = list(idx.get("notes", {}).keys())
+            notes_data = idx.get("notes", {})
     except Exception as e:
         print(f"Error reading index: {e}")
         return
         
-    print(f"Loaded {len(note_titles)} note titles from index.")
+    print(f"Loaded {len(notes_data)} notes from index.")
     
     # Find all SCoA files in vault/ideas, vault/skills, vault/journal
     scoa_files = list(vault_path.glob("**/scoa-debate-*.md"))
@@ -36,19 +36,36 @@ def relink_existing():
                 content = f.read()
                 
             # Extract title from frontmatter or text
-            title_match = re.search(r'title:\s*"Debate SCoA:\s*(.+?)"', content)
+            title_match = re.search(r'title:\s*"(?:Debate SCoA:|SCoA Debate:)\s*(.+?)"', content)
             title = title_match.group(1).strip() if title_match else ""
             
             # Find matches
             auto_links = []
-            for note_title in note_titles:
-                if title and note_title.lower() == title.lower():
+            for note_key, note_info in notes_data.items():
+                note_title = note_info.get("title", "")
+                note_filename = Path(note_info.get("filename", "")).stem
+                
+                if note_filename == file_path.stem or (title and (note_title.lower() == title.lower() or note_filename.lower() == title.lower())):
                     continue
+                
+                match_found = False
+                link_name = ""
                 if len(note_title) > 3 and note_title.lower() in content.lower():
+                    match_found = True
+                    link_name = note_filename
+                elif len(note_filename) > 3 and note_filename.lower() in content.lower():
+                    match_found = True
+                    link_name = note_filename
+                    
+                if match_found and link_name:
                     # Check if already linked
-                    if f"[[{note_title}]]" not in content:
-                        auto_links.append(note_title)
+                    if f"[[{link_name}]]" not in content:
+                        auto_links.append(link_name)
             
+            # Ensure Welcome Hub is always linked to prevent orphan nodes
+            if "[[Welcome Hub]]" not in content and file_path.name != "welcome.md":
+                auto_links.append("Welcome Hub")
+
             if not auto_links:
                 print("No new connections found for this file.")
                 continue

@@ -366,11 +366,25 @@ async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str =
         try:
             with open(index_file, "r", encoding="utf-8") as f:
                 idx = json.load(f)
-                for note_title in idx.get("notes", {}).keys():
-                    if note_title.lower() == title.lower():
+                for note_key, note_info in idx.get("notes", {}).items():
+                    note_title = note_info.get("title", "")
+                    note_filename = Path(note_info.get("filename", "")).stem
+                    
+                    if note_filename == filename or note_title.lower() == title.lower() or note_filename.lower() == title.lower():
                         continue
+                    
+                    # Scan for either the title or the filename stem in the generated text
+                    match_found = False
+                    link_name = ""
                     if len(note_title) > 3 and note_title.lower() in full_text_to_scan.lower():
-                        auto_links.append(note_title)
+                        match_found = True
+                        link_name = note_filename
+                    elif len(note_filename) > 3 and note_filename.lower() in full_text_to_scan.lower():
+                        match_found = True
+                        link_name = note_filename
+                        
+                    if match_found and link_name:
+                        auto_links.append(link_name)
         except Exception:
             pass
             
@@ -396,10 +410,13 @@ async def run_debate_stream(proposal: str, api_key_or_keys: Any, category: str =
         f"### 🏛️ Expediente Preparado por el Tribunal\n{critiques['tribunal']}\n"
     )
     
+    # Always include a connection section pointing to the Welcome Hub to avoid orphan nodes
+    content += "\n--- \n### Conexiones\n"
+    content += "- [[Welcome Hub]]\n"
     if auto_links:
-        content += "\n--- \n### Conexiones Auto-detectadas\n"
         for link in set(auto_links):
-            content += f"- [[{link}]]\n"
+            if link != "Welcome Hub" and link != "welcome":
+                content += f"- [[{link}]]\n"
             
     try:
         with open(file_path, "w", encoding="utf-8") as f:

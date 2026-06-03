@@ -264,3 +264,6 @@ The n8n automation business proposal shows strong potential in performance and U
 ---  
 
 **Bottom line:** Focus on a single, compelling headline; unify card styling; place CTAs where users naturally finish reading; improve contrast and alt text; and adopt a responsive, step‑by‑step visual cue. These adjustments dramatically reduce friction and elevate the overall UX.
+--- 
+### Conexiones Auto-detectadas
+- [[Welcome Hub]]
