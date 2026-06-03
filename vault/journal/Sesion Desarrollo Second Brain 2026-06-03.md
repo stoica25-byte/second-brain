@@ -106,3 +106,35 @@ Sesión de debugging y desarrollo de nuevas funcionalidades en la consola web de
 - Siempre usar cache-busting en archivos estáticos en desarrollo
 - `.offsetHeight` fuerza un reflow síncrono → útil para obtener dimensiones finales tras un cambio de clase
 
+---
+
+# Sesión Tarde-Noche (17:15 - 17:30)
+
+## Características Implementadas
+
+### 💡 Captura Rápida (Quick Capture)
+- Endpoint `POST /api/notes/capture` en FastAPI que genera automáticamente nombres de archivo sanitizados únicos añadiendo sufijos numéricos ante colisiones.
+- Interfaz de modal `#quick-capture-modal` en HTML con campos para título, categoría, estado (borrador/activa), etiquetas y cuerpo en Markdown.
+- Botón "Nueva Captura" en el panel izquierdo.
+
+### 🛠️ Widget de Tags Populares
+- Función `renderTopTags()` en frontend que extrae, cuenta y ordena las 10 etiquetas más utilizadas de la base de notas.
+- Los tags del widget filtran el timeline al hacer clic con foco en la barra de búsqueda.
+- Backend optimizado para admitir búsquedas de hashtags (stripping `#` de los términos en `/api/timeline`).
+
+### ⌨️ Atajos de Teclado
+- `Ctrl+K` para enfocar y seleccionar la barra de búsqueda global.
+- `Ctrl+N` para disparar el modal de captura rápida de notas de forma inmediata.
+
+## Código Modificado
+- [main.py](file:///c:/Users/Estudiante/Downloads/seond-brain/backend/main.py)
+- [app.js](file:///c:/Users/Estudiante/Downloads/seond-brain/frontend/app.js) (incrementado a `v=16`)
+- [index.html](file:///c:/Users/Estudiante/Downloads/seond-brain/frontend/index.html)
+- [style.css](file:///c:/Users/Estudiante/Downloads/seond-brain/frontend/style.css) (incrementado a `v=6`)
+
+## Verificación de Servidor
+- Servidor iniciado vía PowerShell con recarga de cambios activa.
+- Test de captura mediante script en scratch exitoso (Response Code 200, duplicados resueltos con sufijos).
+- Repositorio sincronizado, comprometido y subido a GitHub de forma exitosa.
+
+
