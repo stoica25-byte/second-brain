@@ -367,7 +367,7 @@ async function loadInbox() {
                         <span class="source-tag">${draft.source_type || 'Draft'}</span>
                         <span class="timestamp">${draft.created}</span>
                     </div>
-                    <div class="triage-title" id="triage-title-display-${safeId}">${draft.title}</div>
+                    <div class="triage-title" id="triage-title-display-${safeId}" style="cursor: pointer; text-decoration: underline;" onclick="openDraftInViewer('${draft.category}', '${draft.filename.replace(/'/g, "\\'")}', '${draft.path.replace(/'/g, "\\'")}', '${draft.title.replace(/'/g, "\\'")}')" title="Haga clic para ver el contenido completo de la nota">${draft.title}</div>
                     <div class="triage-quick-actions">
                         <button class="btn-triage btn-triage-approve" onclick="triageApprove('${draft.category}', '${draft.filename}', '${safeId}')">Aprobar</button>
                         <button class="btn-triage btn-triage-edit" onclick="triageToggleEdit('${safeId}')">Editar</button>
@@ -413,6 +413,18 @@ async function loadInbox() {
     }
 }
 
+function openDraftInViewer(category, filename, path, title) {
+    const draftNote = {
+        category: category,
+        filename: filename,
+        path: path,
+        title: title,
+        tags: [],
+        backlinks: []
+    };
+    openNote(draftNote);
+}
+
 function triageToggleEdit(safeId) {
     const card = document.getElementById(`triage-card-${safeId}`);
     const drawer = document.getElementById(`triage-drawer-${safeId}`);
@@ -422,6 +434,7 @@ function triageToggleEdit(safeId) {
 }
 
 async function triageSaveMetadata(category, filename, safeId) {
+
     const titleVal = document.getElementById(`triage-input-title-${safeId}`).value.trim();
     const catVal = document.getElementById(`triage-input-category-${safeId}`).value;
     const tagsVal = document.getElementById(`triage-input-tags-${safeId}`).value;
