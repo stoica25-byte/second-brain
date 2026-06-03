@@ -924,8 +924,12 @@ function renderMarkdown(mdText) {
         const noteName = target.trim();
         const display = alias ? alias.trim() : noteName;
         
-        // Check target exists by matching note titles in database
-        const exists = Object.values(notes).some(n => n.title.toLowerCase() === noteName.toLowerCase());
+        // Check target exists by matching note titles, filenames (without .md), or paths in database
+        const exists = Object.values(notes).some(n => 
+            n.title.toLowerCase() === noteName.toLowerCase() ||
+            n.filename.replace(/\.md$/, "").toLowerCase() === noteName.toLowerCase() ||
+            n.path.replace(/\.md$/, "").toLowerCase() === noteName.toLowerCase()
+        );
         const className = exists ? "wikilink" : "wikilink broken";
         
         return `<a class="${className}" href="#" data-note="${noteName}">${display}</a>`;
@@ -949,10 +953,18 @@ function bindWikiLinkPreviews(container = document) {
     anchors.forEach(a => {
         const name = a.getAttribute("data-note");
         
+        const findTargetNote = () => {
+            return Object.values(notes).find(n => 
+                n.title.toLowerCase() === name.toLowerCase() ||
+                n.filename.replace(/\.md$/, "").toLowerCase() === name.toLowerCase() ||
+                n.path.replace(/\.md$/, "").toLowerCase() === name.toLowerCase()
+            );
+        };
+        
         // Click action
         a.addEventListener("click", (e) => {
             e.preventDefault();
-            const targetNote = Object.values(notes).find(n => n.title.toLowerCase() === name.toLowerCase());
+            const targetNote = findTargetNote();
             if (targetNote) {
                 openNote(targetNote);
                 
@@ -976,7 +988,7 @@ function bindWikiLinkPreviews(container = document) {
         
         a.addEventListener("mouseenter", (e) => {
             hoverTimeout = setTimeout(() => {
-                const targetNote = Object.values(notes).find(n => n.title.toLowerCase() === name.toLowerCase());
+                const targetNote = findTargetNote();
                 
                 popoverEl = document.createElement("div");
                 popoverEl.className = "wikilink-popover glass";
@@ -1006,6 +1018,7 @@ function bindWikiLinkPreviews(container = document) {
                         <div class="popover-body">La nota "${name}" no existe en tu cerebro.</div>
                     `);
                 }
+
                 
                 document.body.appendChild(popoverEl);
                 setTimeout(() => popoverEl.classList.add("visible"), 20);
