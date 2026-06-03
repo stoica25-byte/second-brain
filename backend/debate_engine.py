@@ -67,7 +67,7 @@ def get_api_key() -> str:
 
 def call_gemini_stream_sync(api_key: str, system_instruction: str, user_prompt: str):
     """Sync generator calling Gemini API via raw urllib requests."""
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:streamGenerateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?key={api_key}"
     payload = {
         "contents": [{"parts": [{"text": user_prompt}]}],
         "systemInstruction": {"parts": [{"text": system_instruction}]},
