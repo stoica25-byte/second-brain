@@ -10,7 +10,7 @@ summary: "Detalle técnico de cómo el motor de debates SCoA realiza llamadas gr
 
 # SCoA: Integración de API y Capa Gratuita
 
-Este documento explica los mecanismos técnicos que permiten al motor del **Tribunal Supremo de Agentes (SCoA)** realizar deliberaciones complejas y búsquedas web en tiempo real sin incurrir en costes de facturación.
+Esta guía técnica complementa el [[Agent Debate Protocol]] y explica los mecanismos que permiten al motor del **Tribunal Supremo de Agentes (SCoA)** realizar deliberaciones complejas y búsquedas web en tiempo real sin incurrir en costes de facturación.
 
 ---
 
@@ -66,3 +66,9 @@ Si la variable `OPENROUTER_API_KEY` está configurada y no hay clave de Gemini d
 
 * **Modelos `openrouter/free`**: OpenRouter ofrece enrutamiento gratuito a modelos abiertos (como *Llama 3*, *Mistral*, *Gemma* o *Phi*) alojados por patrocinadores de la comunidad.
 * **Límites**: Están sujetos a límites de velocidad globales y latencia variable, pero permiten ejecutar el motor SCoA de manera totalmente gratuita y en modo local/remoto sin depender de Google.
+
+---
+
+## Véase también
+* [[Welcome Hub]]
+* [[Agent Debate Protocol]]
