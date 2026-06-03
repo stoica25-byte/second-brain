@@ -169,7 +169,7 @@ def call_openrouter_stream_sync(api_key: str, system_instruction: str, user_prom
         raise RuntimeError(f"OpenRouter Error {e.code}: {err_msg}")
     except Exception as e:
         raise RuntimeError(f"OpenRouter Connection Error: {e}")
-no interpretable"
+
 
 def call_gemini_stream_sync(api_key: str, system_instruction: str, user_prompt: str):
     """Sync generator that tries each model in the fallback chain until one succeeds."""
