@@ -55,6 +55,7 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
   - Control de configuración dinámico para la URL del editor local y almacenamiento persistente local.
   - Habilitado de cache-busting en los assets estáticos incrementando la versión a la versión 2.
   - Verificación exitosa de los servicios de Second Brain y Antigravity en los puertos locales.
+  - **Exposición Móvil**: Configuración del túnel de Cloudflare (`cloudflared`) para exponer el puerto 8080 del Dashboard unificado con URL HTTPS pública y reconfiguración del sistema de energía de Windows (`powercfg`) para suspender la pantalla sin interrumpir la CPU ni el servicio.
 
 ## Conectado a
 - [[Welcome Hub]]
