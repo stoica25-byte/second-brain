@@ -972,7 +972,7 @@ async function openNote(note) {
                 bodyInner.innerHTML = renderMarkdown(fullNote.content);
                 bindWikiLinkPreviews(bodyInner);
             }
-            activeCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            activeCard.scrollIntoView({ behavior: "smooth", block: "start" });
         }
         
         // Reset scroll position to top of Note Viewer after layout settles
@@ -1048,16 +1048,6 @@ function bindWikiLinkPreviews(container = document) {
             const targetNote = findTargetNote();
             if (targetNote) {
                 openNote(targetNote);
-                
-                // Highlight expanded timeline card if it exists
-                const safePath = getSafeId(targetNote.path);
-                const tCard = document.getElementById(`timeline-card-${safePath}`);
-                if (tCard) {
-                    tCard.scrollIntoView({ behavior: "smooth", block: "center" });
-                    if (!tCard.classList.contains("expanded")) {
-                        tCard.click();
-                    }
-                }
             } else {
                 showToast("warning", `La nota "${name}" no existe. Créala en Obsidian Desktop.`);
             }
