@@ -71,8 +71,10 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
       - **Pérdida de Prototipos**: Al ligar todas las funciones globales mediante `.bind()`, los constructores nativos (como `TypeError`) perdían su prototipo. Se implementó un filtro condicional `typeof value === 'function' && !value.prototype` para ligar únicamente métodos de interfaz (ej. `fetch`, `setTimeout`) y dejar intactos los constructores/clases nativas.
       - **Autodetección de URL del Túnel**: Se modificó `get_tunnel_url_from_log` en `api/index.py` para priorizar la lectura en tiempo real de `cloudflared.log` sobre el archivo de texto estático `tunnel_url.txt` y actualizar este último al vuelo.
       - **Lanzador Manual por Batch**: Se creó e implementó `iniciar_servidores.bat` en la raíz del proyecto. Este script cierra de forma segura procesos anteriores (usando `taskkill` y PowerShell CIM), arranca las APIs de control remoto y de Second Brain en ventanas minimizadas independientes y levanta el túnel de Cloudflare, extrayendo en caliente la dirección pública en tiempo real de forma inmune a errores de sintaxis del parser cmd gracias a `setlocal enabledelayedexpansion`.
-      - **Optimización de Layout Móvil (HUD e IDE)**: Se implementó un sistema de auto-ocultado para el header del dashboard (`body.hide-header`) al seleccionar la pestaña del IDE de Antigravity, maximizando la altura útil de Monaco. Se eliminaron solapamientos con el notch/reloj restando `env(safe-area-inset-top)` y `env(safe-area-inset-bottom)` a la altura y márgenes del contenedor `main`. Se actualizaron las firmas de caché a `style.css?v=5` y `app.js?v=6` para forzar refrescos inmediatos en smartphones.
-    - **Nueva URL activa**: `https://cases-indexes-encourages-production.trycloudflare.com`
+      - **Optimización de Layout Móvil (HUD e IDE)**: Se implementó un sistema de auto-ocultado para el header del dashboard (`body.hide-header`) al seleccionar la pestaña del IDE de Antigravity, maximizando la altura útil de Monaco. Se eliminaron solapamientos con el notch/reloj restando `env(safe-area-inset-top)` and `env(safe-area-inset-bottom)` a la altura y márgenes del contenedor `main`. Se actualizaron las firmas de caché a `style.css?v=6` y `app.js?v=6` para forzar refrescos inmediatos en smartphones.
+      - **Ajuste de Notch en iPhone (Editor IDE)**: Se añadió un espaciado de cabecera con `padding-top: env(safe-area-inset-top, 34px) !important` al contenedor del editor Antigravity IDE (`#panel-antigravity-ide`) en la vista responsive. Esto evita el solapamiento de la barra de herramientas (`Open IDE`, títulos y flechas) con la Dynamic Island o la cámara física.
+      - **Silenciado de Errores de Reconexión de Streams**: Al suspender y reanudar el navegador en el móvil (ej. bloquear pantalla), se cerraban de forma abrupta los streams gRPC/SSE, disparando banners de error rojos redundantes de `missing trailer` / `Failed to fetch`. Se añadieron filtros de exclusión en el depurador inyectado (`showErr`) para omitir alertas de desconexiones normales del flujo y se añadió un botón de cierre `✕` para el banner.
+    - **Nueva URL activa**: `https://allowing-refresh-coins-spa.trycloudflare.com`
 
 
 ## Conectado a
@@ -82,3 +84,5 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
 - [[Mobile Blank Screen and Mixed Content]]
 - [[FastAPI Dynamic JS Rewriter Proxy]]
 - [[JS Proxy Illegal Invocation and Constructor Prototype Loss]]
+- [[Stream Connection Drops on Mobile Suspend Resume]]
+- [[Safe Area Notch Spacing in Embedded Webview]]
