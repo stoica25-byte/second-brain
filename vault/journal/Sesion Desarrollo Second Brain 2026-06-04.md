@@ -43,9 +43,11 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
 
 ### Errores
 - [[Python List Type Annotation NameError]]
+- [[Mobile Blank Screen and Mixed Content]]
 
 ### Skills
 - [[SCoA AI-Driven Semantic Linking with Fallback]]
+- [[FastAPI Dynamic JS Rewriter Proxy]]
 
 ## Desarrollo del Dashboard de Control Remoto (Antigravity & Second Brain)
 - **Logros**:
@@ -53,11 +55,14 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
   - Implementación de la visualización del estado de conexión de Antigravity en tiempo real mediante llamadas al backend proxy en `/api/antigravity/status`.
   - Creación de simulación de telemetría de CPU y RAM para los agentes activos de Antigravity con barras de progreso animadas en el frontend.
   - Control de configuración dinámico para la URL del editor local y almacenamiento persistente local.
-  - Habilitado de cache-busting en los assets estáticos incrementando la versión a la versión 2.
+  - Habilitado de cache-busting en los assets estáticos incrementando la versión a la versión 3.
   - Verificación exitosa de los servicios de Second Brain y Antigravity en los puertos locales.
-  - **Exposición Móvil**: Configuración del túnel de Cloudflare (`cloudflared`) como tarea de fondo persistente para exponer directamente el IDE y chatbot de Antigravity en el puerto HTTP 56523 con reescritura de cabecera de Host a `localhost` y protocolo HTTP/2, y reconfiguración del sistema de energía de Windows (`powercfg`) para apagar la pantalla sin interrumpir la ejecución de la CPU ni del agente.
+  - **Resolución de Pantalla en Blanco en Móvil**: Identificación del bloqueo por Mixed Content en Safari móvil y de llamadas a API hardcodeadas a `127.0.0.1`. Redirección del túnel de Cloudflare al Dashboard (puerto 8080) e implementación de un Dynamic JS/HTML Rewriting Proxy en FastAPI que adapta en caliente el bundle del IDE (`main.js`) y referencias de HTML relativas, permitiendo el control total seguro por HTTPS y de forma transparente en dispositivos móviles.
+  - **Exposición Móvil**: Configuración del túnel de Cloudflare (`cloudflared`) persistente en el puerto HTTP 8080 y reconfiguración del sistema de energía de Windows (`powercfg`) para apagar la pantalla sin interrumpir la ejecución de la CPU ni del agente.
 
 ## Conectado a
 - [[Welcome Hub]]
 - [[Agent Debate Protocol]]
 - [[SCoA API Integration and Free Tier]]
+- [[Mobile Blank Screen and Mixed Content]]
+- [[FastAPI Dynamic JS Rewriter Proxy]]
