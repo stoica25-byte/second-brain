@@ -55,7 +55,7 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
   - Control de configuración dinámico para la URL del editor local y almacenamiento persistente local.
   - Habilitado de cache-busting en los assets estáticos incrementando la versión a la versión 2.
   - Verificación exitosa de los servicios de Second Brain y Antigravity en los puertos locales.
-  - **Exposición Móvil**: Configuración del túnel de Cloudflare (`cloudflared`) para exponer directamente el IDE y chatbot de Antigravity en el puerto HTTP 56523 y reconfiguración del sistema de energía de Windows (`powercfg`) para apagar la pantalla sin interrumpir la ejecución de la CPU ni del agente.
+  - **Exposición Móvil**: Configuración del túnel de Cloudflare (`cloudflared`) para exponer directamente el IDE y chatbot de Antigravity en el puerto HTTP 56523 forzando el protocolo HTTP/2 sobre TCP para saltar los bloqueos de cortafuegos UDP, y reconfiguración del sistema de energía de Windows (`powercfg`) para apagar la pantalla sin interrumpir la ejecución de la CPU ni del agente.
 
 ## Conectado a
 - [[Welcome Hub]]
