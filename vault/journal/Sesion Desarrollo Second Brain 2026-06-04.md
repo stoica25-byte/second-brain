@@ -70,7 +70,8 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
       - **Invocación Ilegal**: Se eliminó el parámetro `receiver` en las llamadas a `Reflect.get`/`Reflect.set` dentro de los proxies de `Location` y `Window` de `index.html`. Esto evitó que los getters nativos se ejecutaran sobre el Proxy en lugar del objeto real.
       - **Pérdida de Prototipos**: Al ligar todas las funciones globales mediante `.bind()`, los constructores nativos (como `TypeError`) perdían su prototipo. Se implementó un filtro condicional `typeof value === 'function' && !value.prototype` para ligar únicamente métodos de interfaz (ej. `fetch`, `setTimeout`) y dejar intactos los constructores/clases nativas.
       - **Autodetección de URL del Túnel**: Se modificó `get_tunnel_url_from_log` en `api/index.py` para priorizar la lectura en tiempo real de `cloudflared.log` sobre el archivo de texto estático `tunnel_url.txt` y actualizar este último al vuelo.
-    - **Nueva URL activa**: `https://lawyers-sprint-glass-essence.trycloudflare.com`
+      - **Lanzador Manual por Batch**: Se creó e implementó `iniciar_servidores.bat` en la raíz del proyecto. Este script cierra de forma segura procesos anteriores (usando `taskkill` y PowerShell CIM), arranca las APIs de control remoto y de Second Brain en ventanas minimizadas independientes y levanta el túnel de Cloudflare, extrayendo en caliente la dirección pública en tiempo real de forma inmune a errores de sintaxis del parser cmd gracias a `setlocal enabledelayedexpansion`.
+    - **Nueva URL activa**: `https://cases-indexes-encourages-production.trycloudflare.com`
 
 
 ## Conectado a
