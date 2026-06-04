@@ -45,6 +45,7 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
 - [[Python List Type Annotation NameError]]
 - [[Mobile Blank Screen and Mixed Content]]
 - [[SPA Router Not Found behind Proxy]]
+- [[Windows Batch Parenthesis Syntax Crash]]
 
 
 ### Skills
@@ -96,3 +97,4 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
 - [[Safe Area Notch Spacing in Embedded Webview]]
 - [[Batch Script PowerShell Port and IP Querying]]
 - [[Offline Form Sync Queue with LocalStorage]]
+- [[Windows Batch Parenthesis Syntax Crash]]
