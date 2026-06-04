@@ -60,17 +60,21 @@ Implementar una solución de doble capa para garantizar el correcto enmascaramie
 })();
 ```
 
-2. **Reemplazo Léxico en el JS Bundle (`main.js`)**:
-   Reemplazar dinámicamente referencias directas a `window.location.pathname` y `location.pathname` por la propiedad global enmascarada `window.__fakePathname` al vuelo en el proxy de FastAPI:
+2. **Reemplazo Léxico Seguro en el JS Bundle (`main.js`)**:
+   Reemplazar dinámicamente referencias directas a `window.location.pathname` y `location.pathname` por la propiedad global enmascarada `window.__fakePathname` al vuelo en el proxy de FastAPI.
+
+   > [!WARNING]
+   > Usar `.replace("location.pathname", ...)` reemplaza de forma destructiva las referencias a objetos internos de routers como `b.location.pathname` o `c.location.pathname` convirtiéndolas en `b.window.__fakePathname`, lo que resulta en un error: `TypeError: Cannot read properties of undefined (reading '__fakePathname')`.
+
+   Para solucionarlo, se deben usar expresiones regulares con lookbehind negativo para reemplazar únicamente cuando se trate de la variable global (no precedida por un punto ni caracteres alfanuméricos):
 
 ```python
-# Rewrite location.pathname/window.location.pathname references
-js_content = js_content.replace("window.location.pathname", "window.__fakePathname")
-js_content = js_content.replace("location.pathname", "window.__fakePathname")
+# Rewrite location.pathname/window.location.pathname references safely using regex lookbehinds
+js_content = re.sub(r'(?<![a-zA-Z0-9_])window\.location\.pathname', 'window.__fakePathname', js_content)
+js_content = re.sub(r'(?<![a-zA-Z0-9_\.])location\.pathname', 'window.__fakePathname', js_content)
 ```
 
-
 ## Prevención y Aprendizajes
-- Los enrutadores SPA modernos confían en `window.location.pathname` para emparejar rutas.
-- En algunos navegadores móviles (como Safari en iOS o Chrome móvil), `window.Location` puede no estar definido globalmente de la misma manera o el descriptor de `pathname` en el prototipo no tener un getter directo. Es más seguro obtener el prototipo mediante `Object.getPrototypeOf(window.location)`.
-- Usar `toString.call(this)` en combinación con la clase nativa `URL` permite extraer la URL completa actual y parsear el `pathname` real de forma segura y sin riesgo de recursión infinita.
+- **Uso de Regex con Lookbehinds para Variables Globales**: Al interceptar variables de entorno o globales del navegador en un bundle ofuscado (como `location` o `window`), no utilices reemplazos simples de cadenas. Usa expresiones regulares `(?<![a-zA-Z0-9_\.])` para asegurarte de no alterar propiedades de objetos locales homónimos.
+- **Uso de Target Global Resiliente**: Al inyectar getters en contextos que podrían compartirse con Web Workers o similares, expón la propiedad en el objeto global correspondiente (`window`, `self`, o `globalThis`) de manera dinámica.
+- **Parche de Location y History API**: Fakar el prototipo de `Location` junto con las funciones `pushState`/`replaceState` es el estándar de oro para dar soporte a SPAs con enrutado por subrutas en proxies inversos.

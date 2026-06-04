@@ -65,7 +65,9 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
     - **Detección Dinámica del IDE**: Antigravity arrancó en el puerto `49702` (fuera del antiguo rango `56000-59500`). Se optimizó `_find_antigravity_url()` en el backend para consultar rápidamente los puertos TCP locales activos (`netstat -ano`) y probar solo los puertos candidatos. Esto hace que la detección sea instantánea y robusta para cualquier puerto dinámico alto.
     - **Proxy de gRPC**: Se corrigió el proxy de `/exa.language_server_pb.LanguageServerService` para usar el puerto dinámico auto-descubierto en lugar del estático `56523`. Esto solucionó la desconexión del IDE en el móvil.
     - **Solución al 'Not Found' en el Editor**: El enrutador SPA (React Router) del editor Monaco devolvía un error 404 al ejecutarse detrás de la subruta del proxy. Se solucionó parcheando dinámicamente `window.Location.prototype.pathname` en el script inyectado de `index.html` para devolver `/` de forma transparente a la SPA, e interceptando la API de History (`pushState` y `replaceState`) para mantener las rutas de navegación dentro del prefijo `/api/antigravity/proxy` del navegador.
-    - **Nueva URL activa**: `https://turbo-architecture-chest-acquisition.trycloudflare.com`
+    - **Corrección de TypeError de fakePathname y Robustez de Workers**: Se identificó un error `TypeError: Cannot read properties of undefined (reading '__fakePathname')` provocado porque (1) faltaba registrar la propiedad `window.__fakePathname` en el script de faking inyectado en `index.html`, y (2) el reemplazo simple de cadena `.replace("location.pathname", ...)` corrompía propiedades internas de React Router como `b.location.pathname`. Se solventó añadiendo el registro de la propiedad global adaptado para Workers y refactorizando el proxy de FastAPI para usar expresiones regulares con lookbehind negativo (`(?<![a-zA-Z0-9_\.])location\.pathname`).
+    - **Nueva URL activa**: `https://vids-since-tag-agents.trycloudflare.com`
+
 
 ## Conectado a
 - [[Welcome Hub]]
