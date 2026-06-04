@@ -37,19 +37,19 @@ Para conseguir un diseño de grafo flotante, abierto y legible (similar al motor
 2. **Suavizar la Tensión del Resorte**: Reducir el coeficiente de rigidez para permitir que la repulsión actúe libremente.
 3. **Disminuir la Gravedad**: Reducir la atracción hacia el origen para expandir el lienzo.
 
-### Configuración Equilibrada y Expandida
+### Configuración Equilibrada y Expandida (Fuerza 1/d)
 ```javascript
-// 1. Repulsión (Coulomb) incrementada (~33 veces más fuerte en el numerador)
-const force = 6000.0 / (dist * dist); 
+// 1. Repulsión con decaimiento lineal 1/d para mejor espaciado medio
+const force = 220.0 / dist; 
 n1.vx -= (dx / dist) * force;
 n1.vy -= (dy / dist) * force;
 
 // 2. Atracción de Resorte (Hooke) más suave y larga
-const restLength = 140.0;           // Distancia natural mayor
-const springConstant = 0.015;       // Constante de resorte blanda
+const restLength = 160.0;           // Distancia natural mayor
+const springConstant = 0.008;       // Constante de resorte blanda
 
-// 3. Gravedad Central suave
-const gravity = 0.003;
+// 3. Gravedad Central extremadamente suave para expandir el lienzo
+const gravity = 0.0005;
 node.vx -= (node.x / dist) * gravity * dist;
 ```
 

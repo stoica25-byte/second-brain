@@ -34,12 +34,12 @@ En lugar de añadir relleno (`padding`) al contenedor externo del iframe (lo que
   #panel-contenedor-ide {
     padding: 0 !important;
     padding-bottom: 0 !important; /* Limpiar paddings */
-    height: 100%;
+    height: 100% !important;
   }
 
-  /* El iframe se reduce para crear un espacio libre inferior */
+  /* El iframe se reduce para crear un espacio libre inferior y evitar el teclado y nav bar */
   #panel-contenedor-ide iframe {
-    height: calc(100% - 50px) !important;
+    height: calc(100% - 90px) !important;
   }
 }
 ```

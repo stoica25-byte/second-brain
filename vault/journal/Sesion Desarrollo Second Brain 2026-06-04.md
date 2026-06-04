@@ -88,6 +88,10 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
       - **Sincronización Offline**: Cola local (`localStorage`) para quick captures que reintenta el envío automáticamente al volver a estar `ONLINE` con badge luminoso.
       - **Lanzador Robusto**: Modificación de `iniciar_servidores.bat` con alertas de puertos bloqueados, PID, nombre del proceso ocupante y autodetección del WiFi IP local para móvil.
       - **Consola de Logs Opcional**: Switch toggleable para capturar logs opcionalmente.
+    - **Retoques Finales de Interfaz y Física del Grafo**:
+      - **Alineación de Widgets en Móvil**: Se corrigió el bug del alto fijo del `.tab-panel` en móvil (que estaba forzado al 100% causando desbordamientos invisibles por debajo de la barra inferior) cambiándolo por `height: auto` y `flex: 1` con scroll interno. Se creó la clase `form-row-inline` para evitar el apilamiento innecesario del widget de telemetría de Antigravity en móvil, optimizando su espacio.
+      - **Ajuste Físico del Grafo 2D**: Se rediseñó el motor físico para usar una fuerza de repulsión de Coulomb atenuada a $1/dist$ (decaimiento lineal) en lugar de $1/dist^2$. Esto incrementó significativamente la fuerza a distancias medias e intermedias. Adicionalmente, se redujo la constante de gravedad hacia el origen a `0.0005` (6 veces menos) y se inicializaron las coordenadas alrededor de `(0,0)`, permitiendo que el grafo se expanda de manera natural, espaciada y equilibrada a ~240px sin apelotonamiento.
+      - **Colchón de Seguridad para el IDE**: Se incrementó el margen del iframe de Monaco a `calc(100% - 90px)` en móvil y se eliminaron los estilos de altura en línea del HTML (movidos a la hoja de estilo CSS). Esto elevó el chat de Antigravity por encima de la barra inferior fija y resolvió el problema del teclado virtual ocultando la caja de entrada "Ask anything...".
     - **Nueva URL activa**: `https://allowing-refresh-coins-spa.trycloudflare.com`
 
 
