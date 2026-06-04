@@ -48,6 +48,7 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
 - [[Windows Batch Parenthesis Syntax Crash]]
 - [[HUD Personalization Widget ID Mismatch]]
 - [[Empty Bearer Token Auth Bypass Crash]]
+- [[Git Sync Proxy Read Timeout]]
 
 
 ### Skills
@@ -102,3 +103,4 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
 - [[Windows Batch Parenthesis Syntax Crash]]
 - [[HUD Personalization Widget ID Mismatch]]
 - [[Empty Bearer Token Auth Bypass Crash]]
+- [[Git Sync Proxy Read Timeout]]
