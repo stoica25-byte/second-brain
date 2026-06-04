@@ -56,6 +56,8 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
 - [[FastAPI Dynamic JS Rewriter Proxy]]
 - [[Batch Script PowerShell Port and IP Querying]]
 - [[Offline Form Sync Queue with LocalStorage]]
+- [[Force Directed Graph Parameter Tuning]]
+- [[Mobile Bottom Safe Area Iframe Margin]]
 
 ## Desarrollo del Dashboard de Control Remoto (Antigravity & Second Brain)
 - **Logros**:
@@ -104,3 +106,5 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
 - [[HUD Personalization Widget ID Mismatch]]
 - [[Empty Bearer Token Auth Bypass Crash]]
 - [[Git Sync Proxy Read Timeout]]
+- [[Force Directed Graph Parameter Tuning]]
+- [[Mobile Bottom Safe Area Iframe Margin]]
