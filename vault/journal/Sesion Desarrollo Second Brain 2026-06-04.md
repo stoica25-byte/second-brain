@@ -66,7 +66,11 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
     - **Proxy de gRPC**: Se corrigió el proxy de `/exa.language_server_pb.LanguageServerService` para usar el puerto dinámico auto-descubierto en lugar del estático `56523`. Esto solucionó la desconexión del IDE en el móvil.
     - **Solución al 'Not Found' en el Editor**: El enrutador SPA (React Router) del editor Monaco devolvía un error 404 al ejecutarse detrás de la subruta del proxy. Se solucionó parcheando dinámicamente `window.Location.prototype.pathname` en el script inyectado de `index.html` para devolver `/` de forma transparente a la SPA, e interceptando la API de History (`pushState` y `replaceState`) para mantener las rutas de navegación dentro del prefijo `/api/antigravity/proxy` del navegador.
     - **Corrección de TypeError de fakePathname y Robustez de Workers**: Se identificó un error `TypeError: Cannot read properties of undefined (reading '__fakePathname')` provocado porque (1) faltaba registrar la propiedad `window.__fakePathname` en el script de faking inyectado en `index.html`, y (2) el reemplazo simple de cadena `.replace("location.pathname", ...)` corrompía propiedades internas de React Router como `b.location.pathname`. Se solventó añadiendo el registro de la propiedad global adaptado para Workers y refactorizando el proxy de FastAPI para usar expresiones regulares con lookbehind negativo (`(?<![a-zA-Z0-9_\.])location\.pathname`).
-    - **Nueva URL activa**: `https://vids-since-tag-agents.trycloudflare.com`
+    - **Solución Final a Excepciones de Invocación Ilegal y Pérdida de Prototipos (Sesión Continuación)**:
+      - **Invocación Ilegal**: Se eliminó el parámetro `receiver` en las llamadas a `Reflect.get`/`Reflect.set` dentro de los proxies de `Location` y `Window` de `index.html`. Esto evitó que los getters nativos se ejecutaran sobre el Proxy en lugar del objeto real.
+      - **Pérdida de Prototipos**: Al ligar todas las funciones globales mediante `.bind()`, los constructores nativos (como `TypeError`) perdían su prototipo. Se implementó un filtro condicional `typeof value === 'function' && !value.prototype` para ligar únicamente métodos de interfaz (ej. `fetch`, `setTimeout`) y dejar intactos los constructores/clases nativas.
+      - **Autodetección de URL del Túnel**: Se modificó `get_tunnel_url_from_log` en `api/index.py` para priorizar la lectura en tiempo real de `cloudflared.log` sobre el archivo de texto estático `tunnel_url.txt` y actualizar este último al vuelo.
+    - **Nueva URL activa**: `https://lawyers-sprint-glass-essence.trycloudflare.com`
 
 
 ## Conectado a
@@ -75,3 +79,4 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
 - [[SCoA API Integration and Free Tier]]
 - [[Mobile Blank Screen and Mixed Content]]
 - [[FastAPI Dynamic JS Rewriter Proxy]]
+- [[JS Proxy Illegal Invocation and Constructor Prototype Loss]]
