@@ -50,6 +50,8 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
 ### Skills
 - [[SCoA AI-Driven Semantic Linking with Fallback]]
 - [[FastAPI Dynamic JS Rewriter Proxy]]
+- [[Batch Script PowerShell Port and IP Querying]]
+- [[Offline Form Sync Queue with LocalStorage]]
 
 ## Desarrollo del Dashboard de Control Remoto (Antigravity & Second Brain)
 - **Logros**:
@@ -75,6 +77,11 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
       - **Ajuste de Notch en iPhone (Global)**: En lugar de aplicar padding solo al editor, se asignó una regla global de `margin-top: max(env(safe-area-inset-top, 0px), 48px)` al contenedor `main` y se adaptó su cálculo de altura (`calc(100dvh - 60px - max(...) - env(...))`). Esto desplaza automáticamente toda la cabecera (en la pestaña de Panel) y la barra del Editor (en la de IDE) por debajo de la zona de solapamiento del notch de iOS sin importar el navegador o webview usado.
       - **Ajuste de Margen Inferior del Editor (Chat de Antigravity)**: Se añadió `padding-bottom: max(env(safe-area-inset-bottom, 0px), 30px) !important` al panel del iframe (`#panel-antigravity-ide`) en móviles. Esto evita que la caja de texto ("Ask anything...") del agente de Antigravity quede oculta debajo de la barra de navegación fija del dashboard.
       - **Silenciado de Errores de Reconexión de Streams**: Al suspender y reanudar el navegador en el móvil (ej. bloquear pantalla), se cerraban de forma abrupta los streams gRPC/SSE, disparando banners de error rojos redundantes de `missing trailer` / `Failed to fetch`. Se añadieron filtros de exclusión en el depurador inyectado (`showErr`) para omitir alertas de desconexiones normales del flujo y se añadió un botón de cierre `✕` para el banner.
+    - **Mejoras de Resiliencia, Seguridad y Lanzador (Sesión Tarde)**:
+      - **Seguridad SHA-256**: Implementación de verificación retrocompatible y hashing SHA-256 de contraseña en `db_dashboard.json` y formulario de actualización.
+      - **Sincronización Offline**: Cola local (`localStorage`) para quick captures que reintenta el envío automáticamente al volver a estar `ONLINE` con badge luminoso.
+      - **Lanzador Robusto**: Modificación de `iniciar_servidores.bat` con alertas de puertos bloqueados, PID, nombre del proceso ocupante y autodetección del WiFi IP local para móvil.
+      - **Consola de Logs Opcional**: Switch toggleable para capturar logs opcionalmente.
     - **Nueva URL activa**: `https://allowing-refresh-coins-spa.trycloudflare.com`
 
 
@@ -87,3 +94,5 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
 - [[JS Proxy Illegal Invocation and Constructor Prototype Loss]]
 - [[Stream Connection Drops on Mobile Suspend Resume]]
 - [[Safe Area Notch Spacing in Embedded Webview]]
+- [[Batch Script PowerShell Port and IP Querying]]
+- [[Offline Form Sync Queue with LocalStorage]]
