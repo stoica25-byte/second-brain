@@ -20,7 +20,10 @@ updated: 2026-06-04
 - **Limitación**: Intentar sobreescribir `window.location` o `window.location.pathname` directamente en la instancia de `window.location` falla en la mayoría de navegadores modernos porque son de solo lectura y no configurables.
 
 ## Solución Aplicada
-Modificar las propiedades en el prototipo del objeto `Location` (obtenido mediante `Object.getPrototypeOf(window.location)`), usando el método `toString` nativo para parsear la URL completa sin caer en recursión infinita de getters:
+Implementar una solución de doble capa para garantizar el correcto enmascaramiento de la ruta:
+
+1. **Parche en Prototipo (`Location.prototype.pathname`)**:
+   Modificar las propiedades en el prototipo del objeto `Location` (obtenido mediante `Object.getPrototypeOf(window.location)`), usando el método `toString` nativo para parsear la URL completa sin caer en recursión de getters:
 
 ```javascript
 (function() {
@@ -42,14 +45,32 @@ Modificar las propiedades en el prototipo del objeto `Location` (obtenido median
             },
             configurable: true
         });
+        
+        // Registrar window.__fakePathname para interceptaciones léxicas
+        Object.defineProperty(window, '__fakePathname', {
+            get: function() {
+                var val = window.location.pathname;
+                return val; // Invocará al getter del prototipo modificado
+            },
+            configurable: true
+        });
     } catch(e) {
         console.error('Failed to patch Location.prototype.pathname:', e);
     }
 })();
 ```
 
+2. **Reemplazo Léxico en el JS Bundle (`main.js`)**:
+   Reemplazar dinámicamente referencias directas a `window.location.pathname` y `location.pathname` por la propiedad global enmascarada `window.__fakePathname` al vuelo en el proxy de FastAPI:
+
+```python
+# Rewrite location.pathname/window.location.pathname references
+js_content = js_content.replace("window.location.pathname", "window.__fakePathname")
+js_content = js_content.replace("location.pathname", "window.__fakePathname")
+```
+
+
 ## Prevención y Aprendizajes
 - Los enrutadores SPA modernos confían en `window.location.pathname` para emparejar rutas.
 - En algunos navegadores móviles (como Safari en iOS o Chrome móvil), `window.Location` puede no estar definido globalmente de la misma manera o el descriptor de `pathname` en el prototipo no tener un getter directo. Es más seguro obtener el prototipo mediante `Object.getPrototypeOf(window.location)`.
 - Usar `toString.call(this)` en combinación con la clase nativa `URL` permite extraer la URL completa actual y parsear el `pathname` real de forma segura y sin riesgo de recursión infinita.
-
