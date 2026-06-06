@@ -1606,7 +1606,7 @@ function initGlobalGraph() {
             if (isMoc(d)) return r + 35;
             if (isJournal) return r + 22;
             return r + 14;
-        }).iterations(2));
+        }).iterations(1));
     
     // 3. Create linear gradients for bidirectional link color flows
     const defs = svg.append("defs");
@@ -1617,7 +1617,10 @@ function initGlobalGraph() {
             if (defs.select(`#${gradId}`).empty()) {
                 const grad = defs.append("linearGradient")
                     .attr("id", gradId)
-                    .attr("gradientUnits", "userSpaceOnUse");
+                    .attr("x1", "0%")
+                    .attr("y1", "0%")
+                    .attr("x2", "100%")
+                    .attr("y2", "0%");
 
                 grad.append("stop")
                     .attr("offset", "0%")
@@ -1860,15 +1863,6 @@ function initGlobalGraph() {
             .attr("y1", d => d.source.y)
             .attr("x2", d => d.target.x)
             .attr("y2", d => d.target.y);
-            
-        // Align linear gradients vectors dynamically
-        link.each(function(d) {
-            d3.select(`#grad-${d.source.category}-${d.target.category}`)
-                .attr("x1", d.source.x)
-                .attr("y1", d.source.y)
-                .attr("x2", d.target.x)
-                .attr("y2", d.target.y);
-        });
 
         node.attr("transform", d => `translate(${d.x}, ${d.y})`);
     });
