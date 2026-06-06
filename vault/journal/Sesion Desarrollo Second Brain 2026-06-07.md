@@ -56,6 +56,14 @@ Resolución de un bug crítico de **deadlock** que provocaba la congelación del
   - Se sobreescribió [[GEMINI.md]] para incorporar reglas avanzadas de rendimiento (consultas indexadas en lote, timeouts de 15s, control de Git locks en Windows) y de estructuración PKM (comillado obligatorio en YAML, prevención de duplicados con regla del 70%, enlazado trilateral contextual e indexación alfabética en MOCs).
   - Se actualizaron las plantillas de notas `error_solution.md` y `new_skill.md` en `vault/templates/` para cumplir con este nuevo estándar enriquecido.
 
+## Mejoras Visuales del Grafo D3.js (Mapa Global)
+- **Logros**:
+  - **Jerarquía Visual de Nodos**: Los MOCs temáticos se muestran en tamaño grande (13px) con sombras de brillo intenso (`drop-shadow`), los Diarios en tamaño mediano (9px) y las notas ordinarias en 6.5px.
+  - **Atenuación Focalizada (Hover Focus)**: Al pasar el cursor sobre cualquier nodo, se atenúan los nodos y enlaces no conectados (opacidad al 12%), dejando resaltada la red directa en primer plano.
+  - **Fix de Restauración de Radio**: Se corrigió el bug que dejaba los nodos con radio ampliado tras retirar el puntero (`mouseleave`).
+  - **Cache-Busting**: Se incrementó la versión de `app.js` a `?v=18` en `index.html` para forzar la recarga en los clientes del usuario.
+
 ## 🔗 Conexiones
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-07]]
 - **MOC Temático**: [[Welcome Hub]]
 - **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]
