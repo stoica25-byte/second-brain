@@ -21,6 +21,7 @@ Mapa de Contenido (MOC) de visualizaciones, grafos interactivos D3.js y optimiza
 
 ## ❌ Errores Relacionados
 - [[Error: Event Listeners Duplicados en D3 Graph]]
+- [[Lag de Rendering en D3js por Consultas DOM en Tick]]
 
 ## 🔗 Conexiones
 - **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-07]]

@@ -35,6 +35,11 @@ Resolución de un bug crítico de **deadlock** que provocaba la congelación del
   2. Se refactorizó la lógica en `main.py` para acotar `write_lock` únicamente a las transacciones atómicas de lectura/escritura de archivos markdown y de reconstrucción de índices.
 - **Evidencia**: [[Deadlock por Bloqueo de Lock en Llamada API de Larga Duracion]]
 
+### 🔴 Lag de Rendering en D3.js por Consultas DOM en Tick
+- **Causa**: La función de simulación física del grafo realizaba llamadas `d3.select` y actualizaciones de atributos del DOM para 281 enlaces en cada frame de la animación ("tick"), sobrecargando la CPU y causando lag masivo al arrastrar nodos.
+- **Fix**: Se modificaron los gradientes del SVG para usar `gradientUnits` relativas de caja en lugar de absolutas, y se eliminó por completo el bucle de actualización del DOM dentro de la función de tick, permitiendo que la GPU maneje la renderización nativa.
+- **Evidencia**: [[Lag de Rendering en D3js por Consultas DOM en Tick]]
+
 ## Lo Que Funciona Ahora
 - **Enlazado semántico en lote**: Funciona con fluidez y escribe en los archivos correspondientes en ~18 segundos para un lote de 2 notas.
 - **Seguridad ante fallos de red**: Si la API de IA sufre un microcorte, la petición expira tras 15 segundos liberando todos los recursos sin bloquear el servidor.
@@ -50,6 +55,7 @@ Resolución de un bug crítico de **deadlock** que provocaba la congelación del
 - [[Git MOC]]
 - [[Windows MOC]]
 - [[SCoA MOC]]
+- [[Lag de Rendering en D3js por Consultas DOM en Tick]]
 
 ## Mejora Global de Instrucciones (GEMINI.md y Plantillas)
 - **Logros**:
@@ -62,9 +68,9 @@ Resolución de un bug crítico de **deadlock** que provocaba la congelación del
   - **Jerarquía Visual de Nodos**: Los MOCs temáticos se muestran en tamaño grande (13px) con sombras de brillo intenso (`drop-shadow`), los Diarios en tamaño mediano (9px) y las notas ordinarias en 6.5px.
   - **Atenuación Focalizada (Hover Focus)**: Al pasar el cursor sobre cualquier nodo, se atenúan los nodos y enlaces no conectados (opacidad al 12%), dejando resaltada la red directa en primer plano.
   - **Fix de Restauración de Radio**: Se corrigió el bug que dejaba los nodos con radio ampliado tras retirar el puntero (`mouseleave`).
-  - **Cache-Busting**: Se incrementó la versión de `app.js` a `?v=19` y `style.css` a `?v=8` en `index.html` para forzar la recarga en los clientes del usuario.
+  - **Cache-Busting**: Se incrementó la versión de `app.js` a `?v=20` y `style.css` a `?v=8` en `index.html` para forzar la recarga en los clientes del usuario.
 
 ## 🔗 Conexiones
 - **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-07]]
 - **MOC Temático**: [[Welcome Hub]]
-- **Notas Afines**: [[D3js Fisicas y Performance Avanzado]], [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]
+- **Notas Afines**: [[D3js Fisicas y Performance Avanzado]], [[Lag de Rendering en D3js por Consultas DOM en Tick]], [[Error: Browser Cache Impide Cargar JS Actualizado]]
