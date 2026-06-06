@@ -69,7 +69,8 @@ Resolución de un bug crítico de **deadlock** que provocaba la congelación del
   - **Gradientes de Conexión bajo Demanda**: Se configuró stroke sólido neutro semi-transparente (`rgba(255,255,255,0.12)`) para los 281 links en reposo, aplicando gradientes lineales SVG dinámicos solo a las conexiones directas del nodo bajo hover.
   - **Atenuación CSS de Etiquetas de Texto**: Se eliminó `text-shadow` dinámico en línea. Se introdujo una escala de opacidad estática por rol (`0.15` para notas ordinarias, `0.6` para diarios, `0.95` para MOCs) acelerada por GPU (`will-change: opacity`), iluminando los textos implicados a `1.0` en hover y desvaneciendo los lejanos a `0.02`.
   - **Enfriamiento Físico Rápido y Cold Start**: Se implementó `.alphaDecay(0.08)` y `.velocityDecay(0.35)` en la simulación física de D3, y se aumentó el precalentamiento síncrono en frío (Cold Start) a `120` ticks para congelar el movimiento al cargar y liberar la CPU de ticks infinitos.
-  - **Cache-Busting**: Se incrementó la versión de `app.js` a `?v=21` y `style.css` a `?v=9` en `index.html`.
+  - **Limpieza del HUD (Remoción de Telemetría)**: Se eliminaron las referencias a la "telemetría de red" y a los parámetros físicos (fuerzas vx, coordenadas x/y) del HUD dinámico, simplificándolo en un "Inspector del Grafo" que solo despliega metadatos conceptuales relevantes (título, categoría y número de conexiones directas).
+  - **Cache-Busting**: Se incrementó la versión de `app.js` a `?v=22` y `style.css` a `?v=9` en `index.html`.
 
 ## 🔗 Conexiones
 - **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-07]]

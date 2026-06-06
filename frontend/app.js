@@ -1740,13 +1740,9 @@ function initGlobalGraph() {
                 hudDetails.innerHTML = `
                     <div style="display:flex; flex-direction:column; gap:6px;">
                         <div style="font-size:11px; font-weight:700; color:#fff; word-break:break-all;">${d.title}</div>
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.05); padding-top:6px; margin-top:2px;">
                             <span class="hud-meta-badge" style="background: ${color}22; color: ${color}; border: 1px solid ${color}40;">${d.category}</span>
-                            <span style="font-size:9px;">Conexiones: ${inLinks} In / ${outLinks} Out</span>
-                        </div>
-                        <div style="color:var(--text-muted); font-size:9px; line-height:1.4; border-top:1px solid rgba(255,255,255,0.05); padding-top:6px; font-family: 'JetBrains Mono', monospace;">
-                            Fuerza Física (vx): ${d.vx ? d.vx.toFixed(4) : "0.0000"}<br>
-                            Coordenadas (x,y): ${d.x.toFixed(1)}, ${d.y.toFixed(1)}
+                            <span style="font-size:9.5px; color:rgba(255,255,255,0.75);">Conexiones: ${inLinks} In / ${outLinks} Out</span>
                         </div>
                     </div>
                 `;
