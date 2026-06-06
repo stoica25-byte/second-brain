@@ -426,4 +426,6 @@ Aprobar la propuesta **solo si se incluye una especificación técnica detallada
 ---
 
 ## 🔗 Conexiones
-- [[Welcome Hub]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[SCoA MOC]]
+- **Notas Afines**: [[SCoA: Diseño Visual e Interacciones]], [[SCoA: Diagnósticos y Telemetría HUD]]

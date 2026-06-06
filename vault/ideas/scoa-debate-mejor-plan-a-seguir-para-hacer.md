@@ -272,16 +272,6 @@ The n8n automation business proposal shows strong potential in performance and U
 ---
 
 ## 🔗 Conexiones
-- [[Welcome Hub]]
-- [[HUD Personalization Widget ID Mismatch]]
-- [[SCoA HUD Diagnostics]]
-- [[Offline Form Sync Queue with LocalStorage]]
-- [[SCoA Design Debate]]
-- [[Event Listeners Duplicados D3 Graph]]
-- [[Empty Bearer Token Auth Bypass Crash]]
-- [[Browser Cache Impide Cargar JS Actualizado]]
-- [[Asyncio Event Scheduler para DAG]]
-- [[Git Sync Proxy Read Timeout]]
-- [[FastAPI StaticFiles Directorio No Encontrado]]
-- [[FastAPI Dynamic JS Rewriter Proxy]]
-- [[SCoA API Integration and Free Tier]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[SCoA MOC]]
+- **Notas Afines**: [[SCoA: Diseño Visual e Interacciones]], [[SCoA: Diagnósticos y Telemetría HUD]]

@@ -121,6 +121,6 @@ Evitar anidar dos `overflow-y: auto` en la misma rama del DOM:
 ---
 
 ## 🔗 Conexiones
-- [[ScrollIntoView Conflicto con CSS Transitions]]
-- [[ScrollIntoView Desplaza Contenedor Equivocado]]
-- [[CSS Utility Classes Pattern]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[Welcome Hub]]
+- **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]

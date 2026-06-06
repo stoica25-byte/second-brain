@@ -54,3 +54,8 @@ if not "!Port8080PID!"=="" (
 1. **Independencia de Idioma**: Funciona de forma idéntica en Windows en inglés, español o cualquier otra localización.
 2. **Cero Dependencias**: No requiere compilar utilidades externas ni instalar binarios de terceros.
 3. **Resiliencia**: Si ocurre un error, el flag `-ErrorAction SilentlyContinue` asegura que el script continúe sin interrumpir el flujo del cargador principal.
+
+## 🔗 Conexiones
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-04]]
+- **MOC Temático**: [[Windows MOC]]
+- **Notas Afines**: [[Caída de Sintaxis en Script de Lote de Windows por Paréntesis Anidados]]

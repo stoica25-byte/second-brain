@@ -81,3 +81,8 @@ js_content = re.sub(r'(?<![a-zA-Z0-9_\.])location\.pathname', 'window.__fakePath
 - **Uso de Regex con Lookbehinds para Variables Globales**: Al interceptar variables de entorno o globales del navegador en un bundle ofuscado (como `location` o `window`), no utilices reemplazos simples de cadenas. Usa expresiones regulares `(?<![a-zA-Z0-9_\.])` para asegurarte de no alterar propiedades de objetos locales homónimos.
 - **Uso de Target Global Resiliente**: Al inyectar getters en contextos que podrían compartirse con Web Workers o similares, expón la propiedad en el objeto global correspondiente (`window`, `self`, o `globalThis`) de manera dinámica.
 - **Parche de Location y History API**: Fakar el prototipo de `Location` junto con las funciones `pushState`/`replaceState` es el estándar de oro para dar soporte a SPAs con enrutado por subrutas en proxies inversos.
+
+## 🔗 Conexiones
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-04]]
+- **MOC Temático**: [[Welcome Hub]]
+- **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]

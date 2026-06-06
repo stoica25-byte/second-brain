@@ -79,3 +79,8 @@ Si la variable `OPENROUTER_API_KEY` está configurada y no hay clave de Gemini d
 ## Véase también
 * [[Welcome Hub]]
 * [[Agent Debate Protocol]]
+
+## 🔗 Conexiones
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[SCoA MOC]]
+- **Notas Afines**: [[SCoA: Diseño Visual e Interacciones]], [[SCoA: Diagnósticos y Telemetría HUD]]

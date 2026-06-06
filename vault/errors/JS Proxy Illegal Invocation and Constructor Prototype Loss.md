@@ -73,3 +73,8 @@ window.__fakeWindow = new Proxy(window, {
 ## Prevención
 - **No pases `receiver` en proxies de Host Objects**: Evita pasar el tercer argumento a `Reflect.get`/`Reflect.set` si estás interceptando objetos nativos del navegador.
 - **Valida `.prototype` antes de enlazar contextualmente**: No apliques `.bind()` a funciones que actúen como constructores o clases, ya que destruirá su propiedad `prototype`.
+
+## 🔗 Conexiones
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-04]]
+- **MOC Temático**: [[Welcome Hub]]
+- **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]

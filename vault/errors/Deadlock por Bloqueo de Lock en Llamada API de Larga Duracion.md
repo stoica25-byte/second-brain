@@ -55,7 +55,6 @@ async with write_lock:
 ---
 
 ## 🔗 Conexiones
-- [[Welcome Hub]]
-- [[Git Sync Proxy Read Timeout]]
-- [[FastAPI Endpoints - Patrones]]
-- [[FastAPI StaticFiles Directorio No Encontrado]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-07]]
+- **MOC Temático**: [[FastAPI MOC]]
+- **Notas Afines**: [[Conexiones de Red Subestimadas en Estadísticas]], [[Caída de Autenticación por Cabecera Bearer Vacía en el Cliente]]

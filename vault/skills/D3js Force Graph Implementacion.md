@@ -110,6 +110,6 @@ node.call(d3.drag()
 - Los filtros de categoría deben registrarse con `{ once: false }` y guard `data-listenerBound`
 
 ## 🔗 Conexiones
-- [[Event Listeners Duplicados D3 Graph]]
-- [[Connection Radar - Implementación]]
-- [[Second Brain Console - Arquitectura]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[D3JS MOC]]
+- **Notas Afines**: [[Error: Event Listeners Duplicados en D3 Graph]], [[Connection Radar - Implementación]]

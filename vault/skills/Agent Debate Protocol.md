@@ -97,5 +97,6 @@ Identify:
 ---
 
 ## 🔗 Conexiones
-- [[Welcome Hub]]
-- [[Error: Python PATH Execution Bug]]
+- **Diario de Desarrollo**: [[2026-06-02]]
+- **MOC Temático**: [[Welcome Hub]]
+- **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]

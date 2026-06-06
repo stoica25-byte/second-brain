@@ -263,7 +263,6 @@ Se deja constancia de que todas las partes han sido oídas y que el presente doc
 ---
 
 ## 🔗 Conexiones
-- [[Welcome Hub]]
-- [[Agent Debate Protocol]]
-- [[Second Brain Console Arquitectura]]
-- [[SCoA AI-Driven Semantic Linking with Fallback]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[SCoA MOC]]
+- **Notas Afines**: [[SCoA: Diseño Visual e Interacciones]], [[SCoA: Diagnósticos y Telemetría HUD]]

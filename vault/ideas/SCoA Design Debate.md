@@ -70,5 +70,6 @@ We transformed the courtroom modal progress matrix into a **split-tabbed dashboa
 ---
 
 ## 🔗 Conexiones
-- [[Welcome Hub]]
-- [[Skill: Agent Debate Protocol]]
+- **Diario de Desarrollo**: [[2026-06-02]]
+- **MOC Temático**: [[SCoA MOC]]
+- **Notas Afines**: [[SCoA: Diagnósticos y Telemetría HUD]], [[Debate SCoA: Dashboard móvil y gratuito para controlar Antigravity]]

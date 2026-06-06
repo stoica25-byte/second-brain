@@ -60,3 +60,8 @@ node.vx -= (node.x / dist) * gravity * dist;
 - Los nodos se distribuyen de forma orgánica manteniendo una distancia de equilibrio estable de entre 120 y 160 píxeles.
 - Se previene el solapamiento visual de textos y conexiones.
 - Mejora drásticamente la legibilidad tanto en pantallas grandes como en dispositivos móviles.
+
+## 🔗 Conexiones
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-04]]
+- **MOC Temático**: [[Welcome Hub]]
+- **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]

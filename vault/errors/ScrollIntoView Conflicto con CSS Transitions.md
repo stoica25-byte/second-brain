@@ -85,5 +85,6 @@ setTimeout(() => {
 ---
 
 ## 🔗 Conexiones
-- [[CSS Hidden Class Sin Efecto]]
-- [[JavaScript Event Listener Patterns]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[CSS MOC]]
+- **Notas Afines**: [[Error: Clase .hidden Sin Efecto en CSS]], [[CSS Grid Collapsible Animation Pattern]]

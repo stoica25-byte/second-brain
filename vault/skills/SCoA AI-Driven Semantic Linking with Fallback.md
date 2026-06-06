@@ -134,3 +134,8 @@ def get_semantic_links(api_key_or_keys: Any, proposal: str, notes_list: List[dic
 - [[Welcome Hub]]
 - [[Agent Debate Protocol]]
 - [[SCoA API Integration and Free Tier]]
+
+## 🔗 Conexiones
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-04]]
+- **MOC Temático**: [[SCoA MOC]]
+- **Notas Afines**: [[SCoA: Diseño Visual e Interacciones]], [[SCoA: Diagnósticos y Telemetría HUD]]

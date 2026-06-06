@@ -43,3 +43,8 @@ app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="static")
 ## Prevención y Aprendizajes
 - **Nunca asumir el directorio de trabajo actual (CWD)** en scripts que se desplegarán, ya que el proceso padre puede invocarlos desde cualquier lugar de la terminal.
 - Construir siempre las rutas de recursos estáticos, bases de datos SQLite locales u otros archivos estáticos utilizando el prefijo absoluto dinámico de `__file__`.
+
+## 🔗 Conexiones
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[FastAPI MOC]]
+- **Notas Afines**: [[Conexiones de Red Subestimadas en Estadísticas]], [[Deadlock por Bloqueo de Lock en Llamada API de Larga Duración]]

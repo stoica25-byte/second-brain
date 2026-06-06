@@ -221,6 +221,6 @@ El expediente presenta una viabilidad técnica sólida al evitar duplicación me
 ---
 
 ## 🔗 Conexiones
-- [[Welcome Hub]]
-- [[SCoA HUD Diagnostics]]
-- [[Event Listeners Duplicados D3 Graph]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-04]]
+- **MOC Temático**: [[SCoA MOC]]
+- **Notas Afines**: [[SCoA: Diseño Visual e Interacciones]], [[SCoA: Diagnósticos y Telemetría HUD]]

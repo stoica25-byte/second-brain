@@ -39,3 +39,8 @@ $env:USERPROFILE\AppData\Local\Programs\Python\Python312\python.exe --version
 - Always verify installation paths programmatically if execution in raw command lines fails.
 - Document this pattern so that any future AI agent or script knows where Python is installed.
 - Connected to: [[Welcome Hub]]
+
+## 🔗 Conexiones
+- **Diario de Desarrollo**: [[2026-06-02]]
+- **MOC Temático**: [[Welcome Hub]]
+- **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]

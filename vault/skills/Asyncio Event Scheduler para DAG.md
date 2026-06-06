@@ -71,3 +71,8 @@ class DAGScheduler:
 1. **Concurrencia Óptima**: Las tareas que no tienen dependencias comunes se ejecutan en paralelo de inmediato gracias a `asyncio`.
 2. **Sin Hilos ni Bloqueos Complejos**: No requiere semáforos, bloqueos de concurrencia (`Lock`) ni colas pesadas de mensajería; `asyncio.Event` provee un mecanismo ultraligero de notificación.
 3. **Manejo del Ciclo de Vida**: Si una tarea falla, puede activar su evento pero marcar su estado como `FAILED`, permitiendo que las tareas dependientes lean este estado tras el `.wait()` y decidan abortarse ordenadamente (`DEPENDENCY_FAILED`).
+
+## 🔗 Conexiones
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[Welcome Hub]]
+- **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]

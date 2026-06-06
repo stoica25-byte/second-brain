@@ -42,6 +42,13 @@ Resolución de un bug crítico de **deadlock** que provocaba la congelación del
 ## Notas Creadas Hoy
 - [[Conexiones de Red Subestimadas en Estadisticas]]
 - [[Deadlock por Bloqueo de Lock en Llamada API de Larga Duracion]]
+- [[Enlazado Trilateral Contextual Automatizado]]
+- [[FastAPI MOC]]
+- [[D3JS MOC]]
+- [[CSS MOC]]
+- [[Git MOC]]
+- [[Windows MOC]]
+- [[SCoA MOC]]
 
 ## Mejora Global de Instrucciones (GEMINI.md y Plantillas)
 - **Logros**:
@@ -50,7 +57,6 @@ Resolución de un bug crítico de **deadlock** que provocaba la congelación del
   - Se actualizaron las plantillas de notas `error_solution.md` y `new_skill.md` en `vault/templates/` para cumplir con este nuevo estándar enriquecido.
 
 ## 🔗 Conexiones
-- **Sesión de creación:** [[Sesion Desarrollo Second Brain 2026-06-06]]
-- [[Welcome Hub]]
-- [[Deadlock por Bloqueo de Lock en Llamada API de Larga Duracion]]
-- [[Conexiones de Red Subestimadas en Estadisticas]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-07]]
+- **MOC Temático**: [[Welcome Hub]]
+- **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]

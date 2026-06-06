@@ -50,3 +50,8 @@ En lugar de añadir relleno (`padding`) al contenedor externo del iframe (lo que
 ## Beneficios
 1. **Pulsación Cómoda**: La entrada de texto ("Ask anything...", chat) del editor incrustado queda exactamente `50px` por encima de la barra de navegación del móvil, evitando pulsaciones accidentales en los botones del dashboard.
 2. **Previene el Teclado Bloqueante**: Al abrirse el teclado, el navegador redistribuye el espacio de ese `50px` de colchón y deja el input de texto en la zona de enfoque activa sin ocultarse.
+
+## 🔗 Conexiones
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-04]]
+- **MOC Temático**: [[CSS MOC]]
+- **Notas Afines**: [[Error: Clase .hidden Sin Efecto en CSS]], [[Error: scrollIntoView Calcula Mal la Posición Durante CSS Transitions]]

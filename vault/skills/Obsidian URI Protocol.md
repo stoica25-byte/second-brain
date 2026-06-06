@@ -83,5 +83,6 @@ Si el vault está en `C:\proyectos\mi-brain\vault`, el nombre es `vault`.
 ---
 
 ## 🔗 Conexiones
-- [[Error: Obsidian Vault Not Found al abrir desde URI]]
-- [[Second Brain Console - Arquitectura]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[Welcome Hub]]
+- **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]

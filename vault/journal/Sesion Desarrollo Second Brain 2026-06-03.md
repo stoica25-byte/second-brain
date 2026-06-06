@@ -71,14 +71,6 @@ Sesión de debugging y desarrollo de nuevas funcionalidades en la consola web de
 - Event listeners dentro de funciones llamadas repetidamente = bug de duplicación
 
 ## 🔗 Conexiones
-- [[Second Brain Console - Arquitectura]]
-- [[CSS Hidden Class Sin Efecto]]
-- [[Event Listeners Duplicados D3 Graph]]
-- [[Obsidian Vault Not Found Error]]
-- [[ScrollIntoView Conflicto con CSS Transitions]]
-- [[ScrollIntoView Desplaza Contenedor Equivocado]]
-- [[Browser Cache Impide Cargar JS Actualizado]]
-- [[DOM Scroll Positioning Patterns]]
-- [[CSS Grid Collapsible Animation Pattern]]
-- [[FastAPI StaticFiles Directorio No Encontrado]]
-- [[Asyncio Event Scheduler para DAG]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[Welcome Hub]]
+- **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]

@@ -264,4 +264,6 @@ La propuesta es **viable con ajustes arquitectónicos** y aceptación de limitac
 ---
 
 ## 🔗 Conexiones
-- [[Welcome Hub]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-04]]
+- **MOC Temático**: [[SCoA MOC]]
+- **Notas Afines**: [[SCoA: Diseño Visual e Interacciones]], [[SCoA: Diagnósticos y Telemetría HUD]]

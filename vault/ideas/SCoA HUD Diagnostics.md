@@ -139,5 +139,6 @@ $$\text{Maturity Index} = \frac{\text{Connected Notes}}{\text{Total Notes}} \tim
 ---
 
 ## 🔗 Conexiones
-- [[Welcome Hub]]
-- [[SCoA Design Debate]]
+- **Diario de Desarrollo**: [[2026-06-02]]
+- **MOC Temático**: [[SCoA MOC]]
+- **Notas Afines**: [[SCoA: Diseño Visual e Interacciones]], [[Debate SCoA: Dashboard móvil y gratuito para controlar Antigravity]]

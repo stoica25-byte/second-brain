@@ -38,3 +38,8 @@ Esto garantiza que:
 1. En dispositivos con notch, el panel se desplace exactamente por debajo de la cámara/status bar.
 2. En navegadores o dispositivos sin notch, aplique un fallback limpio de `34px` evitando superposiciones con los controles del navegador.
 3. El iframe interno se autoajusta al tamaño restante debido a `box-sizing: border-box`.
+
+## 🔗 Conexiones
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-04]]
+- **MOC Temático**: [[CSS MOC]]
+- **Notas Afines**: [[Error: Clase .hidden Sin Efecto en CSS]], [[Error: scrollIntoView Calcula Mal la Posición Durante CSS Transitions]]

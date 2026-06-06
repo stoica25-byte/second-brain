@@ -178,4 +178,6 @@ Implementar los patrones de diseño sugeridos (formularios dinámicos, validaci�
 ---
 
 ## 🔗 Conexiones
-- [[Welcome Hub]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[SCoA MOC]]
+- **Notas Afines**: [[SCoA: Diseño Visual e Interacciones]], [[SCoA: Diagnósticos y Telemetría HUD]]

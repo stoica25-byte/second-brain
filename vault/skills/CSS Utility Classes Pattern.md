@@ -60,4 +60,6 @@ Para evitar errores de visibilidad y maquetación (como el que se detalla en [[E
 ---
 
 ## 🔗 Conexiones
-- [[Error: Clase .hidden Sin Efecto en CSS]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[CSS MOC]]
+- **Notas Afines**: [[Error: Clase .hidden Sin Efecto en CSS]], [[Error: scrollIntoView Calcula Mal la Posición Durante CSS Transitions]]

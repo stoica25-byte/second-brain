@@ -36,3 +36,8 @@ El grafo local se renderiza en un elemento SVG `#ego-graph-canvas`. Cada vez que
 ## Enlaces e Integraciones
 - Se alimenta de los backlinks construidos en [[Second Brain Console - Arquitectura]]
 - Utiliza la misma biblioteca descrita en [[D3js Force Graph Implementacion]]
+
+## 🔗 Conexiones
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[D3JS MOC]]
+- **Notas Afines**: [[Error: Event Listeners Duplicados en D3 Graph]], [[D3.js Force Graph - Implementación de Mapa de Conocimiento]]

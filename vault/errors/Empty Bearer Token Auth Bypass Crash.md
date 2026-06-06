@@ -47,3 +47,8 @@ def get_current_user(authorization: Optional[str] = Header(None)) -> Dict[str, A
         return {"username": "admin", "role": "admin"}
 ```
 Con este ajuste, si el token no está inicializado en el cliente, el backend concede el bypass del administrador de forma transparente, permitiendo activar la monitorización de logs y personalizar los paneles del HUD sin fallos por autorización.
+
+## 🔗 Conexiones
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-04]]
+- **MOC Temático**: [[FastAPI MOC]]
+- **Notas Afines**: [[Conexiones de Red Subestimadas en Estadísticas]], [[Deadlock por Bloqueo de Lock en Llamada API de Larga Duración]]

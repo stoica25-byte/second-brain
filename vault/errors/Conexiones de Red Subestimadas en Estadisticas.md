@@ -33,5 +33,6 @@ Tras aplicar los cambios y reiniciar el backend, las estadísticas se actualizar
 - **0.0497 de densidad del grafo** (antes 0.0192).
 
 ## 🔗 Conexiones
-- **Diario de Desarrollo:** [[Sesion Desarrollo Second Brain 2026-06-07]]
-- **MOC Principal:** [[Welcome Hub]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-07]]
+- **MOC Temático**: [[FastAPI MOC]]
+- **Notas Afines**: [[Deadlock por Bloqueo de Lock en Llamada API de Larga Duración]], [[Caída de Autenticación por Cabecera Bearer Vacía en el Cliente]]

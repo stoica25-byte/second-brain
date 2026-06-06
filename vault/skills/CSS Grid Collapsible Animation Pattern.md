@@ -104,6 +104,6 @@ Para navegadores antiguos que no soportan la interpolación de `fr`:
 ---
 
 ## 🔗 Conexiones
-- [[DOM Scroll Positioning Patterns]]
-- [[CSS Utility Classes Pattern]]
-- [[ScrollIntoView Conflicto con CSS Transitions]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[CSS MOC]]
+- **Notas Afines**: [[Error: Clase .hidden Sin Efecto en CSS]], [[Error: scrollIntoView Calcula Mal la Posición Durante CSS Transitions]]

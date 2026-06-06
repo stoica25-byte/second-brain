@@ -70,4 +70,6 @@ class NoCacheMiddleware(BaseHTTPMiddleware):
 ---
 
 ## 🔗 Conexiones
-- [[FastAPI Endpoints - Patrones]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[Welcome Hub]]
+- **Notas Afines**: [[Discrepancia en IDs de Checkboxes de Personalización del HUD]], [[JS Proxy Illegal Invocation y Pérdida de Prototipos de Constructores]]

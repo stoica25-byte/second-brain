@@ -75,5 +75,6 @@ document.querySelectorAll(".graph-filter-chk").forEach(chk => {
 - Alternativa moderna: usar `{ once: true }` cuando solo se necesita un disparo
 
 ## 🔗 Conexiones
-- [[D3.js Force Graph - Implementación]]
-- [[JavaScript Event Listener Patterns]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[D3JS MOC]]
+- **Notas Afines**: [[Connection Radar - Implementación]], [[D3.js Force Graph - Implementación de Mapa de Conocimiento]]

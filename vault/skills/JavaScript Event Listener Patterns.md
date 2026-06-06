@@ -67,4 +67,6 @@ element.addEventListener("click", () => {
 ---
 
 ## 🔗 Conexiones
-- [[Error: Event Listeners Duplicados en D3 Graph]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[Welcome Hub]]
+- **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]

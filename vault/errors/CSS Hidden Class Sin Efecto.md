@@ -55,5 +55,6 @@ Otros elementos que usaban `classList.add/remove("hidden")` también podían est
 - Al debuggear elementos que no aparecen/desaparecen, verificar que la clase CSS existe antes de asumir que el JS falla
 
 ## 🔗 Conexiones
-- [[Connection Radar - Implementación]]
-- [[CSS Utility Classes Pattern]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[CSS MOC]]
+- **Notas Afines**: [[Error: scrollIntoView Calcula Mal la Posición Durante CSS Transitions]], [[CSS Grid Collapsible Animation Pattern]]

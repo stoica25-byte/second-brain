@@ -75,3 +75,8 @@ async def dynamic_proxy(path: str, request: Request):
 - **Cero cambios en producción**: El código del cliente SPA original se mantiene sin modificar; la adaptación se realiza en caliente en la capa intermedia de backend.
 - **Sin problemas de SSL/TLS**: Resuelve Mixed Content al convertir todas las peticiones a HTTPS seguro provisto por la URL pública.
 - **Bypass de CORS**: El origen de las APIs coincide con el origen del script (`window.location.origin`), por lo que no se requiere configuración de CORS para dispositivos externos.
+
+## 🔗 Conexiones
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-04]]
+- **MOC Temático**: [[FastAPI MOC]]
+- **Notas Afines**: [[Conexiones de Red Subestimadas en Estadísticas]], [[Deadlock por Bloqueo de Lock en Llamada API de Larga Duración]]

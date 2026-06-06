@@ -81,5 +81,6 @@ Si hay dos contenedores anidados con `overflow-y: auto`, el de afuera no deberí
 ---
 
 ## 🔗 Conexiones
-- [[ScrollIntoView Conflicto con CSS Transitions]]
-- [[CSS Hidden Class Sin Efecto]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[Welcome Hub]]
+- **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]

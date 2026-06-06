@@ -46,3 +46,8 @@ def get_semantic_links(api_key: str, proposal: str, notes_list: List[dict]) -> L
 ## Prevención y Aprendizajes
 - Validar siempre los scripts ejecutando pruebas de importación rápidas (`python -c "import modulo"`) después de añadir anotaciones de tipos.
 - Configurar linters y herramientas de análisis estático (como `mypy`, `flake8` o `pylint`) en el entorno de desarrollo para atrapar automáticamente problemas de tipado y nombres ausentes.
+
+## 🔗 Conexiones
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-04]]
+- **MOC Temático**: [[Welcome Hub]]
+- **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]

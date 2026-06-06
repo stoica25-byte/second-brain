@@ -42,3 +42,8 @@ elif method == "POST":
     res = requests.post(url, params=params, json=body, headers=headers, timeout=t_out)
 ```
 Al asignar un límite de 60 segundos específicamente a las consultas de `git/sync`, se da el margen de tiempo suficiente para completar las operaciones de red con GitHub, resolviendo el Read Timeout.
+
+## 🔗 Conexiones
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-04]]
+- **MOC Temático**: [[FastAPI MOC]]
+- **Notas Afines**: [[Conexiones de Red Subestimadas en Estadísticas]], [[Deadlock por Bloqueo de Lock en Llamada API de Larga Duración]]

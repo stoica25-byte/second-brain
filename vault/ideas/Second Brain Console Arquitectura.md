@@ -104,7 +104,6 @@ Obsidian (.md files) → FastAPI (rebuild_index) → brain_index.json
 - **Token MCP**: permite ingestión automática desde NotebookLM u otros agentes IA
 
 ## 🔗 Conexiones
-- [[D3js Force Graph Implementacion]]
-- [[Git Remote Setup desde Web App]]
-- [[Obsidian URI Protocol]]
-- [[Agent Debate Protocol]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[FastAPI MOC]]
+- **Notas Afines**: [[Conexiones de Red Subestimadas en Estadísticas]], [[Deadlock por Bloqueo de Lock en Llamada API de Larga Duración]]

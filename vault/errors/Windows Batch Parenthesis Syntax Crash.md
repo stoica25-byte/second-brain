@@ -46,3 +46,8 @@ Para prevenir la caída de sintaxis en CMD en bloques condicionales:
 
 3. **Escapar Paréntesis**: Si es estrictamente necesario incluir un paréntesis literal, escaparlo usando el caracter de escape de CMD (`^`):
    - *Ejemplo*: `echo Acceso Red Local ^(WiFi^): http://!LocalIP!:8080`
+
+## 🔗 Conexiones
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-04]]
+- **MOC Temático**: [[Windows MOC]]
+- **Notas Afines**: [[Consulta de Puertos e IP Local desde Script de Lote de Windows mediante PowerShell]]

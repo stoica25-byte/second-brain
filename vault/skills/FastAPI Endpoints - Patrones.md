@@ -65,3 +65,8 @@ async with write_lock:
 ## Enlaces Relacionados
 - [[Second Brain Console - Arquitectura]]
 - [[Git Remote Setup desde Web App]]
+
+## 🔗 Conexiones
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[FastAPI MOC]]
+- **Notas Afines**: [[Conexiones de Red Subestimadas en Estadísticas]], [[Deadlock por Bloqueo de Lock en Llamada API de Larga Duración]]

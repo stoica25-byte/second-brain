@@ -98,19 +98,6 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
     - **Nueva URL activa**: `https://allowing-refresh-coins-spa.trycloudflare.com`
 
 ## 🔗 Conexiones
-- [[Welcome Hub]]
-- [[Agent Debate Protocol]]
-- [[SCoA API Integration and Free Tier]]
-- [[Mobile Blank Screen and Mixed Content]]
-- [[FastAPI Dynamic JS Rewriter Proxy]]
-- [[JS Proxy Illegal Invocation and Constructor Prototype Loss]]
-- [[Stream Connection Drops on Mobile Suspend Resume]]
-- [[Safe Area Notch Spacing in Embedded Webview]]
-- [[Batch Script PowerShell Port and IP Querying]]
-- [[Offline Form Sync Queue with LocalStorage]]
-- [[Windows Batch Parenthesis Syntax Crash]]
-- [[HUD Personalization Widget ID Mismatch]]
-- [[Empty Bearer Token Auth Bypass Crash]]
-- [[Git Sync Proxy Read Timeout]]
-- [[Force Directed Graph Parameter Tuning]]
-- [[Mobile Bottom Safe Area Iframe Margin]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-04]]
+- **MOC Temático**: [[Welcome Hub]]
+- **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]

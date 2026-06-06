@@ -80,5 +80,6 @@ El usuario debe tener configuradas credenciales de Git:
 - **HTTPS con token**: Personal Access Token de GitHub en el Credential Manager de Windows
 
 ## 🔗 Conexiones
-- [[Second Brain Console - Arquitectura]]
-- [[FastAPI Endpoints - Patrones]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[Git MOC]]
+- **Notas Afines**: Ninguna

@@ -65,5 +65,6 @@ setTimeout(() => a.remove(), 200);
 - Nunca usar `window.location.href` para protocolos externos en SPAs
 
 ## 🔗 Conexiones
-- [[Second Brain Console - Arquitectura]]
-- [[Obsidian URI Protocol]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
+- **MOC Temático**: [[Welcome Hub]]
+- **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]

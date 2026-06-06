@@ -31,3 +31,8 @@ Implementar una interceptación de peticiones y reescritura al vuelo en el backe
 2. **Reescritura de Enlaces Estáticos en HTML**: Al solicitar la raíz del proxy del IDE, reescribir los scripts absolutos (`href="/style.css"` -> `href="style.css"`) para forzar al navegador a pedirlos a través del proxy relativo.
 3. **Dynamic API Rewriting en JS**: Al servir el JS bundle (`main.js`), reemplazar dinámicamente la expresión literal `https://127.0.0.1:${this.port}` por `window.location.origin + "/api/antigravity/proxy"` para enrutar todas las llamadas de la API a través del túnel seguro de Cloudflare.
 4. **Resiliencia de Respuesta Binaria**: Retornar `res.content` en lugar de `res.text` para archivos no HTML/JS para evitar corromper activos multimedia.
+
+## 🔗 Conexiones
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-04]]
+- **MOC Temático**: [[Welcome Hub]]
+- **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]

@@ -37,3 +37,8 @@ Se renombraron todos los IDs de los checkboxes de visibilidad en el archivo `ind
 - `chk-wdg-antigravity` -> `chk-widget-antigravity`
 
 Tras este cambio, la manipulación de visibilidad funciona correctamente en ordenadores y teléfonos, y el estado de visibilidad de los paneles se persiste de forma transparente entre recargas.
+
+## 🔗 Conexiones
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-04]]
+- **MOC Temático**: [[Welcome Hub]]
+- **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[JS Proxy Illegal Invocation y Pérdida de Prototipos de Constructores]]
