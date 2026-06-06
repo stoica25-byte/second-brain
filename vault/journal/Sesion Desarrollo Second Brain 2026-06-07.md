@@ -21,6 +21,11 @@ Resolución de un bug crítico de **deadlock** que provocaba la congelación del
 
 ## Bugs Resueltos Hoy
 
+### 🔴 Conexiones de Red Subestimadas en Estadísticas
+- **Causa**: El endpoint `/api/stats` resolvía wikilinks comparando solo minúsculas crudas sin limpiar tildes ni caracteres especiales, y solo mapeaba las notas por su título del frontmatter (ignorando el nombre base del archivo). Como resultado, la API reportaba incorrectamente solo 53 conexiones en lugar de 137 y marcaba erróneamente 16 notas como huérfanas.
+- **Fix**: Se alineó la lógica de `/api/stats` con el indexador principal (`rebuild_index_internal`) agregando normalización de strings (`normalize_string`) y registrando nombres de archivo (stems) y rutas relativas en el diccionario de búsqueda.
+- **Evidencia**: [[Conexiones de Red Subestimadas en Estadisticas]]
+
 ### 🔴 Deadlock por Bloqueo de Lock en optimize_links_endpoint
 - **Causa**:
   1. Ausencia de parámetro `timeout` en las llamadas TCP a las APIs de IA (Gemini/OpenRouter) dentro de `debate_engine.py`.
@@ -35,6 +40,7 @@ Resolución de un bug crítico de **deadlock** que provocaba la congelación del
 - **Seguridad ante fallos de red**: Si la API de IA sufre un microcorte, la petición expira tras 15 segundos liberando todos los recursos sin bloquear el servidor.
 
 ## Notas Creadas Hoy
+- [[Conexiones de Red Subestimadas en Estadisticas]]
 - [[Deadlock por Bloqueo de Lock en Llamada API de Larga Duracion]]
 
 ## Mejora Global de Instrucciones (GEMINI.md y Plantillas)
@@ -47,3 +53,4 @@ Resolución de un bug crítico de **deadlock** que provocaba la congelación del
 - **Sesión de creación:** [[Sesion Desarrollo Second Brain 2026-06-06]]
 - [[Welcome Hub]]
 - [[Deadlock por Bloqueo de Lock en Llamada API de Larga Duracion]]
+- [[Conexiones de Red Subestimadas en Estadisticas]]

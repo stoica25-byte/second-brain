@@ -1168,6 +1168,15 @@ async def get_stats():
     links_map = {}
     title_to_rel_paths = {}
     
+    def register_path(key: str, rel_path: str):
+        norm_key = normalize_string(key)
+        if not norm_key:
+            return
+        if norm_key not in title_to_rel_paths:
+            title_to_rel_paths[norm_key] = []
+        if rel_path not in title_to_rel_paths[norm_key]:
+            title_to_rel_paths[norm_key].append(rel_path)
+
     for cat in cat_distribution.keys():
         cat_dir = VAULT_DIR / cat
         if not cat_dir.exists():
@@ -1178,7 +1187,11 @@ async def get_stats():
             try:
                 post = frontmatter.load(file_path)
                 status = post.get("status", "")
-                title = post.get("title") or file_path.stem
+                title = post.get("title")
+                if not title:
+                    h1_match = re.search(r'^#\s+(.+)$', post.content, re.MULTILINE)
+                    title = h1_match.group(1).strip() if h1_match else file_path.stem
+                
                 rel_path = file_path.relative_to(VAULT_DIR).as_posix()
                 
                 total_notes += 1
@@ -1188,14 +1201,13 @@ async def get_stats():
                     active_notes += 1
                     all_active_paths.add(rel_path)
                     
-                    title_lower = title.lower()
-                    if title_lower not in title_to_rel_paths:
-                        title_to_rel_paths[title_lower] = []
-                    title_to_rel_paths[title_lower].append(rel_path)
+                    register_path(title, rel_path)
+                    register_path(file_path.stem, rel_path)
+                    register_path(file_path.relative_to(VAULT_DIR).with_suffix("").as_posix(), rel_path)
                     
                     clean_content = strip_code_blocks(post.content)
                     found = WIKILINK_REGEX.findall(clean_content)
-                    links = [item[0].strip().lower() for item in found]
+                    links = [item[0].strip() for item in found]
                     links_map[rel_path] = links
                 else:
                     draft_notes += 1
@@ -1207,7 +1219,8 @@ async def get_stats():
     
     for source_path, target_titles in links_map.items():
         for target_title in target_titles:
-            target_path = resolve_proximity(source_path, target_title, title_to_rel_paths)
+            target_key = normalize_string(target_title)
+            target_path = resolve_proximity(source_path, target_key, title_to_rel_paths)
             if target_path:
                 if target_path in in_degrees:
                     in_degrees[target_path] += 1
