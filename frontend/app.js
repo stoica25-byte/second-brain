@@ -1576,6 +1576,8 @@ function initGlobalGraph() {
     
     // 2. forceSimulation setup with non-linear spring physics and collisions
     const simulation = d3.forceSimulation(nodesData)
+        .alphaDecay(0.08)
+        .velocityDecay(0.35)
         .force("link", d3.forceLink(filteredLinks).id(d => d.path)
             .distance(l => {
                 const sNode = nodesData.find(n => n.path === (typeof l.source === 'object' ? l.source.path : l.source));
@@ -1654,11 +1656,7 @@ function initGlobalGraph() {
         .selectAll("line")
         .data(filteredLinks)
         .enter().append("line")
-        .attr("stroke", l => {
-            const sCat = (typeof l.source === 'object') ? l.source.category : (nodesData.find(n => n.path === l.source)?.category || "ideas");
-            const tCat = (typeof l.target === 'object') ? l.target.category : (nodesData.find(n => n.path === l.target)?.category || "ideas");
-            return `url(#grad-${sCat}-${tCat})`;
-        })
+        .attr("stroke", "rgba(255, 255, 255, 0.12)")
         .attr("stroke-width", 1.2)
         .attr("marker-end", "url(#arrowhead)");
     
@@ -1703,12 +1701,27 @@ function initGlobalGraph() {
                 }
             });
             
-            // Set opacity muted class via GPU accelerated CSS transitions
+            // Set opacity muted and highlighted classes via GPU accelerated CSS transitions
             node.classed("is-muted", n => !connectedNodeIds.has(n.path));
+            node.classed("is-highlighted", n => connectedNodeIds.has(n.path));
             link.classed("is-muted", l => {
                 const s = (typeof l.source === 'object') ? l.source.path : l.source;
                 const t = (typeof l.target === 'object') ? l.target.path : l.target;
                 return !(s === d.path || t === d.path);
+            });
+            
+            // Dynamically apply linear gradient on hover for connected links
+            link.style("stroke", l => {
+                const s = (typeof l.source === 'object') ? l.source.path : l.source;
+                const t = (typeof l.target === 'object') ? l.target.path : l.target;
+                if (s === d.path || t === d.path) {
+                    const sNode = nodesData.find(n => n.path === s);
+                    const tNode = nodesData.find(n => n.path === t);
+                    const sCat = sNode ? sNode.category : "ideas";
+                    const tCat = tNode ? tNode.category : "ideas";
+                    return `url(#grad-${sCat}-${tCat})`;
+                }
+                return "rgba(255, 255, 255, 0.12)";
             });
             
             // Focus resizing
@@ -1750,7 +1763,11 @@ function initGlobalGraph() {
         })
         .on("mouseleave", function(event, d) {
             node.classed("is-muted", false);
+            node.classed("is-highlighted", false);
             link.classed("is-muted", false);
+            
+            // Restore neutral strokes
+            link.style("stroke", "rgba(255, 255, 255, 0.12)");
             
             d3.select(this).select("circle")
                 .transition().duration(150)
@@ -1775,23 +1792,21 @@ function initGlobalGraph() {
     node.append("circle")
         .attr("r", d => getNodeRadius(d))
         .attr("fill", d => CATEGORY_COLORS[d.category] || "#7aa2f7")
-        .attr("stroke", d => (CATEGORY_COLORS[d.category] || "#7aa2f7") + "88")
-        .attr("stroke-width", 1.5)
-        .style("filter", d => {
-            const color = CATEGORY_COLORS[d.category] || "#7aa2f7";
-            return isMoc(d) ? `drop-shadow(0px 0px 8px ${color}dd)` : `drop-shadow(0px 0px 3px ${color}55)`;
-        });
+        .attr("stroke", d => (CATEGORY_COLORS[d.category] || "#7aa2f7") + "aa")
+        .attr("stroke-width", 1.5);
     
     // Labels
     node.append("text")
+        .attr("class", d => {
+            let cls = "graph-node-text";
+            if (isMoc(d)) cls += " text-is-moc";
+            else if (d.category === "journal" || d.title.toLowerCase().includes("sesion desarrollo") || (d.tags && d.tags.some(t => t.includes("journal")))) cls += " text-is-journal";
+            return cls;
+        })
         .text(d => d.title && d.title.length > 22 ? d.title.substring(0, 22) + "…" : d.title)
-        .attr("font-size", d => isMoc(d) ? "10px" : "9px")
-        .attr("font-weight", d => isMoc(d) ? "bold" : "normal")
-        .attr("fill", d => isMoc(d) ? "rgba(255, 255, 255, 0.95)" : "rgba(255, 255, 255, 0.6)")
         .attr("dx", d => isMoc(d) ? 16 : 10)
         .attr("dy", 3.5)
-        .attr("pointer-events", "none")
-        .style("text-shadow", "0 0 4px #000, 0 0 4px #000");
+        .attr("pointer-events", "none");
     
     // 5. Focal zooming and wave pings
     function focusOnNode(nodePath) {
@@ -1869,7 +1884,7 @@ function initGlobalGraph() {
     
     // 7. Cold Start (Synchronous simulation warming)
     simulation.stop();
-    for (let i = 0; i < 75; ++i) {
+    for (let i = 0; i < 120; ++i) {
         simulation.tick();
     }
     simulation.restart();

@@ -36,8 +36,10 @@ Esto causaba:
 1. **Gradientes en objectBoundingBox**: Modificamos los `<linearGradient>` en [app.js](file:///c:/Users/Estudiante/Downloads/seond-brain/frontend/app.js) para usar la escala nativa del objeto (`x1="0%", y1="0%", x2="100%", y2="0%"`). Esto alinea el gradiente a lo largo del link de forma nativa en la GPU sin intervención del código JavaScript.
 2. **Eliminación del Ticker DOM**: Removemos completamente el bucle `.each` del callback de `tick`, reduciendo las operaciones de JS por frame al mínimo absoluto (actualizar solo las coordenadas $x_1, y_1, x_2, y_2$ de las líneas del SVG).
 3. **Física Ajustada**: Redujimos las iteraciones de la fuerza de colisión de `2` a `1` para descargar al motor de física de D3.
+4. **Filtros SVG Pesados (drop-shadow)**: Identificamos que aplicar `filter: drop-shadow(...)` a los 61 círculos SVG en cada tick forzaba una rasterización masiva en la CPU. Se eliminaron en reposo, delegando estilos al CSS estático y hover selectivo.
+5. **Gradientes de Conexión en Hover**: Cargar y mapear 281 gradientes de color dinámicos colapsaba la GPU. Se reemplazó por un stroke sólido neutro semi-transparente en reposo (`rgba(255,255,255,0.12)`), inyectando el degradado lineal coloreado únicamente en hover sobre los nodos enlazados directos.
 
-Tras la corrección, la renderización y las transiciones del grafo se ejecutan a **60fps** estables y fluidos.
+Tras la corrección, la renderización y las transiciones del grafo se ejecutan a **60fps** estables y fluidos en pantalla completa.
 
 ## 🔗 Conexiones
 - **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-07]]

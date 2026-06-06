@@ -2094,20 +2094,61 @@ body.theme-minimal-dark .judge-card.selected-tab {
    ========================================================================== */
 
 /* Transiciones optimizadas por GPU */
+/* Transiciones optimizadas por GPU */
 .graph-node-group, #graph-canvas line {
-    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
-                stroke 0.25s ease, 
-                stroke-width 0.25s ease;
+    transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1), 
+                stroke 0.22s ease, 
+                stroke-width 0.22s ease;
     will-change: opacity, transform;
 }
 
 .graph-node-group.is-muted, #graph-canvas line.is-muted {
-    opacity: 0.12 !important;
+    opacity: 0.08 !important;
 }
 
 .graph-node-group circle {
-    transition: r 0.25s ease, stroke-width 0.25s ease;
+    transition: r 0.22s ease, stroke-width 0.22s ease;
     will-change: r, stroke-width;
+}
+
+/* Etiquetas de texto optimizadas y atenuadas en reposo */
+.graph-node-text {
+    font-size: 8.5px;
+    font-weight: 400;
+    fill: rgba(255, 255, 255, 0.65);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95);
+    transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1), fill 0.22s ease;
+    will-change: opacity;
+    opacity: 0.15; /* Notas normales muy atenuadas en reposo para evitar lag y ruido visual */
+}
+
+.graph-node-text.text-is-moc {
+    font-size: 10px;
+    font-weight: 700;
+    fill: rgba(255, 255, 255, 0.95);
+    opacity: 0.95; /* MOCs siempre legibles */
+}
+
+.graph-node-text.text-is-journal {
+    font-size: 9px;
+    font-weight: 600;
+    fill: rgba(255, 255, 255, 0.8);
+    opacity: 0.6; /* Diarios intermedios */
+}
+
+/* Hover e iluminación sobre el nodo y vecinos */
+.graph-node-group:hover .graph-node-text {
+    opacity: 1.0 !important;
+    fill: #fff !important;
+}
+
+.graph-node-group.is-highlighted .graph-node-text {
+    opacity: 1.0 !important;
+    fill: rgba(255, 255, 255, 0.95) !important;
+}
+
+.graph-node-group.is-muted .graph-node-text {
+    opacity: 0.02 !important; /* Desvanecer textos lejanos al hacer hover */
 }
 
 /* Animación de pulsación para el anillo externo de los MOCs */

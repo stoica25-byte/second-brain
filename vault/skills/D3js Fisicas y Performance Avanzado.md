@@ -40,8 +40,12 @@ En lugar de animar opacidades en múltiples elementos SVG mediante transiciones 
 ```
 
 ### 4. Cold Start y Auto-Fit
-- **Pre-calentamiento**: Ejecutar $75$ ticks síncronos en frío (`simulation.tick()`) antes de renderizar para estabilizar las coordenadas.
+- **Pre-calentamiento**: Ejecutar $120$ ticks síncronos en frío (`simulation.tick()`) antes de renderizar para estabilizar por completo las coordenadas e iniciar el grafo en reposo.
 - **Bounding-Box Auto-Fit**: Calcular los extremos espaciales del grafo y posicionar la cámara del zoom dinámicamente con un $20\%$ de margen para centrar el mapa al cargar.
+
+### 5. Opacidad y Enfriamiento Acelerado (Antilag)
+- **Atenuación de Text Clutter por Rol**: Configurar en CSS la opacidad por defecto de los textos SVG: Notas ordinarias a `0.15`, Diarios a `0.6` y MOCs a `0.95`. Al hacer hover, elevar a `1.0` el texto del nodo activo y sus adyacentes (`.is-highlighted`), atenuando el resto a `0.02` (`.is-muted`).
+- **Enfriamiento Físico Rápido**: Ajustar `.alphaDecay(0.08)` y `.velocityDecay(0.35)` para enfriar y pausar la simulación de D3 casi inmediatamente después de cualquier interacción (arrastre/zoom), liberando la CPU del ticker.
 
 ## 🔗 Conexiones
 - **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-07]]
