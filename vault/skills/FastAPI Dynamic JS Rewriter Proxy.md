@@ -1,14 +1,19 @@
 ---
-title: "Reescritura Dinámica de Scripts en Proxy FastAPI"
 category: skills
-status: active
-tags:
-  - fastapi
-  - python
-  - regex
-  - proxy
-  - assets
 created: 2026-06-04
+status: active
+summary: Reescritura Dinámica de Scripts en Proxy FastAPI Patrón de desarrollo para
+  interceptar y modificar archivos estáticos (H...
+tags:
+- type/skill
+- tag/type/skill
+- tag/tag/type/skill
+- tech/fastapi
+- tech/python
+- tag/tag/tag/regex
+- tag/tag/tag/proxy
+- tag/tag/tag/assets
+title: Reescritura Dinámica de Scripts en Proxy FastAPI
 updated: 2026-06-04
 ---
 

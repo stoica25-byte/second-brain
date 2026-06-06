@@ -5,8 +5,10 @@ semantic_optimized_hash: 2757c0fa4c9a4a9d562e51ecf8ba4103ab3d672c76214050571d121
 status: proposed
 summary: '& Verdict'
 tags:
-- scoa-debate
-- ideas
+- type/idea
+- tag/type/idea
+- tag/tag/type/idea
+- project/scoa
 title: 'SCoA Debate: mejor plan a seguir para hacer un negocio de automatizaciones
   n8n'
 updated: '2026-06-07'
@@ -269,8 +271,9 @@ The n8n automation business proposal shows strong potential in performance and U
 
 **Bottom line:** Focus on a single, compelling headline; unify card styling; place CTAs where users naturally finish reading; improve contrast and alt text; and adopt a responsive, step‑by‑step visual cue. These adjustments dramatically reduce friction and elevate the overall UX.
 
---- 
-## Conectado a
+---
+
+## 🔗 Conexiones
 - [[Welcome Hub]]
 - [[HUD Personalization Widget ID Mismatch]]
 - [[SCoA HUD Diagnostics]]

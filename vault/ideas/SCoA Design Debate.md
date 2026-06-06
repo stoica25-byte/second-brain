@@ -1,11 +1,17 @@
 ---
-title: "SCoA: Diseño Visual e Interacciones"
 category: ideas
-tags:
-  - scoa-debate
-  - design
-  - interaction
 created: 2026-06-02
+status: active
+summary: 'SCoA Debate: Visual Redesign & Graph Interactions This document details
+  the debate and implementation plans for three ma...'
+tags:
+- type/idea
+- tag/type/idea
+- tag/tag/type/idea
+- project/scoa
+- tag/tag/tag/design
+- tag/tag/tag/interaction
+title: 'SCoA: Diseño Visual e Interacciones'
 updated: 2026-06-02
 ---
 
@@ -64,6 +70,7 @@ We transformed the courtroom modal progress matrix into a **split-tabbed dashboa
 4.  **Static Inspection:** At any point, the user can click on any judge's card to switch back and inspect their arguments without disrupting the live stream.
 
 ---
-*Related Notes:*
+
+## 🔗 Conexiones
 - [[Welcome Hub]]
 - [[Skill: Agent Debate Protocol]]

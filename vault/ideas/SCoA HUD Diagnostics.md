@@ -1,11 +1,17 @@
 ---
-title: "SCoA: Diagnósticos y Telemetría HUD"
 category: ideas
-tags:
-  - scoa-debate
-  - hud
-  - metrics
 created: 2026-06-02
+status: active
+summary: 'SCoA Debate: HUD Telemetry & Graph Diagnostics This document details the
+  visual design changes, mathematical formulas, a...'
+tags:
+- type/idea
+- tag/type/idea
+- tag/tag/type/idea
+- project/scoa
+- tag/tag/tag/hud
+- tag/tag/tag/metrics
+title: 'SCoA: Diagnósticos y Telemetría HUD'
 updated: 2026-06-02
 ---
 
@@ -133,6 +139,7 @@ $$\text{Maturity Index} = \frac{\text{Connected Notes}}{\text{Total Notes}} \tim
   ```
 
 ---
-*Related Notes:*
+
+## 🔗 Conexiones
 - [[Welcome Hub]]
 - [[SCoA Design Debate]]

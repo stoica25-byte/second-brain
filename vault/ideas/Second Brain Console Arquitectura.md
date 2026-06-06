@@ -1,17 +1,23 @@
 ---
-title: "Second Brain Console - Arquitectura"
 category: ideas
-status: active
-tags:
-  - arquitectura
-  - second-brain
-  - fastapi
-  - javascript
-  - d3js
-  - obsidian
 created: 2026-06-03
+status: active
+summary: Second Brain Console Arquitectura Visión General Una consola web visual para
+  gestionar un vault de Obsidian como un graf...
+tags:
+- type/idea
+- tag/type/idea
+- tag/tag/type/idea
+- tag/tag/tag/arquitectura
+- tag/tag/tag/second-brain
+- tech/fastapi
+- tech/javascript
+- tech/d3js
+- tag/tag/tag/obsidian
+title: Second Brain Console - Arquitectura
 updated: 2026-06-03
 ---
+
 # Second Brain Console - Arquitectura
 
 ## Visión General
@@ -99,7 +105,7 @@ Obsidian (.md files) → FastAPI (rebuild_index) → brain_index.json
 - **WikiLinks como grafo**: los `[[enlaces]]` en Markdown se convierten en aristas del grafo
 - **Token MCP**: permite ingestión automática desde NotebookLM u otros agentes IA
 
-## Conectado a
+## 🔗 Conexiones
 - [[D3js Force Graph Implementacion]]
 - [[Git Remote Setup desde Web App]]
 - [[Obsidian URI Protocol]]

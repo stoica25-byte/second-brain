@@ -1,16 +1,22 @@
 ---
-title: "Obsidian URI Protocol"
 category: skills
-status: active
-tags:
-  - obsidian
-  - uri-protocol
-  - javascript
-  - integracion
-  - desktop
 created: 2026-06-03
+status: active
+summary: Obsidian URI Protocol Integración con Apps Web Qué Es Obsidian registra un
+  manejador de protocolo en el sistema operativ...
+tags:
+- type/skill
+- tag/type/skill
+- tag/tag/type/skill
+- tag/tag/tag/obsidian
+- tag/tag/tag/uri-protocol
+- tech/javascript
+- tag/tag/tag/integracion
+- tag/tag/tag/desktop
+title: Obsidian URI Protocol
 updated: 2026-06-03
 ---
+
 # Obsidian URI Protocol - Integración con Apps Web
 
 ## Qué Es

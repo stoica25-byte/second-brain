@@ -1,14 +1,19 @@
 ---
-title: "Caída de Autenticación por Cabecera Bearer Vacía en el Cliente"
 category: errors
-status: resolved
-tags:
-  - python
-  - fastapi
-  - auth
-  - bug
-  - jwt
 created: 2026-06-04
+status: resolved
+summary: Caída de Autenticación por Cabecera Bearer Vacía en el Cliente Descripción
+  del Bug Al activar la consola de logs de diag...
+tags:
+- type/error
+- tag/type/error
+- tag/tag/type/error
+- tech/python
+- tech/fastapi
+- tag/tag/tag/auth
+- tag/tag/tag/bug
+- tag/tag/tag/jwt
+title: Caída de Autenticación por Cabecera Bearer Vacía en el Cliente
 updated: 2026-06-04
 ---
 

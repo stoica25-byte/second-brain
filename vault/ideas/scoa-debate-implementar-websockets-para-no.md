@@ -5,8 +5,10 @@ semantic_optimized_hash: adeda99c1c49710d221156c09a5b4e6ee9df6001e7fedb8445aaa8c
 status: proposed
 summary: y Veredicto Final Inapelable
 tags:
-- scoa-debate
-- ideas
+- type/idea
+- tag/type/idea
+- tag/tag/type/idea
+- project/scoa
 title: 'Debate SCoA: Implementar WebSockets para notificaciones en tiempo real en
   la consola'
 updated: '2026-06-07'
@@ -423,6 +425,7 @@ Con base en los **hallazgos y referencias** expuestos, la acusación de la Fisca
 **Recomendación final:**  
 Aprobar la propuesta **solo si se incluye una especificación técnica detallada** que aborde los puntos señalados por la Fiscalía. De lo contrario, se recomienda rechazarla hasta que se resuelvan las omisiones críticas.
 
---- 
-## Conectado a
+---
+
+## 🔗 Conexiones
 - [[Welcome Hub]]

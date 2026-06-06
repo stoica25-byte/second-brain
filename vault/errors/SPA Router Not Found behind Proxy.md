@@ -1,14 +1,19 @@
 ---
-title: "SPA Router Not Found behind Subpath Proxy"
 category: errors
-status: resolved
-tags:
-  - react-router
-  - proxy
-  - location-faking
-  - wmi
-  - javascript
 created: 2026-06-04
+status: resolved
+summary: 'SPA Router Not Found behind Subpath Proxy Detalles del Error Síntoma: Al
+  servir una SPA (Single Page Application) basada...'
+tags:
+- type/error
+- tag/type/error
+- tag/tag/type/error
+- tag/tag/tag/react-router
+- tag/tag/tag/proxy
+- tag/tag/tag/location-faking
+- tag/tag/tag/wmi
+- tech/javascript
+title: SPA Router Not Found behind Subpath Proxy
 updated: 2026-06-04
 ---
 

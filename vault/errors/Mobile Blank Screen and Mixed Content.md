@@ -1,14 +1,19 @@
 ---
-title: "Pantalla en Blanco en Móvil por Mixed Content y localhost Hardcoded"
 category: errors
-status: resolved
-tags:
-  - mobile
-  - safari
-  - mixed-content
-  - cloudflare-tunnel
-  - proxy
 created: 2026-06-04
+status: resolved
+summary: Pantalla en Blanco en Móvil por Mixed Content y localhost Hardcoded Problema
+  Al exponer una SPA local (como Antigravity...
+tags:
+- type/error
+- tag/type/error
+- tag/tag/type/error
+- tag/tag/tag/mobile
+- tag/tag/tag/safari
+- tag/tag/tag/mixed-content
+- tag/tag/tag/cloudflare-tunnel
+- tag/tag/tag/proxy
+title: Pantalla en Blanco en Móvil por Mixed Content y localhost Hardcoded
 updated: 2026-06-04
 ---
 

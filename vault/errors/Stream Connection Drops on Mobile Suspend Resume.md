@@ -1,13 +1,18 @@
 ---
-title: "Stream Connection Drops on Mobile Suspend Resume"
 category: errors
-status: resolved
-tags:
-  - mobile
-  - network
-  - grpc
-  - debugging
 created: 2026-06-04
+status: resolved
+summary: Stream Connection Drops on Mobile Suspend/Resume El Error Al cerrar el navegador
+  móvil, bloquear el terminal o cambiar d...
+tags:
+- type/error
+- tag/type/error
+- tag/tag/type/error
+- tag/tag/tag/mobile
+- tag/tag/tag/network
+- tag/tag/tag/grpc
+- tag/tag/tag/debugging
+title: Stream Connection Drops on Mobile Suspend Resume
 updated: 2026-06-04
 ---
 

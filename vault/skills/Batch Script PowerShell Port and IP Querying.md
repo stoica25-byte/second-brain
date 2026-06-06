@@ -1,14 +1,19 @@
 ---
-title: "Consulta de Puertos e IP Local desde Script de Lote de Windows mediante PowerShell"
 category: skills
-status: active
-tags:
-  - windows
-  - batch
-  - powershell
-  - ipconfig
-  - netstat
 created: 2026-06-04
+status: active
+summary: Consulta de Puertos e IP Local desde Script de Lote de Windows mediante PowerShell
+  Resumen Al diseñar scripts de lanzami...
+tags:
+- type/skill
+- tag/type/skill
+- tag/tag/type/skill
+- tech/windows
+- tag/tag/tag/batch
+- tech/powershell
+- tag/tag/tag/ipconfig
+- tag/tag/tag/netstat
+title: Consulta de Puertos e IP Local desde Script de Lote de Windows mediante PowerShell
 updated: 2026-06-04
 ---
 

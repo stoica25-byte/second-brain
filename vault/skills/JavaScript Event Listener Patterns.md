@@ -1,15 +1,21 @@
 ---
-title: "JavaScript Event Listener Patterns"
 category: skills
-status: active
-tags:
-  - javascript
-  - events
-  - patterns
-  - performance
 created: 2026-06-03
+status: active
+summary: JavaScript Event Listener Patterns La gestión adecuada de los controladores
+  de eventos (Event Listeners) en JavaScript e...
+tags:
+- type/skill
+- tag/type/skill
+- tag/tag/type/skill
+- tech/javascript
+- tag/tag/tag/events
+- tag/tag/tag/patterns
+- tag/tag/tag/performance
+title: JavaScript Event Listener Patterns
 updated: 2026-06-03
 ---
+
 # JavaScript Event Listener Patterns
 
 La gestión adecuada de los controladores de eventos (Event Listeners) en JavaScript es crítica para el rendimiento de las Single Page Applications (SPAs) y visualizaciones dinámicas interactuando con bibliotecas como D3.js. 

@@ -1,13 +1,18 @@
 ---
-title: "Safe Area Notch Spacing in Embedded Webview"
 category: skills
-status: active
-tags:
-  - layout
-  - css
-  - iOS
-  - responsive
 created: 2026-06-04
+status: active
+summary: Safe Area Notch Spacing in Embedded Webview Contexto En layouts web adaptados
+  a móviles (responsive), el uso de permite...
+tags:
+- type/skill
+- tag/type/skill
+- tag/tag/type/skill
+- tag/tag/tag/layout
+- tech/css
+- tag/tag/tag/ios
+- tag/tag/tag/responsive
+title: Safe Area Notch Spacing in Embedded Webview
 updated: 2026-06-04
 ---
 

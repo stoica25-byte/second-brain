@@ -1,12 +1,19 @@
 ---
-title: Welcome Hub
 category: ideas
-tags:
-  - welcome
-  - hub
 created: 2026-06-02
+status: active
+summary: Welcome to Your Second Brain! This is the central hub of your personal visual
+  knowledge base. Every circle in the graph...
+tags:
+- type/moc
+- tag/type/moc
+- tag/tag/type/moc
+- tag/tag/tag/welcome
+- tag/tag/tag/hub
+title: Welcome Hub
 updated: 2026-06-02
 ---
+
 # Welcome to Your Second Brain!
 
 This is the central hub of your personal visual knowledge base. Every circle in the graph is a node representing a file in your `vault/` directory.

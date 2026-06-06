@@ -1,16 +1,21 @@
 ---
-title: "Error: FastAPI StaticFiles Directorio No Encontrado"
 category: errors
-status: resolved
-tags:
-  - error
-  - fastapi
-  - python
-  - deployment
-  - path
 created: 2026-06-03
+status: resolved
+summary: 'Error: FastAPI StaticFiles Directorio No Encontrado Detalles del Error Síntoma:
+  Al iniciar o importar la aplicación Fast...'
+tags:
+- type/error
+- tag/type/error
+- tag/tag/type/error
+- tech/fastapi
+- tech/python
+- tag/tag/tag/deployment
+- tag/tag/tag/path
+title: 'Error: FastAPI StaticFiles Directorio No Encontrado'
 updated: 2026-06-03
 ---
+
 # Error: FastAPI StaticFiles Directorio No Encontrado
 
 ## Detalles del Error

@@ -1,14 +1,19 @@
 ---
-title: "Error: Python PATH Execution Bug"
 category: errors
-status: resolved
-tags:
-  - error
-  - python
-  - path
 created: 2026-06-02
+status: resolved
+summary: 'Error: Python PATH Execution Bug Error Details Environment: Windows 11 Powershell
+  Symptom/Log: Root Cause Analysis Pytho...'
+tags:
+- type/error
+- tag/type/error
+- tag/tag/type/error
+- tech/python
+- tag/tag/tag/path
+title: 'Error: Python PATH Execution Bug'
 updated: 2026-06-02
 ---
+
 # Error: Python PATH Execution Bug
 
 ## Error Details

@@ -1,16 +1,21 @@
 ---
-title: "Git Remote Setup Dinámico desde una Web App"
 category: skills
-status: active
-tags:
-  - git
-  - github
-  - fastapi
-  - python
-  - backend
 created: 2026-06-03
+status: active
+summary: Git Remote Setup Dinámico desde una Web App Contexto El Second Brain necesita
+  sincronizar el vault con GitHub. El reto e...
+tags:
+- type/skill
+- tag/type/skill
+- tag/tag/type/skill
+- tech/git
+- tech/fastapi
+- tech/python
+- tag/tag/tag/backend
+title: Git Remote Setup Dinámico desde una Web App
 updated: 2026-06-03
 ---
+
 # Git Remote Setup Dinámico desde una Web App
 
 ## Contexto
@@ -76,6 +81,6 @@ El usuario debe tener configuradas credenciales de Git:
 - **SSH**: clave pública añadida a GitHub, usando URL `git@github.com:user/repo.git`
 - **HTTPS con token**: Personal Access Token de GitHub en el Credential Manager de Windows
 
-## Conectado a
+## 🔗 Conexiones
 - [[Second Brain Console - Arquitectura]]
 - [[FastAPI Endpoints - Patrones]]

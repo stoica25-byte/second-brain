@@ -1,14 +1,19 @@
 ---
-title: "Excedido el Tiempo de Espera (Read Timeout) en el Proxy de Git Sync"
 category: errors
-status: resolved
-tags:
-  - python
-  - fastapi
-  - git
-  - bug
-  - proxy
 created: 2026-06-04
+status: resolved
+summary: Excedido el Tiempo de Espera (Read Timeout) en el Proxy de Git Sync Descripción
+  del Bug Al pulsar el botón "Sincronizar...
+tags:
+- type/error
+- tag/type/error
+- tag/tag/type/error
+- tech/python
+- tech/fastapi
+- tech/git
+- tag/tag/tag/bug
+- tag/tag/tag/proxy
+title: Excedido el Tiempo de Espera (Read Timeout) en el Proxy de Git Sync
 updated: 2026-06-04
 ---
 

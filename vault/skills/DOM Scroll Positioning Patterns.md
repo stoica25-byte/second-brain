@@ -1,17 +1,23 @@
 ---
-title: "DOM Scroll Positioning Patterns"
 category: skills
-status: active
-tags:
-  - javascript
-  - scroll
-  - dom
-  - layout
-  - patterns
-  - frontend
 created: 2026-06-03
+status: active
+summary: DOM Scroll Positioning Patterns Técnicas fiables para desplazar el scroll
+  a un elemento específico dentro de un layout c...
+tags:
+- type/skill
+- tag/type/skill
+- tag/tag/type/skill
+- tech/javascript
+- tag/tag/tag/scroll
+- tag/tag/tag/dom
+- tag/tag/tag/layout
+- tag/tag/tag/patterns
+- tag/tag/tag/frontend
+title: DOM Scroll Positioning Patterns
 updated: 2026-06-03
 ---
+
 # DOM Scroll Positioning Patterns
 
 Técnicas fiables para desplazar el scroll a un elemento específico dentro de un layout con múltiples paneles scrollables.

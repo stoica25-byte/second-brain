@@ -1,18 +1,24 @@
 ---
-title: "CSS Grid Collapsible Animation Pattern"
 category: skills
-status: active
-tags:
-  - css
-  - animation
-  - grid
-  - collapsible
-  - transitions
-  - patterns
-  - frontend
 created: 2026-06-03
+status: active
+summary: CSS Grid Collapsible Animation Pattern Técnica moderna para animar la expansión
+  y colapso de contenido con altura descon...
+tags:
+- type/skill
+- tag/type/skill
+- tag/tag/type/skill
+- tech/css
+- tag/tag/tag/animation
+- tag/tag/tag/grid
+- tag/tag/tag/collapsible
+- tag/tag/tag/transitions
+- tag/tag/tag/patterns
+- tag/tag/tag/frontend
+title: CSS Grid Collapsible Animation Pattern
 updated: 2026-06-03
 ---
+
 # CSS Grid Collapsible Animation Pattern
 
 Técnica moderna para animar la expansión y colapso de contenido con altura desconocida, sin usar JavaScript para calcular `max-height`.

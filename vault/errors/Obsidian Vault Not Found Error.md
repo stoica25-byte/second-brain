@@ -1,15 +1,20 @@
 ---
-title: "Error: Obsidian Vault Not Found al abrir desde URI"
 category: errors
-status: resolved
-tags:
-  - error
-  - obsidian
-  - uri-protocol
-  - javascript
 created: 2026-06-03
+status: resolved
+summary: 'Error: Obsidian Vault Not Found al abrir desde URI Error Details Environment:
+  Windows 11, Obsidian Desktop, Chrome Sympt...'
+tags:
+- type/error
+- tag/type/error
+- tag/tag/type/error
+- tag/tag/tag/obsidian
+- tag/tag/tag/uri-protocol
+- tech/javascript
+title: 'Error: Obsidian Vault Not Found al abrir desde URI'
 updated: 2026-06-03
 ---
+
 # Error: Obsidian Vault Not Found al abrir desde URI
 
 ## Error Details
@@ -60,4 +65,7 @@ setTimeout(() => a.remove(), 200);
 ## Prevention & Learnings
 - El protocolo `obsidian://open?vault=NAME` es más robusto que `?path=RUTA_ABSOLUTA`
 - Nunca usar `window.location.href` para protocolos externos en SPAs
-- Conectado a: [[Second Brain Console - Arquitectura]], [[Obsidian URI Protocol]]
+
+## 🔗 Conexiones
+- [[Second Brain Console - Arquitectura]]
+- [[Obsidian URI Protocol]]

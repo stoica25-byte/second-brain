@@ -1,11 +1,20 @@
 ---
-title: "Connection Radar - Implementación"
-category: "skills"
-tags: ["d3js", "ego-graph", "javascript", "visualizacion", "frontend"]
-created: "2026-06-03"
-updated: "2026-06-03"
-status: "active"
-summary: "Detalle técnico de la implementación del radar de conexiones local (Ego-Graph) utilizando D3.js para visualizar el contexto de una nota."
+category: skills
+created: '2026-06-03'
+status: active
+summary: Detalle técnico de la implementación del radar de conexiones local (Ego-Graph)
+  utilizando D3.js para visualizar el contexto de una nota.
+tags:
+- type/skill
+- tag/type/skill
+- tag/tag/type/skill
+- tech/d3js
+- tag/tag/tag/ego-graph
+- tech/javascript
+- tag/tag/tag/visualizacion
+- tag/tag/tag/frontend
+title: Connection Radar - Implementación
+updated: '2026-06-03'
 ---
 
 # Connection Radar - Implementación

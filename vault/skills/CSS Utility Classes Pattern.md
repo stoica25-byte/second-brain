@@ -1,15 +1,21 @@
 ---
-title: "CSS Utility Classes Pattern"
 category: skills
-status: active
-tags:
-  - css
-  - web-design
-  - patterns
-  - frontend
 created: 2026-06-03
+status: active
+summary: CSS Utility Classes Pattern El patrón de clases utilitarias (Utility Classes)
+  consiste en definir clases CSS de propósit...
+tags:
+- type/skill
+- tag/type/skill
+- tag/tag/type/skill
+- tech/css
+- tag/tag/tag/web-design
+- tag/tag/tag/patterns
+- tag/tag/tag/frontend
+title: CSS Utility Classes Pattern
 updated: 2026-06-03
 ---
+
 # CSS Utility Classes Pattern
 
 El patrón de **clases utilitarias (Utility Classes)** consiste en definir clases CSS de propósito único y altamente específicas que aplican una sola propiedad visual (o un conjunto muy pequeño de propiedades estrechamente relacionadas) a un elemento.

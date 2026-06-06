@@ -1,17 +1,22 @@
 ---
-title: "Error: Browser Cache Impide Cargar JS Actualizado"
 category: errors
-status: resolved
-tags:
-  - error
-  - cache
-  - javascript
-  - browser
-  - debug
-  - deployment
 created: 2026-06-03
+status: resolved
+summary: 'Error: Browser Cache Impide Cargar JS Actualizado Error Details Después
+  de actualizar con correcciones críticas, el usua...'
+tags:
+- type/error
+- tag/type/error
+- tag/tag/type/error
+- tag/tag/tag/cache
+- tech/javascript
+- tag/tag/tag/browser
+- tag/tag/tag/debug
+- tag/tag/tag/deployment
+title: 'Error: Browser Cache Impide Cargar JS Actualizado'
 updated: 2026-06-03
 ---
+
 # Error: Browser Cache Impide Cargar JS Actualizado
 
 ## Error Details

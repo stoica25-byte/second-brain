@@ -1,11 +1,20 @@
 ---
-title: "SCoA: Integración de API y Capa Gratuita"
-category: "skills"
-tags: ["scoa", "api", "gemini", "openrouter", "tutorial"]
-created: "2026-06-03"
-updated: "2026-06-03"
-status: "active"
-summary: "Detalle técnico de cómo el motor de debates SCoA realiza llamadas gratuitas a Gemini y OpenRouter con búsqueda en Google."
+category: skills
+created: '2026-06-03'
+status: active
+summary: Detalle técnico de cómo el motor de debates SCoA realiza llamadas gratuitas
+  a Gemini y OpenRouter con búsqueda en Google.
+tags:
+- type/skill
+- tag/type/skill
+- tag/tag/type/skill
+- project/scoa
+- tag/tag/tag/api
+- tag/tag/tag/gemini
+- tag/tag/tag/openrouter
+- tag/tag/tag/tutorial
+title: 'SCoA: Integración de API y Capa Gratuita'
+updated: '2026-06-03'
 ---
 
 # SCoA: Integración de API y Capa Gratuita

@@ -1,13 +1,18 @@
 ---
-title: "Caída de Sintaxis en Script de Lote de Windows por Paréntesis Anidados"
 category: errors
-status: resolved
-tags:
-  - windows
-  - batch
-  - syntax-error
-  - cmd
 created: 2026-06-04
+status: resolved
+summary: Caída de Sintaxis en Script de Lote de Windows por Paréntesis Anidados Descripción
+  del Bug El script por lotes de Window...
+tags:
+- type/error
+- tag/type/error
+- tag/tag/type/error
+- tech/windows
+- tag/tag/tag/batch
+- tag/tag/tag/syntax-error
+- tag/tag/tag/cmd
+title: Caída de Sintaxis en Script de Lote de Windows por Paréntesis Anidados
 updated: 2026-06-04
 ---
 

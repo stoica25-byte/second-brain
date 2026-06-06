@@ -1,15 +1,20 @@
 ---
-title: "Error: Clase .hidden Sin Efecto en CSS"
 category: errors
-status: resolved
-tags:
-  - error
-  - css
-  - javascript
-  - debug
 created: 2026-06-03
+status: resolved
+summary: 'Error: Clase .hidden Sin Efecto en CSS Error Details Environment: Second
+  Brain Console Frontend Symptom: El Connection R...'
+tags:
+- type/error
+- tag/type/error
+- tag/tag/type/error
+- tech/css
+- tech/javascript
+- tag/tag/tag/debug
+title: 'Error: Clase .hidden Sin Efecto en CSS'
 updated: 2026-06-03
 ---
+
 # Error: Clase .hidden Sin Efecto en CSS
 
 ## Error Details
@@ -50,4 +55,7 @@ Otros elementos que usaban `classList.add/remove("hidden")` también podían est
 ## Prevention & Learnings
 - Siempre definir las clases utilitarias (`.hidden`, `.visible`, `.active`) en un reset global al inicio del CSS
 - Al debuggear elementos que no aparecen/desaparecen, verificar que la clase CSS existe antes de asumir que el JS falla
-- Conectado a: [[Connection Radar - Implementación]], [[CSS Utility Classes Pattern]]
+
+## 🔗 Conexiones
+- [[Connection Radar - Implementación]]
+- [[CSS Utility Classes Pattern]]

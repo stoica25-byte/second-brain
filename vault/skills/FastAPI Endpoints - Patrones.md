@@ -1,11 +1,20 @@
 ---
-title: "FastAPI Endpoints - Patrones"
-category: "skills"
-tags: ["fastapi", "python", "backend", "api", "patrones"]
-created: "2026-06-03"
-updated: "2026-06-03"
-status: "active"
-summary: "Patrones de diseño y mejores prácticas utilizados en la implementación de endpoints en el backend de FastAPI."
+category: skills
+created: '2026-06-03'
+status: active
+summary: Patrones de diseño y mejores prácticas utilizados en la implementación de
+  endpoints en el backend de FastAPI.
+tags:
+- type/skill
+- tag/type/skill
+- tag/tag/type/skill
+- tech/fastapi
+- tech/python
+- tag/tag/tag/backend
+- tag/tag/tag/api
+- tag/tag/tag/patrones
+title: FastAPI Endpoints - Patrones
+updated: '2026-06-03'
 ---
 
 # FastAPI Endpoints - Patrones

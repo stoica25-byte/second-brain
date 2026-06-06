@@ -1,16 +1,21 @@
 ---
-title: "Sesión de Desarrollo - Second Brain 2026-06-03"
 category: journal
-status: active
-tags:
-  - journal
-  - desarrollo
-  - second-brain
-  - bugs
-  - sesion
 created: 2026-06-03
+status: active
+summary: Sesión de Desarrollo Second Brain 20260603 Resumen de la Sesión Sesión de
+  debugging y desarrollo de nuevas funcionalidad...
+tags:
+- type/journal
+- tag/type/journal
+- tag/tag/type/journal
+- tag/tag/tag/desarrollo
+- tag/tag/tag/second-brain
+- tag/tag/tag/bugs
+- tag/tag/tag/sesion
+title: Sesión de Desarrollo - Second Brain 2026-06-03
 updated: 2026-06-03
 ---
+
 # Sesión de Desarrollo - Second Brain 2026-06-03
 
 ## Resumen de la Sesión
@@ -67,115 +72,15 @@ Sesión de debugging y desarrollo de nuevas funcionalidades en la consola web de
 - `obsidian://open?vault=NAME` es más robusto que `?path=RUTA`
 - Event listeners dentro de funciones llamadas repetidamente = bug de duplicación
 
-## Conectado a
+## 🔗 Conexiones
 - [[Second Brain Console - Arquitectura]]
 - [[CSS Hidden Class Sin Efecto]]
 - [[Event Listeners Duplicados D3 Graph]]
 - [[Obsidian Vault Not Found Error]]
-
----
-
-# Sesión Tarde (12:00 - 12:45)
-
-## Bugs Resueltos
-
-### 🔴 Click en conexión navega al medio/final de la nota
-- **Causa 1**: `scrollIntoView` calculaba la posición de scroll **durante** la transición CSS de `grid-template-rows` (300ms), cuando las alturas eran intermedias
-- **Causa 2**: `scrollIntoView` desplazaba el contenedor padre equivocado (`timeline-viewport` en vez de `timeline-stream`) por tener dos `overflow-y: auto` anidados
-- **Fix**: Desactivar transiciones con clase `no-transitions`, forzar reflow con `.offsetHeight`, calcular offset exacto con `getBoundingClientRect()`, y usar `scrollTo()` sobre el contenedor correcto
-
-### 🟡 Browser cache impedía cargar JS actualizado
-- **Causa**: Chrome/Edge cachean agresivamente `app.js` y no lo recargan aunque el archivo cambie en el servidor
-- **Fix**: Cache-buster `app.js?v=14` → `v=15`. Instrucción al usuario de usar `Ctrl+F5`
-
-## Notas Creadas Hoy
-
-### Errores
 - [[ScrollIntoView Conflicto con CSS Transitions]]
 - [[ScrollIntoView Desplaza Contenedor Equivocado]]
 - [[Browser Cache Impide Cargar JS Actualizado]]
-
-### Skills
 - [[DOM Scroll Positioning Patterns]]
 - [[CSS Grid Collapsible Animation Pattern]]
-
-## Aprendizajes de la Sesión
-- `scrollIntoView` es impredecible en layouts multi-panel → usar `getBoundingClientRect` + `scrollTo`
-- Nunca calcular posiciones de scroll durante transiciones CSS → desactivar primero
-- Un solo `overflow-y: auto` por columna del DOM, nunca anidar dos
-- Siempre usar cache-busting en archivos estáticos en desarrollo
-- `.offsetHeight` fuerza un reflow síncrono → útil para obtener dimensiones finales tras un cambio de clase
-
----
-
-# Sesión Tarde-Noche (17:15 - 17:30)
-
-## Características Implementadas
-
-### 💡 Captura Rápida (Quick Capture)
-- Endpoint `POST /api/notes/capture` en FastAPI que genera automáticamente nombres de archivo sanitizados únicos añadiendo sufijos numéricos ante colisiones.
-- Interfaz de modal `#quick-capture-modal` en HTML con campos para título, categoría, estado (borrador/activa), etiquetas y cuerpo en Markdown.
-- Botón "Nueva Captura" en el panel izquierdo.
-
-### 🛠️ Widget de Tags Populares
-- Función `renderTopTags()` en frontend que extrae, cuenta y ordena las 10 etiquetas más utilizadas de la base de notas.
-- Los tags del widget filtran el timeline al hacer clic con foco en la barra de búsqueda.
-- Backend optimizado para admitir búsquedas de hashtags (stripping `#` de los términos en `/api/timeline`).
-
-### ⌨️ Atajos de Teclado
-- `Ctrl+K` para enfocar y seleccionar la barra de búsqueda global.
-- `Ctrl+N` para disparar el modal de captura rápida de notas de forma inmediata.
-
-## Código Modificado
-- [main.py](file:///c:/Users/Estudiante/Downloads/seond-brain/backend/main.py)
-- [app.js](file:///c:/Users/Estudiante/Downloads/seond-brain/frontend/app.js) (incrementado a `v=16`)
-- [index.html](file:///c:/Users/Estudiante/Downloads/seond-brain/frontend/index.html)
-- [style.css](file:///c:/Users/Estudiante/Downloads/seond-brain/frontend/style.css) (incrementado a `v=6`)
-
-## Verificación de Servidor
-- Servidor iniciado vía PowerShell con recarga de cambios activa.
-- Test de captura mediante script en scratch exitoso (Response Code 200, duplicados resueltos con sufijos).
-- Repositorio sincronizado, comprometido y subido a GitHub de forma exitosa.
-
----
-
-# Sesión Noche (19:00 - 19:15)
-
-## Características Implementadas
-
-### 💡 Dashboard de Monitoreo de Servidores (Benchmark)
-- Creada interfaz de monitoreo NOC-style en HTML/JS/CSS clásico para 3 servidores en `c:\Users\Estudiante\Downloads\benchmark/`.
-- Implementado sistema de colapso y expansión utilizando la skill del vault **CSS Grid Collapsible Animation Pattern** (`grid-template-rows: 0fr/1fr`).
-- Implementado sistema de scroll manual suave para enfocar el panel de logs de cada servidor al hacer clic en su tarjeta, aplicando la skill **DOM Scroll Positioning Patterns** (`getBoundingClientRect` + `scrollTo` del contenedor de scroll real).
-- Se resolvió el conflicto de scroll y transición desactivando temporalmente transiciones con la clase `.no-transitions` y forzando reflow con `.offsetHeight`, tal como se documenta en el error **ScrollIntoView Conflicto con CSS Transitions**.
-- Se optimizó el rendimiento y se evitaron fugas de memoria limitando la cantidad máxima de líneas de logs en el DOM (`maxLogLines: 40`) y utilizando delegación de eventos en el contenedor de las tarjetas, además de aplicar filtros rápidos de logs por clases CSS de forma nativa sin re-renderizado de DOM.
-
-## Código Creado
-- [index.html](file:///c:/Users/Estudiante/Downloads/benchmark/index.html)
-- [style.css](file:///c:/Users/Estudiante/Downloads/benchmark/style.css)
-- [app.js](file:///c:/Users/Estudiante/Downloads/benchmark/app.js)
-
----
-
-# Sesión Noche (19:15 - 19:35)
-
-## Características Implementadas
-
-### 💡 Mini-Motor de Orquestación de Tareas por DAG
-- Creado sistema completo en `c:\Users\Estudiante\Downloads\benchmark\dag_orchestrator/`.
-- **Backend (FastAPI)**: Implementada validación de ciclos basada en el **algoritmo de Kahn** y DFS. Scheduler de tareas concurrentes asíncronas con `asyncio.Event` de Python, máquina de estados completa y simulación de tiempos/fallos.
-- **WebSockets**: Servidor WebSocket que gestiona de manera aislada suscripciones individuales a logs en tiempo real por cada nodo, además de enviar el estado global a todos los clientes.
-- **Frontend (D3.js & Vanilla)**: Visualización en tiempo real con D3 force simulation, soporte completo de zoom, pan, drag & drop de nodos y marcadores dirigidos (flechas).
-- **Consola de Logs**: Panel lateral con transiciones fluidas de CSS, consola con colores para tipos de log y sistema de **auto-scroll inteligente** que se pausa si el usuario sube a leer y se reanuda si baja al final.
-- **Prevención de fugas y duplicados**: Uso de delegación de eventos en el SVG de D3 y desactivación/desuscripción limpia de sockets al cerrar paneles.
-
-## Código Creado
-- [main.py](file:///c:/Users/Estudiante/Downloads/benchmark/dag_orchestrator/backend/main.py)
-- [index.html](file:///c:/Users/Estudiante/Downloads/benchmark/dag_orchestrator/frontend/index.html)
-- [style.css](file:///c:/Users/Estudiante/Downloads/benchmark/dag_orchestrator/frontend/style.css)
-- [app.js](file:///c:/Users/Estudiante/Downloads/benchmark/dag_orchestrator/frontend/app.js)
-
-## Notas Creadas
 - [[FastAPI StaticFiles Directorio No Encontrado]]
 - [[Asyncio Event Scheduler para DAG]]
-

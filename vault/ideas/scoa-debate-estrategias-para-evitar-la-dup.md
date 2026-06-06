@@ -1,11 +1,16 @@
 ---
-title: "Debate SCoA: Estrategias para evitar la duplicación de event listeners en D3.js"
-category: "ideas"
-tags: ["scoa-debate", "ideas"]
-created: "2026-06-04"
-updated: "2026-06-04"
-status: "proposed"
-summary: "y Veredicto Final Inapelable"
+category: ideas
+created: '2026-06-04'
+status: proposed
+summary: y Veredicto Final Inapelable
+tags:
+- type/idea
+- tag/type/idea
+- tag/tag/type/idea
+- project/scoa
+title: 'Debate SCoA: Estrategias para evitar la duplicación de event listeners en
+  D3.js'
+updated: '2026-06-04'
 ---
 
 # Debate SCoA: Estrategias para evitar la duplicación de event listeners en D3.js
@@ -215,8 +220,9 @@ La propuesta original es **técnicamente viable** y respaldada por soluciones do
 #tribunal  
 El expediente presenta una viabilidad técnica sólida al evitar duplicación mediante estrategias modulares y documentadas. La Fiscalía señala riesgos de seguridad que requieren mitigación, pero con un enfoque proactivo se resuelve. Se recomienda validar con pruebas unitarias y monitorear rendimiento. La resolución se centra en soluciones probadas y ajustes según feedback.
 
---- 
-### Conexiones
+---
+
+## 🔗 Conexiones
 - [[Welcome Hub]]
 - [[SCoA HUD Diagnostics]]
 - [[Event Listeners Duplicados D3 Graph]]

@@ -1,14 +1,19 @@
 ---
-title: "Cola de Sincronización Fuera de Línea con LocalStorage"
 category: skills
-status: active
-tags:
-  - javascript
-  - frontend
-  - offline
-  - resilience
-  - localstorage
 created: 2026-06-04
+status: active
+summary: Cola de Sincronización Fuera de Línea con LocalStorage Resumen Cuando se
+  diseñan aplicaciones web de captura rápida (com...
+tags:
+- type/skill
+- tag/type/skill
+- tag/tag/type/skill
+- tech/javascript
+- tag/tag/tag/frontend
+- tag/tag/tag/offline
+- tag/tag/tag/resilience
+- tag/tag/tag/localstorage
+title: Cola de Sincronización Fuera de Línea con LocalStorage
 updated: 2026-06-04
 ---
 

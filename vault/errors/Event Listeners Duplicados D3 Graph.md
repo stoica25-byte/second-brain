@@ -1,16 +1,21 @@
 ---
-title: "Error: Event Listeners Duplicados en D3 Graph"
 category: errors
-status: resolved
-tags:
-  - error
-  - javascript
-  - d3js
-  - eventos
-  - performance
 created: 2026-06-03
+status: resolved
+summary: 'Error: Event Listeners Duplicados en D3 Graph Error Details Environment:
+  Second Brain Console Global Graph (Mapa Global)...'
+tags:
+- type/error
+- tag/type/error
+- tag/tag/type/error
+- tech/javascript
+- tech/d3js
+- tag/tag/tag/eventos
+- tag/tag/tag/performance
+title: 'Error: Event Listeners Duplicados en D3 Graph'
 updated: 2026-06-03
 ---
+
 # Error: Event Listeners Duplicados en D3 Graph
 
 ## Error Details
@@ -70,4 +75,7 @@ document.querySelectorAll(".graph-filter-chk").forEach(chk => {
 - **Nunca registrar event listeners dentro de funciones que se llaman repetidamente** sin limpiarlos antes
 - El patrón `data-listenerBound` es un guard simple y efectivo para prevenir duplicados
 - Alternativa moderna: usar `{ once: true }` cuando solo se necesita un disparo
-- Conectado a: [[D3.js Force Graph - Implementación]], [[JavaScript Event Listener Patterns]]
+
+## 🔗 Conexiones
+- [[D3.js Force Graph - Implementación]]
+- [[JavaScript Event Listener Patterns]]

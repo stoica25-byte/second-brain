@@ -1,16 +1,22 @@
 ---
-title: "D3.js Force Graph - Implementación de Mapa de Conocimiento"
 category: skills
-status: active
-tags:
-  - d3js
-  - javascript
-  - grafos
-  - visualizacion
-  - frontend
 created: 2026-06-03
+status: active
+summary: D3.js Force Graph Implementación de Mapa de Conocimiento Qué Es D3.js ()
+  permite crear grafos de nodos y enlaces con fís...
+tags:
+- type/skill
+- tag/type/skill
+- tag/tag/type/skill
+- tech/d3js
+- tech/javascript
+- tag/tag/tag/grafos
+- tag/tag/tag/visualizacion
+- tag/tag/tag/frontend
+title: D3.js Force Graph - Implementación de Mapa de Conocimiento
 updated: 2026-06-03
 ---
+
 # D3.js Force Graph - Implementación de Mapa de Conocimiento
 
 ## Qué Es
@@ -105,7 +111,7 @@ node.call(d3.drag()
 - `canvasEl.clientWidth` puede ser 0 si el elemento está oculto → usar fallback
 - Los filtros de categoría deben registrarse con `{ once: false }` y guard `data-listenerBound`
 
-## Conectado a
+## 🔗 Conexiones
 - [[Event Listeners Duplicados D3 Graph]]
 - [[Connection Radar - Implementación]]
 - [[Second Brain Console - Arquitectura]]

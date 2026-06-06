@@ -1,11 +1,21 @@
 ---
-title: "SCoA: Enlazado Semántico por IA con Fallback"
-category: "skills"
-tags: ["scoa", "ai", "semantic-linking", "openrouter", "gemini", "fallback"]
-created: "2026-06-04"
-updated: "2026-06-04"
-status: "active"
-summary: "Patrón de enlazado semántico automatizado con fallback a OpenRouter cuando la API Key de Gemini supera su cuota o falla."
+category: skills
+created: '2026-06-04'
+status: active
+summary: Patrón de enlazado semántico automatizado con fallback a OpenRouter cuando
+  la API Key de Gemini supera su cuota o falla.
+tags:
+- type/skill
+- tag/type/skill
+- tag/tag/type/skill
+- project/scoa
+- tag/tag/tag/ai
+- tag/tag/tag/semantic-linking
+- tag/tag/tag/openrouter
+- tag/tag/tag/gemini
+- tag/tag/tag/fallback
+title: 'SCoA: Enlazado Semántico por IA con Fallback'
+updated: '2026-06-04'
 ---
 
 # SCoA: Enlazado Semántico por IA con Fallback

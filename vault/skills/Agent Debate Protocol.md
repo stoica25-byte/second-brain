@@ -1,14 +1,20 @@
 ---
-title: "Skill: Agent Debate Protocol"
 category: skills
-tags:
-  - skill
-  - agents
-  - collaboration
-  - architecture
 created: 2026-06-02
+status: active
+summary: 'Skill: Agent Debate Protocol (Supreme Court of Agents) This protocol defines
+  the standard process for resolving complex...'
+tags:
+- type/skill
+- tag/type/skill
+- tag/tag/type/skill
+- tag/tag/tag/agents
+- tag/tag/tag/collaboration
+- tag/tag/tag/architecture
+title: 'Skill: Agent Debate Protocol'
 updated: 2026-06-02
 ---
+
 # Skill: Agent Debate Protocol (Supreme Court of Agents)
 
 This protocol defines the standard process for resolving complex architectural, security, or design decisions through structured multi-agent debates. It is styled as the **"Supreme Court of Agents" (SCoA)**.
@@ -91,6 +97,7 @@ Identify:
 ```
 
 ---
-*Related Notes:*
+
+## 🔗 Conexiones
 - [[Welcome Hub]]
 - [[Error: Python PATH Execution Bug]]

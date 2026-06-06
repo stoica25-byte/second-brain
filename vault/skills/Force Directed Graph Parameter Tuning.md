@@ -1,14 +1,19 @@
 ---
-title: "Ajuste de Parámetros Físicos para Evitar el Apelotonamiento en Grafos 2D"
 category: skills
-status: active
-tags:
-  - javascript
-  - physics-engine
-  - graph
-  - visualization
-  - canvas
 created: 2026-06-04
+status: active
+summary: Ajuste de Parámetros Físicos para Evitar el Apelotonamiento en Grafos 2D
+  Resumen Al diseñar motores de simulación de gra...
+tags:
+- type/skill
+- tag/type/skill
+- tag/tag/type/skill
+- tech/javascript
+- tag/tag/tag/physics-engine
+- tag/tag/tag/graph
+- tag/tag/tag/visualization
+- tag/tag/tag/canvas
+title: Ajuste de Parámetros Físicos para Evitar el Apelotonamiento en Grafos 2D
 updated: 2026-06-04
 ---
 

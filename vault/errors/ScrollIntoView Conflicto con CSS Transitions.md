@@ -1,18 +1,23 @@
 ---
-title: "Error: scrollIntoView Calcula Mal la Posición Durante CSS Transitions"
 category: errors
-status: resolved
-tags:
-  - error
-  - css
-  - javascript
-  - scroll
-  - transitions
-  - grid-layout
-  - debug
 created: 2026-06-03
+status: resolved
+summary: 'Error: scrollIntoView Calcula Mal la Posición Durante CSS Transitions Error
+  Details Al hacer clic en una conexión o nodo...'
+tags:
+- type/error
+- tag/type/error
+- tag/tag/type/error
+- tech/css
+- tech/javascript
+- tag/tag/tag/scroll
+- tag/tag/tag/transitions
+- tag/tag/tag/grid-layout
+- tag/tag/tag/debug
+title: 'Error: scrollIntoView Calcula Mal la Posición Durante CSS Transitions'
 updated: 2026-06-03
 ---
+
 # Error: scrollIntoView Calcula Mal la Posición Durante CSS Transitions
 
 ## Error Details
