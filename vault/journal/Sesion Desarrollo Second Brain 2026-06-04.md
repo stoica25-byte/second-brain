@@ -98,6 +98,5 @@ Sesión orientada a la implementación y verificación del sistema de enlazado s
     - **Nueva URL activa**: `https://allowing-refresh-coins-spa.trycloudflare.com`
 
 ## 🔗 Conexiones
-- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-04]]
 - **MOC Temático**: [[Welcome Hub]]
 - **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]

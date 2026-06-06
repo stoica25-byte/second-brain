@@ -57,6 +57,5 @@ Resolución de un bug crítico de **deadlock** que provocaba la congelación del
   - Se actualizaron las plantillas de notas `error_solution.md` y `new_skill.md` en `vault/templates/` para cumplir con este nuevo estándar enriquecido.
 
 ## 🔗 Conexiones
-- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-07]]
 - **MOC Temático**: [[Welcome Hub]]
 - **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]

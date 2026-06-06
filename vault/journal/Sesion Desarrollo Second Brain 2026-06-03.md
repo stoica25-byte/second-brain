@@ -71,6 +71,5 @@ Sesión de debugging y desarrollo de nuevas funcionalidades en la consola web de
 - Event listeners dentro de funciones llamadas repetidamente = bug de duplicación
 
 ## 🔗 Conexiones
-- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-03]]
 - **MOC Temático**: [[Welcome Hub]]
 - **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]
