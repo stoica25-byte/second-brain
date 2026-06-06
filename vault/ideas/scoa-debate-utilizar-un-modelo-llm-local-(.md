@@ -1,11 +1,16 @@
 ---
-title: "Debate SCoA: Utilizar un modelo LLM local (como Llama 3 mediante Ollama) integrado con una base de datos vectorial SQLite en la red local de la empresa para analizar contratos confidenciales de clientes."
-category: "ideas"
-tags: ["scoa-debate", "ideas"]
-created: "2026-06-03"
-updated: "2026-06-03"
-status: "proposed"
-summary: "y Veredicto Final Inapelable (Aprobado)"
+category: ideas
+created: '2026-06-03'
+semantic_optimized_hash: f3d4e4bbf7a02b38550c23b6809144620c01ddcade0a63554224901f6e2477c6
+status: proposed
+summary: y Veredicto Final Inapelable (Aprobado)
+tags:
+- scoa-debate
+- ideas
+title: 'Debate SCoA: Utilizar un modelo LLM local (como Llama 3 mediante Ollama) integrado
+  con una base de datos vectorial SQLite en la red local de la empresa para analizar
+  contratos confidenciales de clientes.'
+updated: '2026-06-07'
 ---
 
 # Debate SCoA: Utilizar un modelo LLM local (como Llama 3 mediante Ollama) integrado con una base de datos vectorial SQLite en la red local de la empresa para analizar contratos confidenciales de clientes.
@@ -254,6 +259,10 @@ Se deja constancia de que todas las partes han sido oídas y que el presente doc
 
 **MAGISTRADO ENJUICIADOR**  
 *Tribunal Supremo de Agentes*
+
 --- 
-### Conexiones Auto-detectadas
+## Conectado a
 - [[Welcome Hub]]
+- [[Agent Debate Protocol]]
+- [[Second Brain Console Arquitectura]]
+- [[SCoA AI-Driven Semantic Linking with Fallback]]

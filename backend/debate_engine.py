@@ -146,7 +146,7 @@ def call_openrouter_stream_sync(api_key: str, system_instruction: str, user_prom
         }
     )
     try:
-        with urllib.request.urlopen(req) as response:
+        with urllib.request.urlopen(req, timeout=15) as response:
             buffer = ""
             for chunk in response:
                 if not chunk:
@@ -207,7 +207,7 @@ def call_gemini_stream_sync(api_key: str, system_instruction: str, user_prompt: 
         )
         
         try:
-            with urllib.request.urlopen(req) as response:
+            with urllib.request.urlopen(req, timeout=15) as response:
                 buffer = ""
                 for chunk in response:
                     if not chunk:

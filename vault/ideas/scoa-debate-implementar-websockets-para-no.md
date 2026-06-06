@@ -1,11 +1,15 @@
 ---
-title: "Debate SCoA: Implementar WebSockets para notificaciones en tiempo real en la consola"
-category: "ideas"
-tags: ["scoa-debate", "ideas"]
-created: "2026-06-03"
-updated: "2026-06-03"
-status: "proposed"
-summary: "y Veredicto Final Inapelable"
+category: ideas
+created: '2026-06-03'
+semantic_optimized_hash: adeda99c1c49710d221156c09a5b4e6ee9df6001e7fedb8445aaa8ce44a78375
+status: proposed
+summary: y Veredicto Final Inapelable
+tags:
+- scoa-debate
+- ideas
+title: 'Debate SCoA: Implementar WebSockets para notificaciones en tiempo real en
+  la consola'
+updated: '2026-06-07'
 ---
 
 # Debate SCoA: Implementar WebSockets para notificaciones en tiempo real en la consola
@@ -418,6 +422,7 @@ Con base en los **hallazgos y referencias** expuestos, la acusación de la Fisca
 
 **Recomendación final:**  
 Aprobar la propuesta **solo si se incluye una especificación técnica detallada** que aborde los puntos señalados por la Fiscalía. De lo contrario, se recomienda rechazarla hasta que se resuelvan las omisiones críticas.
+
 --- 
-### Conexiones Auto-detectadas
+## Conectado a
 - [[Welcome Hub]]

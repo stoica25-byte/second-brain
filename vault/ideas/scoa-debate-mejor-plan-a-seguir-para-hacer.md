@@ -1,11 +1,15 @@
 ---
-title: "SCoA Debate: mejor plan a seguir para hacer un negocio de automatizaciones n8n"
-category: "ideas"
-tags: ["scoa-debate", "ideas"]
-created: "2026-06-03"
-updated: "2026-06-03"
-status: "proposed"
-summary: "& Verdict"
+category: ideas
+created: '2026-06-03'
+semantic_optimized_hash: 2757c0fa4c9a4a9d562e51ecf8ba4103ab3d672c76214050571d1213e13fc46c
+status: proposed
+summary: '& Verdict'
+tags:
+- scoa-debate
+- ideas
+title: 'SCoA Debate: mejor plan a seguir para hacer un negocio de automatizaciones
+  n8n'
+updated: '2026-06-07'
 ---
 
 # SCoA Debate: mejor plan a seguir para hacer un negocio de automatizaciones n8n
@@ -264,6 +268,19 @@ The n8n automation business proposal shows strong potential in performance and U
 ---  
 
 **Bottom line:** Focus on a single, compelling headline; unify card styling; place CTAs where users naturally finish reading; improve contrast and alt text; and adopt a responsive, step‑by‑step visual cue. These adjustments dramatically reduce friction and elevate the overall UX.
+
 --- 
-### Conexiones Auto-detectadas
+## Conectado a
 - [[Welcome Hub]]
+- [[HUD Personalization Widget ID Mismatch]]
+- [[SCoA HUD Diagnostics]]
+- [[Offline Form Sync Queue with LocalStorage]]
+- [[SCoA Design Debate]]
+- [[Event Listeners Duplicados D3 Graph]]
+- [[Empty Bearer Token Auth Bypass Crash]]
+- [[Browser Cache Impide Cargar JS Actualizado]]
+- [[Asyncio Event Scheduler para DAG]]
+- [[Git Sync Proxy Read Timeout]]
+- [[FastAPI StaticFiles Directorio No Encontrado]]
+- [[FastAPI Dynamic JS Rewriter Proxy]]
+- [[SCoA API Integration and Free Tier]]
