@@ -6,12 +6,10 @@ summary: Safe Area Notch Spacing in Embedded Webview Contexto En layouts web ada
   a móviles (responsive), el uso de permite...
 tags:
 - type/skill
-- tag/type/skill
-- tag/tag/type/skill
-- tag/tag/tag/layout
+- tag/layout
 - tech/css
-- tag/tag/tag/ios
-- tag/tag/tag/responsive
+- tag/ios
+- tag/responsive
 title: Safe Area Notch Spacing in Embedded Webview
 updated: 2026-06-04
 ---

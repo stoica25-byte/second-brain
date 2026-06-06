@@ -6,12 +6,10 @@ summary: 'Error: Python List Type Annotation NameError Detalles del Error Sínto
   Al ejecutar o importar un script de Python, fal...'
 tags:
 - type/error
-- tag/type/error
-- tag/tag/type/error
 - tech/python
-- tag/tag/tag/typing
-- tag/tag/tag/type-annotations
-- tag/tag/tag/import
+- tag/typing
+- tag/type-annotations
+- tag/import
 title: 'Error: Python List Type Annotation NameError'
 updated: 2026-06-04
 ---

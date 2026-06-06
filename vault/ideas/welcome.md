@@ -6,10 +6,9 @@ summary: Welcome to Your Second Brain! This is the central hub of your personal 
   knowledge base. Every circle in the graph...
 tags:
 - type/moc
-- tag/type/moc
-- tag/tag/type/moc
-- tag/tag/tag/welcome
-- tag/tag/tag/hub
+- tag/moc
+- tag/welcome
+- tag/hub
 title: Welcome Hub
 updated: 2026-06-02
 ---

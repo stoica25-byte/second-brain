@@ -6,13 +6,11 @@ summary: JS Proxy Illegal Invocation y Pérdida de Prototipos de Constructores D
   del Error Al virtualizar o enmascarar obje...
 tags:
 - type/error
-- tag/type/error
-- tag/tag/type/error
 - tech/javascript
-- tag/tag/tag/proxy
-- tag/tag/tag/illegal-invocation
-- tag/tag/tag/prototypes
-- tag/tag/tag/location-faking
+- tag/proxy
+- tag/illegal-invocation
+- tag/prototypes
+- tag/location-faking
 title: JS Proxy Illegal Invocation y Pérdida de Prototipos de Constructores
 updated: 2026-06-04
 ---

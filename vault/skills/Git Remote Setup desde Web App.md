@@ -6,12 +6,10 @@ summary: Git Remote Setup Dinámico desde una Web App Contexto El Second Brain n
   sincronizar el vault con GitHub. El reto e...
 tags:
 - type/skill
-- tag/type/skill
-- tag/tag/type/skill
 - tech/git
 - tech/fastapi
 - tech/python
-- tag/tag/tag/backend
+- tag/backend
 title: Git Remote Setup Dinámico desde una Web App
 updated: 2026-06-03
 ---

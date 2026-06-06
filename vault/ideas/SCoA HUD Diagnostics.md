@@ -6,11 +6,9 @@ summary: 'SCoA Debate: HUD Telemetry & Graph Diagnostics This document details t
   visual design changes, mathematical formulas, a...'
 tags:
 - type/idea
-- tag/type/idea
-- tag/tag/type/idea
 - project/scoa
-- tag/tag/tag/hud
-- tag/tag/tag/metrics
+- tag/hud
+- tag/metrics
 title: 'SCoA: Diagnósticos y Telemetría HUD'
 updated: 2026-06-02
 ---

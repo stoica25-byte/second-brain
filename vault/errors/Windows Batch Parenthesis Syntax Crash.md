@@ -6,12 +6,10 @@ summary: Caída de Sintaxis en Script de Lote de Windows por Paréntesis Anidado
   del Bug El script por lotes de Window...
 tags:
 - type/error
-- tag/type/error
-- tag/tag/type/error
 - tech/windows
-- tag/tag/tag/batch
-- tag/tag/tag/syntax-error
-- tag/tag/tag/cmd
+- tag/batch
+- tag/syntax-error
+- tag/cmd
 title: Caída de Sintaxis en Script de Lote de Windows por Paréntesis Anidados
 updated: 2026-06-04
 ---

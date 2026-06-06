@@ -6,13 +6,11 @@ summary: Evitar Solapamiento de Teclado y Barras de Navegación en Iframes Móvi
   Resumen Al incrustar aplicaciones interactivas...
 tags:
 - type/skill
-- tag/type/skill
-- tag/tag/type/skill
 - tech/css
-- tag/tag/tag/mobile
-- tag/tag/tag/responsiveness
-- tag/tag/tag/safe-area
-- tag/tag/tag/iframe
+- tag/mobile
+- tag/responsiveness
+- tag/safe-area
+- tag/iframe
 title: Evitar Solapamiento de Teclado y Barras de Navegación en Iframes Móviles
 updated: 2026-06-04
 ---

@@ -6,8 +6,6 @@ status: proposed
 summary: '& Verdict'
 tags:
 - type/idea
-- tag/type/idea
-- tag/tag/type/idea
 - project/scoa
 title: 'SCoA Debate: mejor plan a seguir para hacer un negocio de automatizaciones
   n8n'

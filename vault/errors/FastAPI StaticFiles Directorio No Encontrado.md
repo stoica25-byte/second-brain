@@ -6,12 +6,10 @@ summary: 'Error: FastAPI StaticFiles Directorio No Encontrado Detalles del Error
   Al iniciar o importar la aplicación Fast...'
 tags:
 - type/error
-- tag/type/error
-- tag/tag/type/error
 - tech/fastapi
 - tech/python
-- tag/tag/tag/deployment
-- tag/tag/tag/path
+- tag/deployment
+- tag/path
 title: 'Error: FastAPI StaticFiles Directorio No Encontrado'
 updated: 2026-06-03
 ---

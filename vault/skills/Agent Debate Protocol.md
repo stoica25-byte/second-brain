@@ -6,11 +6,9 @@ summary: 'Skill: Agent Debate Protocol (Supreme Court of Agents) This protocol d
   the standard process for resolving complex...'
 tags:
 - type/skill
-- tag/type/skill
-- tag/tag/type/skill
-- tag/tag/tag/agents
-- tag/tag/tag/collaboration
-- tag/tag/tag/architecture
+- tag/agents
+- tag/collaboration
+- tag/architecture
 title: 'Skill: Agent Debate Protocol'
 updated: 2026-06-02
 ---

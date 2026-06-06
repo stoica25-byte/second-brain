@@ -6,10 +6,8 @@ summary: 'Error: Python PATH Execution Bug Error Details Environment: Windows 11
   Symptom/Log: Root Cause Analysis Pytho...'
 tags:
 - type/error
-- tag/type/error
-- tag/tag/type/error
 - tech/python
-- tag/tag/tag/path
+- tag/path
 title: 'Error: Python PATH Execution Bug'
 updated: 2026-06-02
 ---

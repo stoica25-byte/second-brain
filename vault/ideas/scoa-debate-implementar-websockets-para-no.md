@@ -6,8 +6,6 @@ status: proposed
 summary: y Veredicto Final Inapelable
 tags:
 - type/idea
-- tag/type/idea
-- tag/tag/type/idea
 - project/scoa
 title: 'Debate SCoA: Implementar WebSockets para notificaciones en tiempo real en
   la consola'

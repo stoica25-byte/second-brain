@@ -6,10 +6,8 @@ summary: 'Error: Obsidian Vault Not Found al abrir desde URI Error Details Envir
   Windows 11, Obsidian Desktop, Chrome Sympt...'
 tags:
 - type/error
-- tag/type/error
-- tag/tag/type/error
-- tag/tag/tag/obsidian
-- tag/tag/tag/uri-protocol
+- tag/obsidian
+- tag/uri-protocol
 - tech/javascript
 title: 'Error: Obsidian Vault Not Found al abrir desde URI'
 updated: 2026-06-03

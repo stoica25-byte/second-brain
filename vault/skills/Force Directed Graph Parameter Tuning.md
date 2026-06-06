@@ -6,13 +6,11 @@ summary: Ajuste de Parámetros Físicos para Evitar el Apelotonamiento en Grafos
   Resumen Al diseñar motores de simulación de gra...
 tags:
 - type/skill
-- tag/type/skill
-- tag/tag/type/skill
 - tech/javascript
-- tag/tag/tag/physics-engine
-- tag/tag/tag/graph
-- tag/tag/tag/visualization
-- tag/tag/tag/canvas
+- tag/physics-engine
+- tag/graph
+- tag/visualization
+- tag/canvas
 title: Ajuste de Parámetros Físicos para Evitar el Apelotonamiento en Grafos 2D
 updated: 2026-06-04
 ---

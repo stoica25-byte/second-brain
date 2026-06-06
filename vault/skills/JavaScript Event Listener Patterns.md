@@ -6,12 +6,10 @@ summary: JavaScript Event Listener Patterns La gestión adecuada de los controla
   de eventos (Event Listeners) en JavaScript e...
 tags:
 - type/skill
-- tag/type/skill
-- tag/tag/type/skill
 - tech/javascript
-- tag/tag/tag/events
-- tag/tag/tag/patterns
-- tag/tag/tag/performance
+- tag/events
+- tag/patterns
+- tag/performance
 title: JavaScript Event Listener Patterns
 updated: 2026-06-03
 ---

@@ -6,13 +6,11 @@ summary: Detalle técnico de la implementación del radar de conexiones local (E
   utilizando D3.js para visualizar el contexto de una nota.
 tags:
 - type/skill
-- tag/type/skill
-- tag/tag/type/skill
 - tech/d3js
-- tag/tag/tag/ego-graph
+- tag/ego-graph
 - tech/javascript
-- tag/tag/tag/visualizacion
-- tag/tag/tag/frontend
+- tag/visualizacion
+- tag/frontend
 title: Connection Radar - Implementación
 updated: '2026-06-03'
 ---

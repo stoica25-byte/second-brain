@@ -6,11 +6,9 @@ summary: 'SCoA Debate: Visual Redesign & Graph Interactions This document detail
   the debate and implementation plans for three ma...'
 tags:
 - type/idea
-- tag/type/idea
-- tag/tag/type/idea
 - project/scoa
-- tag/tag/tag/design
-- tag/tag/tag/interaction
+- tag/design
+- tag/interaction
 title: 'SCoA: Diseño Visual e Interacciones'
 updated: 2026-06-02
 ---

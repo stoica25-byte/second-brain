@@ -6,12 +6,10 @@ summary: Sesión de Desarrollo Second Brain 20260607 Resumen de la Sesión Resol
   de un bug crítico de deadlock que provocaba l...
 tags:
 - type/journal
-- tag/type/journal
-- tag/tag/type/journal
-- tag/tag/tag/desarrollo
-- tag/tag/tag/second-brain
-- tag/tag/tag/bugs
-- tag/tag/tag/deadlocks
+- tag/desarrollo
+- tag/second-brain
+- tag/bugs
+- tag/deadlocks
 title: Sesión de Desarrollo - Second Brain 2026-06-07
 updated: 2026-06-07
 ---

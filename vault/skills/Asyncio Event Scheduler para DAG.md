@@ -6,13 +6,11 @@ summary: 'Patrón: Asyncio Event Scheduler para DAG Concepto Para ejecutar un fl
   de tareas representadas como un Grafo Acíclico...'
 tags:
 - type/skill
-- tag/type/skill
-- tag/tag/type/skill
 - tech/python
-- tag/tag/tag/asyncio
-- tag/tag/tag/concurrency
-- tag/tag/tag/scheduler
-- tag/tag/tag/dag
+- tag/asyncio
+- tag/concurrency
+- tag/scheduler
+- tag/dag
 title: 'Patrón: Asyncio Event Scheduler para DAG'
 updated: 2026-06-03
 ---

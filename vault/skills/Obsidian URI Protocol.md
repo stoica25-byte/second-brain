@@ -6,13 +6,11 @@ summary: Obsidian URI Protocol Integración con Apps Web Qué Es Obsidian regist
   manejador de protocolo en el sistema operativ...
 tags:
 - type/skill
-- tag/type/skill
-- tag/tag/type/skill
-- tag/tag/tag/obsidian
-- tag/tag/tag/uri-protocol
+- tag/obsidian
+- tag/uri-protocol
 - tech/javascript
-- tag/tag/tag/integracion
-- tag/tag/tag/desktop
+- tag/integracion
+- tag/desktop
 title: Obsidian URI Protocol
 updated: 2026-06-03
 ---

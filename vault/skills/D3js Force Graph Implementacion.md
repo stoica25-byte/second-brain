@@ -6,13 +6,11 @@ summary: D3.js Force Graph Implementación de Mapa de Conocimiento Qué Es D3.js
   permite crear grafos de nodos y enlaces con fís...
 tags:
 - type/skill
-- tag/type/skill
-- tag/tag/type/skill
 - tech/d3js
 - tech/javascript
-- tag/tag/tag/grafos
-- tag/tag/tag/visualizacion
-- tag/tag/tag/frontend
+- tag/grafos
+- tag/visualizacion
+- tag/frontend
 title: D3.js Force Graph - Implementación de Mapa de Conocimiento
 updated: 2026-06-03
 ---

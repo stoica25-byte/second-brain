@@ -6,13 +6,11 @@ summary: Consulta de Puertos e IP Local desde Script de Lote de Windows mediante
   Resumen Al diseñar scripts de lanzami...
 tags:
 - type/skill
-- tag/type/skill
-- tag/tag/type/skill
 - tech/windows
-- tag/tag/tag/batch
+- tag/batch
 - tech/powershell
-- tag/tag/tag/ipconfig
-- tag/tag/tag/netstat
+- tag/ipconfig
+- tag/netstat
 title: Consulta de Puertos e IP Local desde Script de Lote de Windows mediante PowerShell
 updated: 2026-06-04
 ---

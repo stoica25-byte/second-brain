@@ -6,10 +6,7 @@ status: active
 summary: This is a test note linking to Welcome Hub Conectado a Welcome Hub welcome
 tags:
 - type/idea
-- tag/type/idea
-- tag/tag/type/idea
-- tag/tag/tag/type/idea
-- tag/tag/tag/tag/test
+- tag/test
 title: Test Note
 updated: '2026-06-07'
 ---

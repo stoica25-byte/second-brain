@@ -6,12 +6,10 @@ summary: Stream Connection Drops on Mobile Suspend/Resume El Error Al cerrar el 
   móvil, bloquear el terminal o cambiar d...
 tags:
 - type/error
-- tag/type/error
-- tag/tag/type/error
-- tag/tag/tag/mobile
-- tag/tag/tag/network
-- tag/tag/tag/grpc
-- tag/tag/tag/debugging
+- tag/mobile
+- tag/network
+- tag/grpc
+- tag/debugging
 title: Stream Connection Drops on Mobile Suspend Resume
 updated: 2026-06-04
 ---

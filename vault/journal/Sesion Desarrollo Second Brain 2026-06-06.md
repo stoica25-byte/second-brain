@@ -6,11 +6,9 @@ summary: Sesión de Desarrollo Second Brain 20260606 Resumen de la Sesión Sesi�
   a reanudar, verificar y confirmar la cor...
 tags:
 - type/journal
-- tag/type/journal
-- tag/tag/type/journal
-- tag/tag/tag/desarrollo
-- tag/tag/tag/second-brain
-- tag/tag/tag/verificacion
+- tag/desarrollo
+- tag/second-brain
+- tag/verificacion
 title: Sesión de Desarrollo - Second Brain 2026-06-06
 updated: 2026-06-06
 ---

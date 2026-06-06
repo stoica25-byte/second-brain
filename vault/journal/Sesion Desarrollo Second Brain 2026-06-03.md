@@ -6,12 +6,10 @@ summary: Sesión de Desarrollo Second Brain 20260603 Resumen de la Sesión Sesi�
   debugging y desarrollo de nuevas funcionalidad...
 tags:
 - type/journal
-- tag/type/journal
-- tag/tag/type/journal
-- tag/tag/tag/desarrollo
-- tag/tag/tag/second-brain
-- tag/tag/tag/bugs
-- tag/tag/tag/sesion
+- tag/desarrollo
+- tag/second-brain
+- tag/bugs
+- tag/sesion
 title: Sesión de Desarrollo - Second Brain 2026-06-03
 updated: 2026-06-03
 ---

@@ -6,12 +6,10 @@ summary: Sesi처n de Desarrollo Second Brain 20260604 Resumen de la Sesi처n Sesi�
   a la implementaci처n y verificaci처n del...
 tags:
 - type/journal
-- tag/type/journal
-- tag/tag/type/journal
-- tag/tag/tag/desarrollo
-- tag/tag/tag/second-brain
-- tag/tag/tag/bugs
-- tag/tag/tag/sesion
+- tag/desarrollo
+- tag/second-brain
+- tag/bugs
+- tag/sesion
 title: Sesi처n de Desarrollo - Second Brain 2026-06-04
 updated: 2026-06-04
 ---

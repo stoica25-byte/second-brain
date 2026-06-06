@@ -6,12 +6,10 @@ summary: Discrepancia en IDs de Checkboxes de Personalización del HUD Descripci
   del Bug Al marcar o desmarcar las casillas para...
 tags:
 - type/error
-- tag/type/error
-- tag/tag/type/error
 - tech/javascript
 - tech/html
-- tag/tag/tag/bug
-- tag/tag/tag/frontend
+- tag/bug
+- tag/frontend
 title: Discrepancia en IDs de Checkboxes de Personalización del HUD
 updated: 2026-06-04
 ---

@@ -5,8 +5,6 @@ status: proposed
 summary: y Veredicto Final Inapelable
 tags:
 - type/idea
-- tag/type/idea
-- tag/tag/type/idea
 - project/scoa
 title: 'Debate SCoA: Estrategias para evitar la duplicación de event listeners en
   D3.js'

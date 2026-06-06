@@ -6,13 +6,11 @@ summary: Reescritura Dinámica de Scripts en Proxy FastAPI Patrón de desarrollo
   interceptar y modificar archivos estáticos (H...
 tags:
 - type/skill
-- tag/type/skill
-- tag/tag/type/skill
 - tech/fastapi
 - tech/python
-- tag/tag/tag/regex
-- tag/tag/tag/proxy
-- tag/tag/tag/assets
+- tag/regex
+- tag/proxy
+- tag/assets
 title: Reescritura Dinámica de Scripts en Proxy FastAPI
 updated: 2026-06-04
 ---

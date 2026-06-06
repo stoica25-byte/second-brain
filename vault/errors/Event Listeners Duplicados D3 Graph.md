@@ -6,12 +6,10 @@ summary: 'Error: Event Listeners Duplicados en D3 Graph Error Details Environmen
   Second Brain Console Global Graph (Mapa Global)...'
 tags:
 - type/error
-- tag/type/error
-- tag/tag/type/error
 - tech/javascript
 - tech/d3js
-- tag/tag/tag/eventos
-- tag/tag/tag/performance
+- tag/eventos
+- tag/performance
 title: 'Error: Event Listeners Duplicados en D3 Graph'
 updated: 2026-06-03
 ---

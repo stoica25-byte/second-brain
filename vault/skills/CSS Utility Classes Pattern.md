@@ -6,12 +6,10 @@ summary: CSS Utility Classes Pattern El patrón de clases utilitarias (Utility C
   consiste en definir clases CSS de propósit...
 tags:
 - type/skill
-- tag/type/skill
-- tag/tag/type/skill
 - tech/css
-- tag/tag/tag/web-design
-- tag/tag/tag/patterns
-- tag/tag/tag/frontend
+- tag/web-design
+- tag/patterns
+- tag/frontend
 title: CSS Utility Classes Pattern
 updated: 2026-06-03
 ---

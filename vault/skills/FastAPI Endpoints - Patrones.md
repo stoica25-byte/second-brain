@@ -6,13 +6,11 @@ summary: Patrones de diseño y mejores prácticas utilizados en la implementaci�
   endpoints en el backend de FastAPI.
 tags:
 - type/skill
-- tag/type/skill
-- tag/tag/type/skill
 - tech/fastapi
 - tech/python
-- tag/tag/tag/backend
-- tag/tag/tag/api
-- tag/tag/tag/patrones
+- tag/backend
+- tag/api
+- tag/patrones
 title: FastAPI Endpoints - Patrones
 updated: '2026-06-03'
 ---

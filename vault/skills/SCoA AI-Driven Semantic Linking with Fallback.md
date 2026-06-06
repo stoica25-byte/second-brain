@@ -6,14 +6,12 @@ summary: Patrón de enlazado semántico automatizado con fallback a OpenRouter c
   la API Key de Gemini supera su cuota o falla.
 tags:
 - type/skill
-- tag/type/skill
-- tag/tag/type/skill
 - project/scoa
-- tag/tag/tag/ai
-- tag/tag/tag/semantic-linking
-- tag/tag/tag/openrouter
-- tag/tag/tag/gemini
-- tag/tag/tag/fallback
+- tag/ai
+- tag/semantic-linking
+- tag/openrouter
+- tag/gemini
+- tag/fallback
 title: 'SCoA: Enlazado Semántico por IA con Fallback'
 updated: '2026-06-04'
 ---

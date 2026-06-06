@@ -7,13 +7,11 @@ summary: "Deadlock por Bloqueo de Lock en Llamada API de Larga Duración \U0001F
   El Problema La interfaz se quedaba permanentemente conge..."
 tags:
 - type/error
-- tag/type/error
-- tag/tag/type/error
 - tech/fastapi
-- tag/tag/tag/deadlock
-- tag/tag/tag/locks
-- tag/tag/tag/timeouts
-- tag/tag/tag/api-client
+- tag/deadlock
+- tag/locks
+- tag/timeouts
+- tag/api-client
 title: Deadlock por Bloqueo de Lock en Llamada API de Larga Duración
 updated: '2026-06-07'
 ---

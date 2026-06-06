@@ -6,14 +6,12 @@ summary: Second Brain Console Arquitectura Visión General Una consola web visua
   gestionar un vault de Obsidian como un graf...
 tags:
 - type/idea
-- tag/type/idea
-- tag/tag/type/idea
-- tag/tag/tag/arquitectura
-- tag/tag/tag/second-brain
+- tag/arquitectura
+- tag/second-brain
 - tech/fastapi
 - tech/javascript
 - tech/d3js
-- tag/tag/tag/obsidian
+- tag/obsidian
 title: Second Brain Console - Arquitectura
 updated: 2026-06-03
 ---

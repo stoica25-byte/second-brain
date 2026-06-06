@@ -6,8 +6,6 @@ status: proposed
 summary: 'y Veredicto:'
 tags:
 - type/idea
-- tag/type/idea
-- tag/tag/type/idea
 - project/scoa
 title: 'Debate SCoA: que es mejor para hacer una pagina web nosql o postgresql'
 updated: '2026-06-07'

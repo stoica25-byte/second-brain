@@ -6,13 +6,11 @@ summary: Detalle técnico de cómo el motor de debates SCoA realiza llamadas gra
   a Gemini y OpenRouter con búsqueda en Google.
 tags:
 - type/skill
-- tag/type/skill
-- tag/tag/type/skill
 - project/scoa
-- tag/tag/tag/api
-- tag/tag/tag/gemini
-- tag/tag/tag/openrouter
-- tag/tag/tag/tutorial
+- tag/api
+- tag/gemini
+- tag/openrouter
+- tag/tutorial
 title: 'SCoA: Integración de API y Capa Gratuita'
 updated: '2026-06-03'
 ---

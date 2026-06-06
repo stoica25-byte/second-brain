@@ -7,8 +7,6 @@ summary: 'Dictamen SCoA: APROBADO CON CONDICIONES | Dashboard móvil y gratuito 
   controlar Antigravity'
 tags:
 - type/idea
-- tag/type/idea
-- tag/tag/type/idea
 - project/scoa
 title: 'Debate SCoA: Dashboard móvil y gratuito para controlar Antigravity'
 updated: '2026-06-06'

@@ -6,13 +6,11 @@ summary: 'Error: scrollIntoView Desplaza el Contenedor Equivocado Error Details 
   usar en un layout con múltiples contenedores co...'
 tags:
 - type/error
-- tag/type/error
-- tag/tag/type/error
 - tech/javascript
-- tag/tag/tag/scroll
-- tag/tag/tag/layout
-- tag/tag/tag/overflow
-- tag/tag/tag/debug
+- tag/scroll
+- tag/layout
+- tag/overflow
+- tag/debug
 title: 'Error: scrollIntoView Desplaza el Contenedor Equivocado'
 updated: 2026-06-03
 ---

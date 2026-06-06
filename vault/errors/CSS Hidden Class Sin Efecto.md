@@ -6,11 +6,9 @@ summary: 'Error: Clase .hidden Sin Efecto en CSS Error Details Environment: Seco
   Brain Console Frontend Symptom: El Connection R...'
 tags:
 - type/error
-- tag/type/error
-- tag/tag/type/error
 - tech/css
 - tech/javascript
-- tag/tag/tag/debug
+- tag/debug
 title: 'Error: Clase .hidden Sin Efecto en CSS'
 updated: 2026-06-03
 ---

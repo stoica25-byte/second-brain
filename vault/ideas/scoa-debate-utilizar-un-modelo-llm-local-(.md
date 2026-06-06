@@ -6,8 +6,6 @@ status: proposed
 summary: y Veredicto Final Inapelable (Aprobado)
 tags:
 - type/idea
-- tag/type/idea
-- tag/tag/type/idea
 - project/scoa
 title: 'Debate SCoA: Utilizar un modelo LLM local (como Llama 3 mediante Ollama) integrado
   con una base de datos vectorial SQLite en la red local de la empresa para analizar
