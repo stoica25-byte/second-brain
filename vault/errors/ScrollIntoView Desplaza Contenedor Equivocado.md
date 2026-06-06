@@ -79,6 +79,7 @@ Si hay dos contenedores anidados con `overflow-y: auto`, el de afuera no deberí
 > **No usar `scrollIntoView` en layouts con múltiples contenedores scrollables anidados.** Calcular el offset manualmente con `getBoundingClientRect()` y usar `container.scrollTo()` sobre el contenedor de scroll específico. Además, asegurarse de que **solo un nivel** del DOM tiene `overflow: auto` por columna.
 
 ---
-*Notas Relacionadas:*
+
+## 🔗 Conexiones
 - [[ScrollIntoView Conflicto con CSS Transitions]]
 - [[CSS Hidden Class Sin Efecto]]

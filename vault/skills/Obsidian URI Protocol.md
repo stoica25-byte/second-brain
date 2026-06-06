@@ -81,6 +81,7 @@ El vault debe estar registrado en Obsidian al menos una vez:
 Si el vault está en `C:\proyectos\mi-brain\vault`, el nombre es `vault`.
 
 ---
-*Notas Relacionadas:*
+
+## 🔗 Conexiones
 - [[Error: Obsidian Vault Not Found al abrir desde URI]]
 - [[Second Brain Console - Arquitectura]]

@@ -102,7 +102,8 @@ Para navegadores antiguos que no soportan la interpolación de `fr`:
 ```
 
 ---
-*Notas Relacionadas:*
+
+## 🔗 Conexiones
 - [[DOM Scroll Positioning Patterns]]
 - [[CSS Utility Classes Pattern]]
 - [[ScrollIntoView Conflicto con CSS Transitions]]

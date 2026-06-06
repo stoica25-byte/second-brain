@@ -65,5 +65,6 @@ element.addEventListener("click", () => {
 ```
 
 ---
-*Notas Relacionadas:*
+
+## 🔗 Conexiones
 - [[Error: Event Listeners Duplicados en D3 Graph]]

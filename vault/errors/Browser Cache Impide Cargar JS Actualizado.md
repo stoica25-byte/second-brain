@@ -68,5 +68,6 @@ class NoCacheMiddleware(BaseHTTPMiddleware):
 > **Siempre usar cache-busting (`?v=N`) en archivos JS/CSS servidos estáticamente.** No asumir que el navegador recargará automáticamente archivos actualizados. Al depurar, lo primero que hay que descartar es que el navegador esté ejecutando código antiguo.
 
 ---
-*Notas Relacionadas:*
+
+## 🔗 Conexiones
 - [[FastAPI Endpoints - Patrones]]

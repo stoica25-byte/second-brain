@@ -119,7 +119,8 @@ Evitar anidar dos `overflow-y: auto` en la misma rama del DOM:
 | Elemento cambia de tamaño (animaciones) | Desactivar transiciones + reflow + `scrollTo` |
 
 ---
-*Notas Relacionadas:*
+
+## 🔗 Conexiones
 - [[ScrollIntoView Conflicto con CSS Transitions]]
 - [[ScrollIntoView Desplaza Contenedor Equivocado]]
 - [[CSS Utility Classes Pattern]]

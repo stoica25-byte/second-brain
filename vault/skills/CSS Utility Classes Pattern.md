@@ -58,5 +58,6 @@ Para evitar errores de visibilidad y maquetación (como el que se detalla en [[E
 3. **Mantenibilidad**: Modificar la regla de una utilidad (por ejemplo, cómo se comporta `.hidden`) actualiza toda la interfaz de forma inmediata.
 
 ---
-*Notas Relacionadas:*
+
+## 🔗 Conexiones
 - [[Error: Clase .hidden Sin Efecto en CSS]]

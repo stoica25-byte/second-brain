@@ -83,6 +83,7 @@ setTimeout(() => {
 > **Nunca llamar a `scrollIntoView` o calcular posiciones de scroll mientras hay transiciones CSS activas que afecten las dimensiones del elemento.** Desactivar las transiciones, forzar un reflow con `.offsetHeight`, calcular, y luego restaurar.
 
 ---
-*Notas Relacionadas:*
+
+## 🔗 Conexiones
 - [[CSS Hidden Class Sin Efecto]]
 - [[JavaScript Event Listener Patterns]]
