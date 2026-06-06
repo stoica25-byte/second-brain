@@ -34,6 +34,12 @@ Resolución de un bug crítico de **deadlock** que provocaba la congelación del
 ## Notas Creadas Hoy
 - [[Deadlock por Bloqueo de Lock en Llamada API de Larga Duracion]]
 
+## Mejora Global de Instrucciones (GEMINI.md y Plantillas)
+- **Logros**:
+  - Se realizó un debate de dos rondas con los subagentes `PkmArchitect` y `AgentOptimizer` para refinar el estándar global del agente.
+  - Se sobreescribió [[GEMINI.md]] para incorporar reglas avanzadas de rendimiento (consultas indexadas en lote, timeouts de 15s, control de Git locks en Windows) y de estructuración PKM (comillado obligatorio en YAML, prevención de duplicados con regla del 70%, enlazado trilateral contextual e indexación alfabética en MOCs).
+  - Se actualizaron las plantillas de notas `error_solution.md` y `new_skill.md` en `vault/templates/` para cumplir con este nuevo estándar enriquecido.
+
 ## Conectado a
 - [[Welcome Hub]]
 - [[Deadlock por Bloqueo de Lock en Llamada API de Larga Duracion]]

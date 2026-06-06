@@ -1,28 +1,29 @@
 ---
-title: "Skill: Name of the Skill or Tool"
-category: skills
+title: "Skill: Nombre del Patrón o Herramienta"
+category: "skills"
+status: "active"
 tags:
-  - skill
-  - tech-stack
-created: 2026-06-02
-updated: 2026-06-02
+  - "project/nombre-proyecto"
+  - "tech/tecnologia"
+  - "type/pattern"
+summary: "Resumen de 1 frase sobre qué patrón soluciona o qué hace esta herramienta."
+created: "YYYY-MM-DD"
+updated: "YYYY-MM-DD"
 ---
-# Skill: Name of the Skill or Tool
+# Skill: Nombre del Patrón o Herramienta
 
 ## Core Concept
-Briefly explain what this skill or tool is, what problem it solves, and why it is useful.
+Breve explicación de qué es y por qué es útil.
 
-## Syntax & Examples
-Show clear, reusable code snippets or examples:
-
+## Implementación & Ejemplo
 ```python
 # Insert clean, annotated example code here
 ```
 
-## Best Practices
-List best practices, optimization tips, or guidelines for using this skill correctly.
+## Buenas Prácticas
+- Claves de optimización o rendimiento.
 
-## Related Errors
-Link to errors encountered while learning/using this skill:
-- [[Error: Example Error 1]]
-- [[Error: Example Error 2]]
+## 🔗 Conexiones
+- **MOC de referencia:** [[Temática MOC]]
+- **Errores asociados:** [[Error: Relacionado]]
+- **Sesión de creación:** [[Sesion Desarrollo Second Brain YYYY-MM-DD]]

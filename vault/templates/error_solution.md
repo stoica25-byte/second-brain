@@ -1,33 +1,34 @@
 ---
-title: "Error: Short description of error"
-category: errors
-status: open # open, resolved
+title: "Error: Descripción corta del bug"
+category: "errors"
+status: "resolved"
 tags:
-  - error
-  - tag-name
-created: 2026-06-02
-updated: 2026-06-02
+  - "project/nombre-proyecto"
+  - "tech/tecnologia"
+  - "type/error"
+summary: "Resumen del error y la causa raíz en 1 frase."
+created: "YYYY-MM-DD"
+updated: "YYYY-MM-DD"
 ---
-# Error: Short description of error
+# Error: Descripción corta del bug
 
-## Error Details
-- **Environment**: (e.g. Windows, Local Host, FastAPI)
-- **Symptom/Log**:
+## Detalles del Error
+- **Entorno:** (ej. FastAPI, Windows, D3.js)
+- **Síntoma/Log:**
   ```
-  Insert error message, stack trace, or terminal output here
+  Mensaje de error o stack trace
   ```
 
-## Root Cause Analysis
-Explain *why* this error happened. What was the underlying misunderstanding, bug, or environmental cause?
+## Causa Raíz
+Explicación técnica de por qué ocurrió el fallo.
 
-## Temporary Workaround (If applicable)
-What can be done immediately to bypass the error before a permanent solution is implemented?
+## Solución Definitiva
+Detalle del código corregido (con diffs si aplica) y pasos aplicados.
 
-## Final Solution & Fix
-Detail how the error was resolved:
-- Code changes (include diffs if possible).
-- Command outputs showing it works.
+## Prevención
+- ¿Cómo evitar que este error ocurra nuevamente?
+- ¿Qué debe comprobar la IA para prevenirlo en el futuro?
 
-## Prevention & Learnings
-- What guidelines should we follow in the future to avoid this error?
-- How should I (the AI) detect or prevent this in future tasks?
+## 🔗 Conexiones
+- **MOC de referencia:** [[Temática MOC]]
+- **Sesión de creación:** [[Sesion Desarrollo Second Brain YYYY-MM-DD]]
