@@ -379,6 +379,37 @@ function setupEventListeners() {
             }
         });
     }
+
+    // AI Semantic Link Optimizer Listeners
+    const btnOptimizeVaultLinks = document.getElementById("btn-optimize-vault-links");
+    if (btnOptimizeVaultLinks) {
+        btnOptimizeVaultLinks.addEventListener("click", optimizeVaultLinks);
+    }
+    
+    const btnSuggestNoteLinks = document.getElementById("btn-suggest-note-links");
+    if (btnSuggestNoteLinks) {
+        btnSuggestNoteLinks.addEventListener("click", suggestNoteLinks);
+    }
+    
+    const previewLinksClose = document.getElementById("preview-links-close");
+    const previewLinksModal = document.getElementById("preview-links-modal");
+    if (previewLinksClose && previewLinksModal) {
+        previewLinksClose.addEventListener("click", () => previewLinksModal.classList.remove("active"));
+    }
+    
+    const previewLinksCancelBtn = document.getElementById("preview-links-cancel-btn");
+    if (previewLinksCancelBtn && previewLinksModal) {
+        previewLinksCancelBtn.addEventListener("click", () => previewLinksModal.classList.remove("active"));
+    }
+    
+    const previewLinksConfirmBtn = document.getElementById("preview-links-confirm-btn");
+    if (previewLinksConfirmBtn) {
+        previewLinksConfirmBtn.addEventListener("click", confirmSuggestedLinks);
+    }
+    
+    window.addEventListener("click", (e) => {
+        if (e.target === previewLinksModal) previewLinksModal.classList.remove("active");
+    });
 }
 
 // --- DATA LOADERS ---
@@ -1054,6 +1085,10 @@ async function openNote(note) {
         // Enabled actions
         btnDeleteNote.disabled = false;
         btnOpenObsidianNote.disabled = false;
+        const btnSuggestNoteLinks = document.getElementById("btn-suggest-note-links");
+        if (btnSuggestNoteLinks) {
+            btnSuggestNoteLinks.disabled = (note.status === "draft" || note.status === "unread");
+        }
         
         // Render local Connection Radar Ego-Graph
         drawConnectionRadar(note.path);
@@ -1267,6 +1302,8 @@ function closeNoteView() {
     viewNoteBacklinks.innerHTML = '<li class="empty-backlinks">Ninguna nota enlaza aquí todavía.</li>';
     btnDeleteNote.disabled = true;
     btnOpenObsidianNote.disabled = true;
+    const btnSuggestNoteLinks = document.getElementById("btn-suggest-note-links");
+    if (btnSuggestNoteLinks) btnSuggestNoteLinks.disabled = true;
     
     const radarSection = document.getElementById("ego-radar-section");
     if (radarSection) radarSection.classList.add("hidden");
@@ -2353,6 +2390,175 @@ async function saveCapturedNote() {
     } finally {
         captureSaveBtn.disabled = false;
         captureSaveBtn.innerText = "Guardar Nota";
+    }
+}
+
+// --- AI SEMANTIC OPTIMIZER FUNCTIONS ---
+
+async function optimizeVaultLinks() {
+    const btn = document.getElementById("btn-optimize-vault-links");
+    const progressPanel = document.getElementById("optimize-progress-panel");
+    const progressStatus = document.getElementById("optimize-progress-status");
+    const progressCounter = document.getElementById("optimize-progress-counter");
+    const progressBar = document.getElementById("optimize-progress-bar");
+
+    if (!confirm("¿Deseas optimizar semánticamente las conexiones de la red? Esto analizará mediante IA las notas activas con menos conexiones para enlazarlas de forma inteligente.")) {
+        return;
+    }
+
+    try {
+        btn.disabled = true;
+        btn.innerText = "⚡ OPTIMIZANDO...";
+        if (progressPanel) {
+            progressPanel.classList.remove("hidden");
+            progressPanel.style.display = "flex";
+            progressStatus.innerText = "Consultando IA...";
+            progressCounter.innerText = "Procesando...";
+            progressBar.style.width = "40%";
+        }
+
+        const response = await fetch("/api/notes/optimize-links", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ limit: 5 })
+        });
+        const data = await response.json();
+
+        if (response.ok && data.status !== "error") {
+            if (progressBar) progressBar.style.width = "100%";
+            if (progressStatus) progressStatus.innerText = "¡Completado!";
+            
+            const processedCount = data.processed ? data.processed.filter(p => p.status === "optimized").length : 0;
+            showToast("success", `Optimización semántica completada. Notas enlazadas: ${processedCount}`);
+            
+            // Mark global graph as needing update
+            globalGraphInitialized = false;
+            
+            await loadData();
+        } else {
+            showToast("error", "Fallo en la optimización: " + (data.error || data.detail || "Error desconocido"));
+        }
+    } catch (e) {
+        console.error(e);
+        showToast("error", "Error de red al optimizar conexiones de red.");
+    } finally {
+        setTimeout(() => {
+            if (progressPanel) {
+                progressPanel.classList.add("hidden");
+                progressPanel.style.display = "none";
+            }
+            btn.disabled = false;
+            btn.innerText = "⚡ OPTIMIZAR RED (IA)";
+        }, 2000);
+    }
+}
+
+async function suggestNoteLinks() {
+    if (!activeNote) return;
+    const btn = document.getElementById("btn-suggest-note-links");
+    const previewModal = document.getElementById("preview-links-modal");
+    const container = document.getElementById("preview-links-list-container");
+    const emptyPlaceholder = document.getElementById("preview-links-empty");
+
+    try {
+        btn.disabled = true;
+        btn.innerText = "✨ Buscando...";
+
+        const response = await fetch("/api/notes/optimize-links", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                category: activeNote.category,
+                filepath: activeNote.filename
+            })
+        });
+        const data = await response.json();
+
+        if (response.ok && data.status === "preview") {
+            container.innerHTML = "";
+            previewModal.dataset.category = activeNote.category;
+            previewModal.dataset.filepath = activeNote.filename;
+
+            if (data.suggestions && data.suggestions.length > 0) {
+                emptyPlaceholder.classList.add("hidden");
+                data.suggestions.forEach((sug, i) => {
+                    const item = document.createElement("div");
+                    item.className = "preview-link-item";
+                    item.innerHTML = `
+                        <input type="checkbox" id="chk-sug-${i}" value="${sug}" checked>
+                        <label for="chk-sug-${i}" class="preview-link-label">
+                            <span class="preview-link-badge">ENLACE</span>
+                            ${sug}
+                        </label>
+                    `;
+                    item.addEventListener("click", (e) => {
+                        if (e.target.tagName !== "INPUT") {
+                            const chk = item.querySelector("input[type='checkbox']");
+                            if (chk) chk.checked = !chk.checked;
+                        }
+                    });
+                    container.appendChild(item);
+                });
+            } else {
+                emptyPlaceholder.classList.remove("hidden");
+            }
+            previewModal.classList.add("active");
+        } else {
+            showToast("error", "Fallo al obtener sugerencias: " + (data.detail || "Error desconocido"));
+        }
+    } catch (e) {
+        console.error(e);
+        showToast("error", "Error de red al consultar la IA.");
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "✨ Sugerir Enlaces (IA)";
+    }
+}
+
+async function confirmSuggestedLinks() {
+    const previewModal = document.getElementById("preview-links-modal");
+    const confirmBtn = document.getElementById("preview-links-confirm-btn");
+    const category = previewModal.dataset.category;
+    const filepath = previewModal.dataset.filepath;
+
+    if (!category || !filepath) return;
+
+    // Get checked suggestions
+    const checkboxes = previewModal.querySelectorAll("#preview-links-list-container input[type='checkbox']:checked");
+    const confirmedLinks = Array.from(checkboxes).map(chk => chk.value);
+
+    try {
+        confirmBtn.disabled = true;
+        confirmBtn.innerText = "Guardando...";
+
+        const response = await fetch("/api/notes/optimize-links", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                category,
+                filepath,
+                confirmed_links: confirmedLinks
+            })
+        });
+        const data = await response.json();
+
+        if (response.ok && data.status === "success") {
+            showToast("success", `¡Enlaces guardados con éxito!`);
+            previewModal.classList.remove("active");
+            
+            // Mark global graph as needing update
+            globalGraphInitialized = false;
+            
+            await loadData();
+        } else {
+            showToast("error", "Fallo al guardar enlaces: " + (data.detail || "Error desconocido"));
+        }
+    } catch (e) {
+        console.error(e);
+        showToast("error", "Error de red al guardar los enlaces confirmados.");
+    } finally {
+        confirmBtn.disabled = false;
+        confirmBtn.innerText = "Confirmar Enlaces";
     }
 }
 

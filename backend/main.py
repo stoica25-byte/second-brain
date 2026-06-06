@@ -24,7 +24,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field
 import frontmatter
 import aiofiles
-from debate_engine import run_debate_stream, get_api_key, get_api_keys
+from debate_engine import run_debate_stream, get_api_key, get_api_keys, get_semantic_links
 from contextlib import asynccontextmanager
 
 # Resolve paths relative to project root (parent of backend folder)
@@ -1485,6 +1485,273 @@ async def api_debate_stream(proposal: str, category: str = "ideas"):
             yield f"data: {json.dumps({'error': str(e)})}\n\n"
             
     return StreamingResponse(sse_generator(), media_type="text/event-stream")
+
+
+# --- AI Semantic Linking Optimizer ---
+import hashlib
+
+CONNECTIONS_SECTION_RE = re.compile(
+    r'(?:\n\s*(?:---|___)?\s*)?\n\s*#+\s*(?:Conexiones|Conectado a|Connected to|Relaciones|Enlaces)\b.*$',
+    re.IGNORECASE | re.DOTALL
+)
+
+def split_note_content(raw_content: str) -> tuple[str, str]:
+    """
+    Divide el contenido de la nota en (cuerpo_principal, seccion_conexiones).
+    Si no hay sección de conexiones, retorna (raw_content, "").
+    """
+    match = CONNECTIONS_SECTION_RE.search(raw_content)
+    if match:
+        split_pos = match.start()
+        cuerpo = raw_content[:split_pos].rstrip()
+        conexiones = raw_content[split_pos:].strip()
+        return cuerpo, conexiones
+    return raw_content.rstrip(), ""
+
+def extract_wikilinks(text: str) -> set[str]:
+    """Extrae títulos de WikiLinks del texto omitiendo bloques de código."""
+    clean_text = strip_code_blocks(text)
+    links = WIKILINK_REGEX.findall(clean_text)
+    return {link[0].strip() for link in links if link[0]}
+
+def merge_and_filter_links(
+    filename_stem: str,
+    title: str,
+    cuerpo: str,
+    conexiones_antiguas: str,
+    sugerencias_ia: list[str],
+    valid_filenames: set[str]
+) -> list[str]:
+    """Combina enlaces antiguos y sugerencias de la IA aplicando las 3 capas de filtros."""
+    # 1. Enlaces en el cuerpo (excluir de la sección final)
+    cuerpo_links = {link.lower() for link in extract_wikilinks(cuerpo)}
+    
+    # 2. Enlaces previos de la sección de conexiones (conservar manuales)
+    preexistentes = extract_wikilinks(conexiones_antiguas)
+    
+    # 3. Combinar todo
+    candidatos = set(list(preexistentes) + sugerencias_ia)
+    
+    enlaces_finales = []
+    # Siempre asegurar Welcome Hub por defecto
+    enlaces_finales.append("Welcome Hub")
+    
+    for link in candidatos:
+        link_lower = link.lower()
+        # Regla A: Evitar autolink (por nombre de archivo o título)
+        if link_lower == filename_stem.lower() or link_lower == title.lower():
+            continue
+        # Regla B: Evitar duplicar enlaces que ya están en el texto del cuerpo
+        if link_lower in cuerpo_links:
+            continue
+        # Regla C: Validar existencia en el Vault
+        if link_lower != "welcome hub" and link_lower not in {f.lower() for f in valid_filenames}:
+            continue
+            
+        if link not in enlaces_finales and link_lower != "welcome hub":
+            enlaces_finales.append(link)
+            
+    return enlaces_finales
+
+class OptimizeLinksPayload(BaseModel):
+    category: Optional[str] = None
+    filepath: Optional[str] = None
+    limit: int = 5
+    confirmed_links: Optional[List[str]] = None
+
+@app.post("/api/notes/optimize-links")
+async def optimize_links_endpoint(payload: OptimizeLinksPayload):
+    # Envoltura en write_lock para operaciones atómicas de disco
+    async with write_lock:
+        # Leer index directamente de disco para evitar deadlock asíncrono con get_index()
+        index_file = VAULT_DIR / "brain_index.json"
+        if not index_file.exists():
+            index_data = await rebuild_index_internal()
+        else:
+            try:
+                with open(index_file, "r", encoding="utf-8") as f:
+                    index_data = json.load(f)
+            except Exception:
+                index_data = await rebuild_index_internal()
+                
+        notes = index_data.get("notes", {})
+        valid_filenames = {note["filename"].replace(".md", "") for note in notes.values()}
+        
+        # 1. Determinar qué notas procesar
+        target_notes = []
+        if payload.category and payload.filepath:
+            target_path = get_secure_path(payload.category, payload.filepath)
+            if target_path.exists():
+                target_notes.append((payload.category, payload.filepath, target_path))
+        else:
+            # Lote: Buscar notas activas con menor número de conexiones
+            active_notes = [
+                n for n in notes.values()
+                if n.get("status", "") not in ("draft", "unread", "archived")
+            ]
+            # Ordenar por cantidad de conexiones (links + backlinks) ascendente para priorizar huérfanos
+            active_notes.sort(key=lambda x: len(x.get("links", [])) + len(x.get("backlinks", [])))
+            
+            for note_info in active_notes[:payload.limit]:
+                parts = note_info["id"].split("/", 1)
+                if len(parts) == 2:
+                    cat, rpath = parts
+                    target_notes.append((cat, rpath, VAULT_DIR / note_info["id"]))
+
+        if not target_notes:
+            return {"status": "success", "message": "No notes found to optimize", "processed": []}
+
+        processed_summary = []
+        api_keys = get_api_keys()
+        
+        # Si se envían enlaces ya confirmados manualmente desde el modal del editor
+        if payload.confirmed_links is not None and len(target_notes) == 1:
+            cat, rpath, file_path = target_notes[0]
+            try:
+                post = frontmatter.load(file_path)
+                cuerpo, conexiones_antiguas = split_note_content(post.content)
+                cuerpo_hash = hashlib.sha256(cuerpo.encode("utf-8")).hexdigest()
+                
+                enlaces_finales = merge_and_filter_links(
+                    filename_stem=file_path.stem,
+                    title=post.get("title") or file_path.stem,
+                    cuerpo=cuerpo,
+                    conexiones_antiguas=conexiones_antiguas,
+                    sugerencias_ia=payload.confirmed_links,
+                    valid_filenames=valid_filenames
+                )
+                
+                # Escribir con formato ## Conectado a
+                nuevas_conexiones_str = "\n\n--- \n## Conectado a\n" + "\n".join(
+                    [f"- [[{link}]]" for link in enlaces_finales]
+                ) + "\n"
+                
+                post.content = cuerpo + nuevas_conexiones_str
+                post.metadata["semantic_optimized_hash"] = cuerpo_hash
+                post.metadata["updated"] = datetime.now().strftime("%Y-%m-%d")
+                
+                await save_note_atomically(file_path, frontmatter.dumps(post))
+                await rebuild_index_internal()
+                
+                return {
+                    "status": "success",
+                    "processed": [{
+                        "filename": file_path.name,
+                        "status": "optimized",
+                        "links_added": len(enlaces_finales) - 1
+                    }]
+                }
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Failed to save confirmed links: {e}")
+
+        # Flujo automático o en lote (con consulta al LLM)
+        for idx, (cat, rpath, file_path) in enumerate(target_notes):
+            try:
+                post = frontmatter.load(file_path)
+                cuerpo, conexiones_antiguas = split_note_content(post.content)
+                cuerpo_hash = hashlib.sha256(cuerpo.encode("utf-8")).hexdigest()
+                
+                # Verificar hash de optimización
+                if post.metadata.get("semantic_optimized_hash") == cuerpo_hash:
+                    processed_summary.append({
+                        "filename": file_path.name,
+                        "status": "skipped",
+                        "reason": "already_optimized"
+                    })
+                    continue
+                
+                # Preparar contexto para el LLM
+                notes_context_list = [
+                    {
+                        "filename": note["filename"].replace(".md", ""),
+                        "title": note["title"],
+                        "tags": note["tags"]
+                    }
+                    for note in notes.values()
+                    if note["filename"] != file_path.name
+                ]
+                
+                # Rate limiting para API de IA (RPM) en procesamiento por lotes
+                if idx > 0:
+                    await asyncio.sleep(4.5)
+                
+                # Invocar la API en un hilo secundario para no bloquear el event loop principal de FastAPI
+                sugerencias_ia = await asyncio.to_thread(get_semantic_links, api_keys, cuerpo, notes_context_list)
+                
+                # Si viene del editor individual, devolvemos las sugerencias directamente sin grabarlas
+                if len(target_notes) == 1 and payload.confirmed_links is None:
+                    sugerencias_filtradas = []
+                    cuerpo_links = {link.lower() for link in extract_wikilinks(cuerpo)}
+                    for sug in sugerencias_ia:
+                        sug_lower = sug.lower()
+                        if sug_lower == file_path.stem.lower() or sug_lower == (post.get("title") or "").lower():
+                            continue
+                        if sug_lower in cuerpo_links:
+                            continue
+                        if sug_lower != "welcome hub" and sug_lower not in {f.lower() for f in valid_filenames}:
+                            continue
+                        sugerencias_filtradas.append(sug)
+                    
+                    return {
+                        "status": "preview",
+                        "filename": file_path.name,
+                        "suggestions": sugerencias_filtradas
+                    }
+
+                # Guardado automático para procesos en lote (batch)
+                enlaces_finales = merge_and_filter_links(
+                    filename_stem=file_path.stem,
+                    title=post.get("title") or file_path.stem,
+                    cuerpo=cuerpo,
+                    conexiones_antiguas=conexiones_antiguas,
+                    sugerencias_ia=sugerencias_ia,
+                    valid_filenames=valid_filenames
+                )
+                
+                nuevas_conexiones_str = "\n\n--- \n## Conectado a\n" + "\n".join(
+                    [f"- [[{link}]]" for link in enlaces_finales]
+                ) + "\n"
+                
+                post.content = cuerpo + nuevas_conexiones_str
+                post.metadata["semantic_optimized_hash"] = cuerpo_hash
+                post.metadata["updated"] = datetime.now().strftime("%Y-%m-%d")
+                
+                await save_note_atomically(file_path, frontmatter.dumps(post))
+                
+                processed_summary.append({
+                    "filename": file_path.name,
+                    "status": "optimized",
+                    "links_added": len(enlaces_finales) - 1
+                })
+                
+            except RuntimeError as re_err:
+                if "cuota" in str(re_err).lower() or "429" in str(re_err):
+                    await rebuild_index_internal()
+                    return {
+                        "status": "partial_success",
+                        "error": f"Límite de API alcanzado. Deteniendo lote. Detalle: {re_err}",
+                        "processed": processed_summary
+                    }
+                processed_summary.append({
+                    "filename": file_path.name,
+                    "status": "failed",
+                    "error": str(re_err)
+                })
+            except PermissionError as pe:
+                processed_summary.append({
+                    "filename": file_path.name,
+                    "status": "failed",
+                    "error": f"Locked: {pe}"
+                })
+            except Exception as e:
+                processed_summary.append({
+                    "filename": file_path.name,
+                    "status": "failed",
+                    "error": str(e)
+                })
+        
+        await rebuild_index_internal()
+        return {"status": "success", "processed": processed_summary}
 
 
 # Serve Frontend static files

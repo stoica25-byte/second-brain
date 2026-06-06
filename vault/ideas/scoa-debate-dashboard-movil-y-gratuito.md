@@ -1,11 +1,15 @@
 ---
-title: "Debate SCoA: Dashboard móvil y gratuito para controlar Antigravity"
-category: "ideas"
-tags: ["scoa-debate", "ideas"]
-created: "2026-06-04"
-updated: "2026-06-04"
-status: "proposed"
-summary: "Dictamen SCoA: APROBADO CON CONDICIONES | Dashboard móvil y gratuito para controlar Antigravity"
+category: ideas
+created: '2026-06-04'
+semantic_optimized_hash: ad61fa9606403cfdbc2c9fca279c8bf9587ca90207ed87c2d40c7f91b3aa8be7
+status: proposed
+summary: 'Dictamen SCoA: APROBADO CON CONDICIONES | Dashboard móvil y gratuito para
+  controlar Antigravity'
+tags:
+- scoa-debate
+- ideas
+title: 'Debate SCoA: Dashboard móvil y gratuito para controlar Antigravity'
+updated: '2026-06-06'
 ---
 
 # Debate SCoA: Dashboard móvil y gratuito para controlar Antigravity
@@ -256,6 +260,7 @@ La propuesta es **viable con ajustes arquitectónicos** y aceptación de limitac
 ---  
 **#tribunal**  
 **Firma del Magistrado del Tribunal de Enjuiciamiento**
+
 --- 
-### Conexiones
-- [[Welcome Hub]]
+## Conectado a
+- [[Welcome Hub]]

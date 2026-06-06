@@ -2030,4 +2030,63 @@ body.theme-minimal-dark .judge-card.selected-tab {
     color: var(--text-muted);
 }
 
+/* --- AI Semantic Linking Styles --- */
+.btn-optimize-ai {
+    background: linear-gradient(135deg, rgba(187, 154, 247, 0.15), rgba(115, 218, 202, 0.15));
+    border: 1px solid rgba(187, 154, 247, 0.4);
+    color: #fff;
+    box-shadow: 0 0 10px rgba(187, 154, 247, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+}
+.btn-optimize-ai:hover {
+    background: linear-gradient(135deg, rgba(187, 154, 247, 0.3), rgba(115, 218, 202, 0.3));
+    border-color: var(--color-skills);
+    box-shadow: 0 0 20px rgba(115, 218, 202, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+    cursor: pointer;
+}
+.btn-optimize-ai:active {
+    transform: translateY(1px);
+}
+
+.preview-link-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.preview-link-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+.preview-link-item input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    accent-color: var(--color-ideas);
+}
+.preview-link-label {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.preview-link-badge {
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(187, 154, 247, 0.15);
+    color: var(--color-ideas);
+    border: 1px solid rgba(187, 154, 247, 0.2);
+}
+
 
