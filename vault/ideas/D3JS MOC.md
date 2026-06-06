@@ -17,6 +17,7 @@ Mapa de Contenido (MOC) de visualizaciones, grafos interactivos D3.js y optimiza
 ## 📌 Conceptos Clave & Skills
 - [[Connection Radar - Implementación]]
 - [[D3.js Force Graph - Implementación de Mapa de Conocimiento]]
+- [[D3JS Físicas y Performance Avanzado]]
 
 ## ❌ Errores Relacionados
 - [[Error: Event Listeners Duplicados en D3 Graph]]

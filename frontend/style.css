@@ -2089,4 +2089,91 @@ body.theme-minimal-dark .judge-card.selected-tab {
     border: 1px solid rgba(187, 154, 247, 0.2);
 }
 
+/* ==========================================================================
+   🕸️ Mejoras del Mapa Global (D3.js)
+   ========================================================================== */
+
+/* Transiciones optimizadas por GPU */
+.graph-node-group, #graph-canvas line {
+    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+                stroke 0.25s ease, 
+                stroke-width 0.25s ease;
+    will-change: opacity, transform;
+}
+
+.graph-node-group.is-muted, #graph-canvas line.is-muted {
+    opacity: 0.12 !important;
+}
+
+.graph-node-group circle {
+    transition: r 0.25s ease, stroke-width 0.25s ease;
+    will-change: r, stroke-width;
+}
+
+/* Animación de pulsación para el anillo externo de los MOCs */
+.moc-pulse-ring {
+    animation: mocGlowPulse 2.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+    transform-origin: center;
+    opacity: 0.8;
+}
+
+@keyframes mocGlowPulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+        stroke-width: 1.5px;
+    }
+    50% {
+        opacity: 0.3;
+    }
+    100% {
+        transform: scale(2.2);
+        opacity: 0;
+        stroke-width: 0.5px;
+    }
+}
+
+/* Sombra de MOCs en hover */
+.node-is-moc:hover circle {
+    filter: drop-shadow(0px 0px 14px var(--color-ideas)) !important;
+}
+
+/* Efecto Ping visual para el foco */
+.focus-ping-ring {
+    animation: focusRingExpand 1.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+    transform-origin: center;
+}
+
+@keyframes focusRingExpand {
+    0% {
+        r: 6px;
+        opacity: 1;
+        stroke-width: 4px;
+    }
+    100% {
+        r: 65px;
+        opacity: 0;
+        stroke-width: 0.5px;
+    }
+}
+
+/* Glassmorphism HUD para Telemetría */
+.graph-hud-panel {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.graph-hud-panel:focus-within {
+    border-color: rgba(115, 218, 202, 0.4) !important;
+    box-shadow: 0 8px 32px 0 rgba(115, 218, 202, 0.15) !important;
+}
+
+.hud-meta-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
 

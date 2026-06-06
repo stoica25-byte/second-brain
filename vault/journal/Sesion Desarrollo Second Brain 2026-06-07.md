@@ -41,6 +41,7 @@ Resolución de un bug crítico de **deadlock** que provocaba la congelación del
 
 ## Notas Creadas Hoy
 - [[Conexiones de Red Subestimadas en Estadisticas]]
+- [[D3js Fisicas y Performance Avanzado]]
 - [[Deadlock por Bloqueo de Lock en Llamada API de Larga Duracion]]
 - [[Enlazado Trilateral Contextual Automatizado]]
 - [[FastAPI MOC]]
@@ -61,9 +62,9 @@ Resolución de un bug crítico de **deadlock** que provocaba la congelación del
   - **Jerarquía Visual de Nodos**: Los MOCs temáticos se muestran en tamaño grande (13px) con sombras de brillo intenso (`drop-shadow`), los Diarios en tamaño mediano (9px) y las notas ordinarias en 6.5px.
   - **Atenuación Focalizada (Hover Focus)**: Al pasar el cursor sobre cualquier nodo, se atenúan los nodos y enlaces no conectados (opacidad al 12%), dejando resaltada la red directa en primer plano.
   - **Fix de Restauración de Radio**: Se corrigió el bug que dejaba los nodos con radio ampliado tras retirar el puntero (`mouseleave`).
-  - **Cache-Busting**: Se incrementó la versión de `app.js` a `?v=18` en `index.html` para forzar la recarga en los clientes del usuario.
+  - **Cache-Busting**: Se incrementó la versión de `app.js` a `?v=19` y `style.css` a `?v=8` en `index.html` para forzar la recarga en los clientes del usuario.
 
 ## 🔗 Conexiones
 - **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-07]]
 - **MOC Temático**: [[Welcome Hub]]
-- **Notas Afines**: [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]
+- **Notas Afines**: [[D3js Fisicas y Performance Avanzado]], [[Error: Browser Cache Impide Cargar JS Actualizado]], [[Discrepancia en IDs de Checkboxes de Personalización del HUD]]

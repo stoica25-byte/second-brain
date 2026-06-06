@@ -1540,6 +1540,25 @@ function initGlobalGraph() {
     
     const nodesData = filteredNodes.map(n => ({...n}));
     
+    // 1. Helpers for type and connections degrees
+    const degreeMap = {};
+    nodesData.forEach(n => degreeMap[n.path] = 0);
+    filteredLinks.forEach(l => {
+        const s = (typeof l.source === 'object') ? l.source.path : l.source;
+        const t = (typeof l.target === 'object') ? l.target.path : l.target;
+        if (degreeMap[s] !== undefined) degreeMap[s]++;
+        if (degreeMap[t] !== undefined) degreeMap[t]++;
+    });
+
+    const isMoc = d => d.title.toLowerCase().includes("moc") || d.title.toLowerCase().includes("welcome hub") || (d.tags && d.tags.some(t => t.includes("moc")));
+    
+    function getNodeRadius(d) {
+        if (isMoc(d)) return 13;
+        const isJournal = d.category === "journal" || d.title.toLowerCase().includes("sesion desarrollo") || (d.tags && d.tags.some(t => t.includes("journal")));
+        if (isJournal) return 9;
+        return 6.5;
+    }
+
     const svg = d3.select(canvasEl)
         .append("svg")
         .attr("width", "100%")
@@ -1549,45 +1568,102 @@ function initGlobalGraph() {
     
     // Zoom & Pan
     const g = svg.append("g");
-    svg.call(d3.zoom()
-        .scaleExtent([0.1, 8])
-        .on("zoom", (event) => g.attr("transform", event.transform))
-    );
+    const zoomBehavior = d3.zoom()
+        .scaleExtent([0.05, 12])
+        .on("zoom", (event) => g.attr("transform", event.transform));
+
+    svg.call(zoomBehavior);
     
+    // 2. forceSimulation setup with non-linear spring physics and collisions
     const simulation = d3.forceSimulation(nodesData)
-        .force("link", d3.forceLink(filteredLinks).id(d => d.path).distance(80))
-        .force("charge", d3.forceManyBody().strength(-120))
+        .force("link", d3.forceLink(filteredLinks).id(d => d.path)
+            .distance(l => {
+                const sNode = nodesData.find(n => n.path === (typeof l.source === 'object' ? l.source.path : l.source));
+                const tNode = nodesData.find(n => n.path === (typeof l.target === 'object' ? l.target.path : l.target));
+                return (sNode && isMoc(sNode)) || (tNode && isMoc(tNode)) ? 160 : 70;
+            })
+            .strength(l => {
+                const sPath = typeof l.source === 'object' ? l.source.path : l.source;
+                const tPath = typeof l.target === 'object' ? l.target.path : l.target;
+                const sDeg = degreeMap[sPath] || 1;
+                const tDeg = degreeMap[tPath] || 1;
+                return 1.0 / Math.pow(Math.min(sDeg, tDeg), 0.8);
+            })
+        )
+        .force("charge", d3.forceManyBody().strength(d => {
+            const baseRepulsion = -100;
+            const deg = degreeMap[d.path] || 0;
+            let typeMultiplier = 1.0;
+            const isJournal = d.category === "journal" || d.title.toLowerCase().includes("sesion desarrollo") || (d.tags && d.tags.some(t => t.includes("journal")));
+            if (isMoc(d)) typeMultiplier = 4.0;
+            else if (isJournal) typeMultiplier = 1.8;
+            return baseRepulsion * typeMultiplier * (1 + deg * 0.12);
+        }))
         .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("collide", d3.forceCollide().radius(20));
+        .force("collide", d3.forceCollide().radius(d => {
+            const r = getNodeRadius(d);
+            const isJournal = d.category === "journal" || d.title.toLowerCase().includes("sesion desarrollo") || (d.tags && d.tags.some(t => t.includes("journal")));
+            if (isMoc(d)) return r + 35;
+            if (isJournal) return r + 22;
+            return r + 14;
+        }).iterations(2));
     
+    // 3. Create linear gradients for bidirectional link color flows
+    const defs = svg.append("defs");
+    const categories = Object.keys(CATEGORY_COLORS);
+    categories.forEach(sourceCat => {
+        categories.forEach(targetCat => {
+            const gradId = `grad-${sourceCat}-${targetCat}`;
+            if (defs.select(`#${gradId}`).empty()) {
+                const grad = defs.append("linearGradient")
+                    .attr("id", gradId)
+                    .attr("gradientUnits", "userSpaceOnUse");
+
+                grad.append("stop")
+                    .attr("offset", "0%")
+                    .attr("stop-color", CATEGORY_COLORS[sourceCat])
+                    .attr("stop-opacity", 0.4);
+
+                grad.append("stop")
+                    .attr("offset", "100%")
+                    .attr("stop-color", CATEGORY_COLORS[targetCat])
+                    .attr("stop-opacity", 0.4);
+            }
+        });
+    });
+
     // Arrow markers for directed links
-    svg.append("defs").selectAll("marker")
+    defs.selectAll("marker")
         .data(["default"])
         .enter().append("marker")
         .attr("id", "arrowhead")
         .attr("viewBox", "0 -5 10 10")
-        .attr("refX", 18)
+        .attr("refX", 22)
         .attr("refY", 0)
-        .attr("markerWidth", 6)
-        .attr("markerHeight", 6)
+        .attr("markerWidth", 5)
+        .attr("markerHeight", 5)
         .attr("orient", "auto")
         .append("path")
         .attr("d", "M0,-5L10,0L0,5")
-        .attr("fill", "rgba(255,255,255,0.15)");
+        .attr("fill", "rgba(255,255,255,0.2)");
     
     const link = g.append("g")
         .selectAll("line")
         .data(filteredLinks)
         .enter().append("line")
-        .attr("stroke", "rgba(255, 255, 255, 0.12)")
-        .attr("stroke-width", 1)
+        .attr("stroke", l => {
+            const sCat = (typeof l.source === 'object') ? l.source.category : (nodesData.find(n => n.path === l.source)?.category || "ideas");
+            const tCat = (typeof l.target === 'object') ? l.target.category : (nodesData.find(n => n.path === l.target)?.category || "ideas");
+            return `url(#grad-${sCat}-${tCat})`;
+        })
+        .attr("stroke-width", 1.2)
         .attr("marker-end", "url(#arrowhead)");
     
     const node = g.append("g")
         .selectAll("g")
         .data(nodesData)
         .enter().append("g")
-        .attr("class", "graph-node-group")
+        .attr("class", d => isMoc(d) ? "graph-node-group node-is-moc" : "graph-node-group")
         .attr("data-path", d => d.path)
         .style("cursor", "pointer")
         .call(d3.drag()
@@ -1606,8 +1682,7 @@ function initGlobalGraph() {
             const matchingNote = notes[d.path];
             if (matchingNote) {
                 openNote(matchingNote);
-                // Highlight node
-                node.selectAll("circle").attr("stroke-width", n => n.path === d.path ? 3 : 1.5);
+                focusOnNode(d.path);
             }
         })
         .on("mouseenter", function(event, d) {
@@ -1625,29 +1700,42 @@ function initGlobalGraph() {
                 }
             });
             
-            // Fade out unrelated nodes
-            node.transition().duration(150)
-                .style("opacity", n => connectedNodeIds.has(n.path) ? 1.0 : 0.12);
-                
-            // Highlight hovered node circle
+            // Set opacity muted class via GPU accelerated CSS transitions
+            node.classed("is-muted", n => !connectedNodeIds.has(n.path));
+            link.classed("is-muted", l => {
+                const s = (typeof l.source === 'object') ? l.source.path : l.source;
+                const t = (typeof l.target === 'object') ? l.target.path : l.target;
+                return !(s === d.path || t === d.path);
+            });
+            
+            // Focus resizing
             d3.select(this).select("circle")
                 .transition().duration(150)
                 .attr("r", n => getNodeRadius(n) * 1.35)
                 .attr("stroke-width", 3);
             
-            // Highlight connected links
-            link.transition().duration(150)
-                .attr("stroke", l => {
-                    const s = (typeof l.source === 'object') ? l.source.path : l.source;
-                    const t = (typeof l.target === 'object') ? l.target.path : l.target;
-                    return (s === d.path || t === d.path) ? (CATEGORY_COLORS[d.category] || "rgba(255,255,255,0.8)") : "rgba(255, 255, 255, 0.04)";
-                })
-                .attr("stroke-width", l => {
-                    const s = (typeof l.source === 'object') ? l.source.path : l.source;
-                    const t = (typeof l.target === 'object') ? l.target.path : l.target;
-                    return (s === d.path || t === d.path) ? 2.5 : 0.5;
-                });
+            // Update HUD metadata
+            const outLinks = filteredLinks.filter(l => (typeof l.source === 'object' ? l.source.path : l.source) === d.path).length;
+            const inLinks = filteredLinks.filter(l => (typeof l.target === 'object' ? l.target.path : l.target) === d.path).length;
             
+            const hudDetails = document.getElementById("hud-node-details");
+            if (hudDetails) {
+                const color = CATEGORY_COLORS[d.category] || "#fff";
+                hudDetails.innerHTML = `
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <div style="font-size:11px; font-weight:700; color:#fff; word-break:break-all;">${d.title}</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span class="hud-meta-badge" style="background: ${color}22; color: ${color}; border: 1px solid ${color}40;">${d.category}</span>
+                            <span style="font-size:9px;">Conexiones: ${inLinks} In / ${outLinks} Out</span>
+                        </div>
+                        <div style="color:var(--text-muted); font-size:9px; line-height:1.4; border-top:1px solid rgba(255,255,255,0.05); padding-top:6px; font-family: 'JetBrains Mono', monospace;">
+                            Fuerza Física (vx): ${d.vx ? d.vx.toFixed(4) : "0.0000"}<br>
+                            Coordenadas (x,y): ${d.x.toFixed(1)}, ${d.y.toFixed(1)}
+                        </div>
+                    </div>
+                `;
+            }
+
             // Show tooltip
             const tooltip = document.getElementById("graph-tooltip");
             if (tooltip) {
@@ -1657,42 +1745,30 @@ function initGlobalGraph() {
                 tooltip.style.top = (event.pageY - 20) + "px";
             }
         })
-        .on("mousemove", function(event) {
-            const tooltip = document.getElementById("graph-tooltip");
-            if (tooltip) {
-                tooltip.style.left = (event.pageX + 12) + "px";
-                tooltip.style.top = (event.pageY - 20) + "px";
-            }
-        })
         .on("mouseleave", function(event, d) {
-            // Restore nodes opacity
-            node.transition().duration(150)
-                .style("opacity", 1.0);
-                
-            // Restore hovered node size
+            node.classed("is-muted", false);
+            link.classed("is-muted", false);
+            
             d3.select(this).select("circle")
                 .transition().duration(150)
                 .attr("r", n => getNodeRadius(n))
                 .attr("stroke-width", 1.5);
                 
-            // Restore links representation
-            link.transition().duration(150)
-                .attr("stroke", "rgba(255, 255, 255, 0.12)")
-                .attr("stroke-width", 1);
-            
             const tooltip = document.getElementById("graph-tooltip");
             if (tooltip) tooltip.style.opacity = "0";
         });
     
-    // Helpers for node-type visual styling
-    function getNodeRadius(d) {
-        const isMoc = d.title.toLowerCase().includes("moc") || d.title.toLowerCase().includes("welcome hub") || (d.tags && d.tags.some(t => t.includes("moc")));
-        if (isMoc) return 13;
-        const isJournal = d.category === "journal" || d.title.toLowerCase().includes("sesion desarrollo") || (d.tags && d.tags.some(t => t.includes("journal")));
-        if (isJournal) return 9;
-        return 6.5;
-    }
+    // 4. MOC Pulse Ring
+    node.filter(d => isMoc(d))
+        .append("circle")
+        .attr("class", "moc-pulse-ring")
+        .attr("r", d => getNodeRadius(d))
+        .attr("fill", "none")
+        .attr("stroke", d => CATEGORY_COLORS[d.category] || "#7aa2f7")
+        .attr("stroke-width", 1.5)
+        .style("pointer-events", "none");
     
+    // Core circle
     node.append("circle")
         .attr("r", d => getNodeRadius(d))
         .attr("fill", d => CATEGORY_COLORS[d.category] || "#7aa2f7")
@@ -1700,40 +1776,138 @@ function initGlobalGraph() {
         .attr("stroke-width", 1.5)
         .style("filter", d => {
             const color = CATEGORY_COLORS[d.category] || "#7aa2f7";
-            const isMoc = d.title.toLowerCase().includes("moc") || d.title.toLowerCase().includes("welcome hub") || (d.tags && d.tags.some(t => t.includes("moc")));
-            return isMoc ? `drop-shadow(0px 0px 8px ${color}dd)` : `drop-shadow(0px 0px 3px ${color}55)`;
+            return isMoc(d) ? `drop-shadow(0px 0px 8px ${color}dd)` : `drop-shadow(0px 0px 3px ${color}55)`;
         });
     
+    // Labels
     node.append("text")
         .text(d => d.title && d.title.length > 22 ? d.title.substring(0, 22) + "…" : d.title)
-        .attr("font-size", d => {
-            const isMoc = d.title.toLowerCase().includes("moc") || d.title.toLowerCase().includes("welcome hub") || (d.tags && d.tags.some(t => t.includes("moc")));
-            return isMoc ? "10px" : "9px";
-        })
-        .attr("font-weight", d => {
-            const isMoc = d.title.toLowerCase().includes("moc") || d.title.toLowerCase().includes("welcome hub") || (d.tags && d.tags.some(t => t.includes("moc")));
-            return isMoc ? "bold" : "normal";
-        })
-        .attr("fill", d => {
-            const isMoc = d.title.toLowerCase().includes("moc") || d.title.toLowerCase().includes("welcome hub") || (d.tags && d.tags.some(t => t.includes("moc")));
-            return isMoc ? "rgba(255, 255, 255, 0.95)" : "rgba(255, 255, 255, 0.6)";
-        })
-        .attr("dx", d => {
-            const isMoc = d.title.toLowerCase().includes("moc") || d.title.toLowerCase().includes("welcome hub") || (d.tags && d.tags.some(t => t.includes("moc")));
-            return isMoc ? 16 : 10;
-        })
+        .attr("font-size", d => isMoc(d) ? "10px" : "9px")
+        .attr("font-weight", d => isMoc(d) ? "bold" : "normal")
+        .attr("fill", d => isMoc(d) ? "rgba(255, 255, 255, 0.95)" : "rgba(255, 255, 255, 0.6)")
+        .attr("dx", d => isMoc(d) ? 16 : 10)
         .attr("dy", 3.5)
         .attr("pointer-events", "none")
         .style("text-shadow", "0 0 4px #000, 0 0 4px #000");
     
+    // 5. Focal zooming and wave pings
+    function focusOnNode(nodePath) {
+        const targetNode = nodesData.find(n => n.path === nodePath);
+        if (!targetNode) return;
+        
+        const scale = 1.8;
+        const transform = d3.zoomIdentity
+            .translate(width / 2 - targetNode.x * scale, height / 2 - targetNode.y * scale)
+            .scale(scale);
+
+        svg.transition()
+            .duration(850)
+            .ease(d3.easeCubicOut)
+            .call(zoomBehavior.transform, transform);
+
+        // Focal expandable ping
+        const pingG = g.append("g");
+        pingG.append("circle")
+            .attr("class", "focus-ping-ring")
+            .attr("cx", targetNode.x)
+            .attr("cy", targetNode.y)
+            .attr("fill", "none")
+            .attr("stroke", CATEGORY_COLORS[targetNode.category] || "#7aa2f7")
+            .style("pointer-events", "none");
+
+        setTimeout(() => pingG.remove(), 1600);
+    }
+    
+    // 6. Mathematical Bounding-Box Auto-Fit encadrer
+    function fitGraphToContainer(duration = 750) {
+        if (nodesData.length === 0) return;
+        
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        nodesData.forEach(d => {
+            if (d.x < minX) minX = d.x;
+            if (d.x > maxX) maxX = d.x;
+            if (d.y < minY) minY = d.y;
+            if (d.y > maxY) maxY = d.y;
+        });
+        
+        const graphWidth = maxX - minX;
+        const graphHeight = maxY - minY;
+        
+        if (graphWidth === 0 || graphHeight === 0) return;
+        
+        const scale = Math.max(0.15, Math.min(2.2, 0.80 / Math.max(graphWidth / width, graphHeight / height)));
+        const centerX = (minX + maxX) / 2;
+        const centerY = (minY + maxY) / 2;
+        
+        const transform = d3.zoomIdentity
+            .translate(width / 2, height / 2)
+            .scale(scale)
+            .translate(-centerX, -centerY);
+            
+        if (duration > 0) {
+            svg.transition()
+                .duration(duration)
+                .call(zoomBehavior.transform, transform);
+        } else {
+            svg.call(zoomBehavior.transform, transform);
+        }
+    }
+
+    // Tick update alignment
     simulation.on("tick", () => {
         link
             .attr("x1", d => d.source.x)
             .attr("y1", d => d.source.y)
             .attr("x2", d => d.target.x)
             .attr("y2", d => d.target.y);
+            
+        // Align linear gradients vectors dynamically
+        link.each(function(d) {
+            d3.select(`#grad-${d.source.category}-${d.target.category}`)
+                .attr("x1", d.source.x)
+                .attr("y1", d.source.y)
+                .attr("x2", d.target.x)
+                .attr("y2", d.target.y);
+        });
+
         node.attr("transform", d => `translate(${d.x}, ${d.y})`);
     });
+    
+    // 7. Cold Start (Synchronous simulation warming)
+    simulation.stop();
+    for (let i = 0; i < 75; ++i) {
+        simulation.tick();
+    }
+    simulation.restart();
+
+    // Auto-fit immediately on load
+    fitGraphToContainer(0);
+
+    // 8. Bind HUD search local bar
+    const hudSearch = document.getElementById("hud-graph-search");
+    const hudSearchBtn = document.getElementById("hud-graph-search-btn");
+    
+    if (hudSearch && hudSearchBtn) {
+        const runHudSearch = () => {
+            const term = hudSearch.value.trim().toLowerCase();
+            if (!term) return;
+            
+            const foundNode = nodesData.find(n => n.title.toLowerCase().includes(term));
+            if (foundNode) {
+                focusOnNode(foundNode.path);
+                const matchingNote = notes[foundNode.path];
+                if (matchingNote) openNote(matchingNote);
+            } else {
+                hudSearch.style.borderColor = "var(--color-errors)";
+                setTimeout(() => hudSearch.style.borderColor = "rgba(255,255,255,0.1)", 1500);
+            }
+        };
+
+        hudSearchBtn.onclick = runHudSearch;
+        hudSearch.onkeypress = (e) => {
+            if (e.key === "Enter") runHudSearch();
+        };
+    }
     
     // Category filter checkboxes — bind ONCE only using a data flag
     document.querySelectorAll(".graph-filter-chk").forEach(chk => {
