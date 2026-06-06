@@ -1,17 +1,19 @@
 ---
-title: "Deadlock por Bloqueo de Lock en Llamada API de Larga Duración"
 category: errors
+created: 2026-06-07
+semantic_optimized_hash: 8d04e5e5e7b84e0a5134412a1d87902b73b9c69385f5cadda191568de0f33cbf
 status: resolved
 tags:
-  - errors
-  - fastapi
-  - deadlock
-  - locks
-  - timeouts
-  - api-client
-created: 2026-06-07
-updated: 2026-06-07
+- errors
+- fastapi
+- deadlock
+- locks
+- timeouts
+- api-client
+title: Deadlock por Bloqueo de Lock en Llamada API de Larga Duración
+updated: '2026-06-07'
 ---
+
 # Deadlock por Bloqueo de Lock en Llamada API de Larga Duración
 
 ## 🔴 El Problema
@@ -47,3 +49,10 @@ async with write_lock:
 ## 💡 Lecciones Aprendidas
 - **Nunca** realices llamadas a servicios de red externos (como APIs de LLMs o webhooks) mientras sostienes un lock de recurso local (`asyncio.Lock`, mutexes, locks de base de datos).
 - Configura siempre un parámetro de `timeout` explícito en cualquier cliente HTTP (`urllib`, `requests`, `httpx`).
+
+--- 
+## Conectado a
+- [[Welcome Hub]]
+- [[Git Sync Proxy Read Timeout]]
+- [[FastAPI Endpoints - Patrones]]
+- [[FastAPI StaticFiles Directorio No Encontrado]]
