@@ -1611,9 +1611,42 @@ function initGlobalGraph() {
             }
         })
         .on("mouseenter", function(event, d) {
+            const connectedNodeIds = new Set();
+            connectedNodeIds.add(d.path);
+            
+            // Find all connected nodes
+            filteredLinks.forEach(l => {
+                const s = (typeof l.source === 'object') ? l.source.path : l.source;
+                const t = (typeof l.target === 'object') ? l.target.path : l.target;
+                if (s === d.path) {
+                    connectedNodeIds.add(t);
+                } else if (t === d.path) {
+                    connectedNodeIds.add(s);
+                }
+            });
+            
+            // Fade out unrelated nodes
+            node.transition().duration(150)
+                .style("opacity", n => connectedNodeIds.has(n.path) ? 1.0 : 0.12);
+                
+            // Highlight hovered node circle
             d3.select(this).select("circle")
                 .transition().duration(150)
-                .attr("r", d.path === d.path ? 11 : 8);
+                .attr("r", n => getNodeRadius(n) * 1.35)
+                .attr("stroke-width", 3);
+            
+            // Highlight connected links
+            link.transition().duration(150)
+                .attr("stroke", l => {
+                    const s = (typeof l.source === 'object') ? l.source.path : l.source;
+                    const t = (typeof l.target === 'object') ? l.target.path : l.target;
+                    return (s === d.path || t === d.path) ? (CATEGORY_COLORS[d.category] || "rgba(255,255,255,0.8)") : "rgba(255, 255, 255, 0.04)";
+                })
+                .attr("stroke-width", l => {
+                    const s = (typeof l.source === 'object') ? l.source.path : l.source;
+                    const t = (typeof l.target === 'object') ? l.target.path : l.target;
+                    return (s === d.path || t === d.path) ? 2.5 : 0.5;
+                });
             
             // Show tooltip
             const tooltip = document.getElementById("graph-tooltip");
@@ -1631,24 +1664,65 @@ function initGlobalGraph() {
                 tooltip.style.top = (event.pageY - 20) + "px";
             }
         })
-        .on("mouseleave", function() {
+        .on("mouseleave", function(event, d) {
+            // Restore nodes opacity
+            node.transition().duration(150)
+                .style("opacity", 1.0);
+                
+            // Restore hovered node size
+            d3.select(this).select("circle")
+                .transition().duration(150)
+                .attr("r", n => getNodeRadius(n))
+                .attr("stroke-width", 1.5);
+                
+            // Restore links representation
+            link.transition().duration(150)
+                .attr("stroke", "rgba(255, 255, 255, 0.12)")
+                .attr("stroke-width", 1);
+            
             const tooltip = document.getElementById("graph-tooltip");
             if (tooltip) tooltip.style.opacity = "0";
         });
     
+    // Helpers for node-type visual styling
+    function getNodeRadius(d) {
+        const isMoc = d.title.toLowerCase().includes("moc") || d.title.toLowerCase().includes("welcome hub") || (d.tags && d.tags.some(t => t.includes("moc")));
+        if (isMoc) return 13;
+        const isJournal = d.category === "journal" || d.title.toLowerCase().includes("sesion desarrollo") || (d.tags && d.tags.some(t => t.includes("journal")));
+        if (isJournal) return 9;
+        return 6.5;
+    }
+    
     node.append("circle")
-        .attr("r", 7)
+        .attr("r", d => getNodeRadius(d))
         .attr("fill", d => CATEGORY_COLORS[d.category] || "#7aa2f7")
         .attr("stroke", d => (CATEGORY_COLORS[d.category] || "#7aa2f7") + "88")
         .attr("stroke-width", 1.5)
-        .style("filter", d => `drop-shadow(0px 0px 5px ${CATEGORY_COLORS[d.category] || "#7aa2f7"}88)`);
+        .style("filter", d => {
+            const color = CATEGORY_COLORS[d.category] || "#7aa2f7";
+            const isMoc = d.title.toLowerCase().includes("moc") || d.title.toLowerCase().includes("welcome hub") || (d.tags && d.tags.some(t => t.includes("moc")));
+            return isMoc ? `drop-shadow(0px 0px 8px ${color}dd)` : `drop-shadow(0px 0px 3px ${color}55)`;
+        });
     
     node.append("text")
         .text(d => d.title && d.title.length > 22 ? d.title.substring(0, 22) + "…" : d.title)
-        .attr("font-size", "9px")
-        .attr("fill", "rgba(255, 255, 255, 0.7)")
-        .attr("dx", 10)
-        .attr("dy", 3)
+        .attr("font-size", d => {
+            const isMoc = d.title.toLowerCase().includes("moc") || d.title.toLowerCase().includes("welcome hub") || (d.tags && d.tags.some(t => t.includes("moc")));
+            return isMoc ? "10px" : "9px";
+        })
+        .attr("font-weight", d => {
+            const isMoc = d.title.toLowerCase().includes("moc") || d.title.toLowerCase().includes("welcome hub") || (d.tags && d.tags.some(t => t.includes("moc")));
+            return isMoc ? "bold" : "normal";
+        })
+        .attr("fill", d => {
+            const isMoc = d.title.toLowerCase().includes("moc") || d.title.toLowerCase().includes("welcome hub") || (d.tags && d.tags.some(t => t.includes("moc")));
+            return isMoc ? "rgba(255, 255, 255, 0.95)" : "rgba(255, 255, 255, 0.6)";
+        })
+        .attr("dx", d => {
+            const isMoc = d.title.toLowerCase().includes("moc") || d.title.toLowerCase().includes("welcome hub") || (d.tags && d.tags.some(t => t.includes("moc")));
+            return isMoc ? 16 : 10;
+        })
+        .attr("dy", 3.5)
         .attr("pointer-events", "none")
         .style("text-shadow", "0 0 4px #000, 0 0 4px #000");
     
