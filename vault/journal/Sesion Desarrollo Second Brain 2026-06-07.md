@@ -48,6 +48,7 @@ Resolución de un bug crítico de **deadlock** que provocaba la congelación del
 - [[Conexiones de Red Subestimadas en Estadisticas]]
 - [[D3js Fisicas y Performance Avanzado]]
 - [[Deadlock por Bloqueo de Lock en Llamada API de Larga Duracion]]
+- [[Descarga e Inspeccion Segura de Archivos en FastAPI]]
 - [[Enlazado Trilateral Contextual Automatizado]]
 - [[FastAPI MOC]]
 - [[D3JS MOC]]
@@ -61,7 +62,7 @@ Resolución de un bug crítico de **deadlock** que provocaba la congelación del
 - **Logros**:
   - Se realizó un debate de dos rondas con los subagentes `PkmArchitect` y `AgentOptimizer` para refinar el estándar global del agente.
   - Se sobreescribió [[GEMINI.md]] para incorporar reglas avanzadas de rendimiento (consultas indexadas en lote, timeouts de 15s, control de Git locks en Windows) y de estructuración PKM (comillado obligatorio en YAML, prevención de duplicados con regla del 70%, enlazado trilateral contextual e indexación alfabética en MOCs).
-  - Se actualizaron las plantillas de notas `error_solution.md` y `new_skill.md` en `vault/templates/` para cumplir con este nuevo estándar enriquecido.
+  - Se actualizaron las plantillas de notas `error_solution.md` y `new_skill.md` in `vault/templates/` para cumplir con este nuevo estándar enriquecido.
 
 ## Mejoras Visuales y Fase 2 de Optimización Antilag del Grafo D3.js
 - **Logros**:
@@ -72,7 +73,15 @@ Resolución de un bug crítico de **deadlock** que provocaba la congelación del
   - **Limpieza del HUD (Remoción de Telemetría)**: Se eliminaron las referencias a la "telemetría de red" y a los parámetros físicos (fuerzas vx, coordenadas x/y) del HUD dinámico, simplificándolo en un "Inspector del Grafo" que solo despliega metadatos conceptuales relevantes (título, categoría y número de conexiones directas).
   - **Cache-Busting**: Se incrementó la versión de `app.js` a `?v=22` y `style.css` a `?v=9` en `index.html`.
 
+## Reemplazo de Mapa de Conocimiento por Explorador de Artefactos y Código
+- **Logros**:
+  - Se sustituyó por completo el visualizador de grafos D3 en Canvas por un **Visor y Descargador de Artefactos de Agente y Archivos del Workspace** local.
+  - Diseñada una interfaz Split Pane retro-futurista cyber-noir premium con selector de sesiones de agente, lista de planes de implementación, tareas (task checklists) y scripts de scratch.
+  - El inspector en el panel derecho soporta renderizado de Markdown enriquecido (checklists animadas retro, enlaces activos a archivos del proyecto) y visualizador de código crudo con numeración de líneas.
+  - El widget de telemetría de grafos del Dashboard general fue transformado en un panel de métricas de sesiones y artefactos recientes del agente.
+  - Agregadas salvaguardas en FastAPI contra path traversal (`..`) y filtros por extensiones de archivos de texto permitidas.
+
 ## 🔗 Conexiones
 - **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-07]]
 - **MOC Temático**: [[Welcome Hub]]
-- **Notas Afines**: [[D3js Fisicas y Performance Avanzado]], [[Lag de Rendering en D3js por Consultas DOM en Tick]], [[Error: Browser Cache Impide Cargar JS Actualizado]]
+- **Notas Afines**: [[Descarga e Inspeccion Segura de Archivos en FastAPI]], [[D3js Fisicas y Performance Avanzado]], [[Error: Browser Cache Impide Cargar JS Actualizado]]
