@@ -1,11 +1,14 @@
 ---
-title: "Debate SCoA: test"
-category: "ideas"
-tags: ["scoa-debate", "ideas"]
-created: "2026-06-10"
-updated: "2026-06-10"
-status: "proposed"
-summary: "Resolución de Debate de SCoA sobre: test"
+category: ideas
+created: '2026-06-10'
+semantic_optimized_hash: 10db1d45c66eaa517188e5f0d77ce8fb2587bac978164d77d89d460538c18ca5
+status: proposed
+summary: 'Resolución de Debate de SCoA sobre: test'
+tags:
+- scoa-debate
+- ideas
+title: 'Debate SCoA: test'
+updated: '2026-06-10'
 ---
 
 # Debate SCoA: test
@@ -167,5 +170,17 @@ Este ejemplo muestra que la ausencia de los elementos críticos señalados por l
 Estoy a disposición para revisar y estructurar el expediente completo del caso según las pautas establecidas. Si necesitas un análisis más detallado de algún punto, estaré encantado de ayudarte.
 
 --- 
-### Conexiones
+## Conectado a
 - [[Welcome Hub]]
+- [[SCoA MOC]]
+- [[scoa-debate-implementar-websockets-para-no]]
+- [[scoa-debate-estrategias-para-evitar-la-dup]]
+- [[scoa-debate-dashboard-movil-y-gratuito]]
+- [[scoa-debate-que-es-mejor-para-hacer-una-pa]]
+- [[Second Brain Console Arquitectura]]
+- [[scoa-debate-mejor-plan-a-seguir-para-hacer]]
+- [[scoa-debate-utilizar-un-modelo-llm-local-(]]
+- [[scoa-debate-elección-de-tema-y-estilo-para]]
+- [[SCoA Design Debate]]
+- [[SCoA HUD Diagnostics]]
+- [[scoa-debate-estrategia-ia-personaje,-estil]]

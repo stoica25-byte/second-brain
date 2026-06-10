@@ -1,14 +1,16 @@
 ---
-title: "Descarga e Inspección Segura de Archivos Locales en FastAPI"
-category: "skills"
-status: "active"
+category: skills
+created: '2026-06-07'
+semantic_optimized_hash: eb8ce7d7b697c164016e87f71c23629b8c760f2f1a7b55d0d3841d83e4d6a53b
+status: active
+summary: Patrón técnico para exponer archivos del workspace local y sesiones del agente
+  de forma segura limitando extensiones e impidiendo path traversal en FastAPI.
 tags:
-  - "project/antigravity"
-  - "tech/fastapi"
-  - "type/pattern"
-summary: "Patrón técnico para exponer archivos del workspace local y sesiones del agente de forma segura limitando extensiones e impidiendo path traversal en FastAPI."
-created: "2026-06-07"
-updated: "2026-06-07"
+- project/antigravity
+- tech/fastapi
+- type/pattern
+title: Descarga e Inspección Segura de Archivos Locales en FastAPI
+updated: '2026-06-10'
 ---
 
 # Descarga e Inspección Segura de Archivos Locales en FastAPI
@@ -60,3 +62,13 @@ if ext not in VALID_EXTENSIONS:
 ## 🔗 Conexiones
 * **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-07]]
 * **MOC Temático**: [[FastAPI MOC]]
+
+--- 
+## Conectado a
+- [[Welcome Hub]]
+- [[FastAPI Dynamic JS Rewriter Proxy]]
+- [[Mobile Blank Screen and Mixed Content]]
+- [[FastAPI StaticFiles Directorio No Encontrado]]
+- [[Second Brain Console Arquitectura]]
+- [[Python PATH Execution Bug]]
+- [[FastAPI Endpoints - Patrones]]

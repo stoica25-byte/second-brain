@@ -1,15 +1,18 @@
 ---
-title: "ConnectError gRPC-Web Missing Trailer en Proxy FastAPI"
-category: "errors"
-status: "resolved"
+category: errors
+created: '2026-06-10'
+semantic_optimized_hash: 3e94e9aae3560c7d2ded0ad8859b00c2ba99f327f86a163e839d0750d7060449
+status: resolved
+summary: Error de 'missing trailer' en clientes gRPC-Web por el buffering del stream
+  proxy (requests iter_content con chunk_size) y la falta de cabeceras de trailers
+  en CORS.
 tags:
-  - "project/antigravity"
-  - "tech/fastapi"
-  - "tech/grpc"
-  - "type/error"
-summary: "Error de 'missing trailer' en clientes gRPC-Web por el buffering del stream proxy (requests iter_content con chunk_size) y la falta de cabeceras de trailers en CORS."
-created: "2026-06-10"
-updated: "2026-06-10"
+- project/antigravity
+- tech/fastapi
+- tech/grpc
+- type/error
+title: ConnectError gRPC-Web Missing Trailer en Proxy FastAPI
+updated: '2026-06-10'
 ---
 
 # ConnectError gRPC-Web Missing Trailer en Proxy FastAPI
@@ -45,3 +48,11 @@ Esto provoca que las subscripciones a streams (ej. `AppStateStream`, `ProjectUpd
 ## 🔗 Conexiones
 - **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-10]]
 - **Patrones Relacionados**: [[Proxy de Streaming SSE Asincrono con Keep-Alive]]
+
+--- 
+## Conectado a
+- [[Welcome Hub]]
+- [[FastAPI Dynamic JS Rewriter Proxy]]
+- [[Renderizado de Streams Asincronos con Control de Reflow en Frontend]]
+- [[SCoA API Integration and Free Tier]]
+- [[FastAPI Endpoints - Patrones]]
