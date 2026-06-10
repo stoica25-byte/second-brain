@@ -11,10 +11,14 @@
             "id": "33c7cda3827fefaf",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Vista gráfica"
+              "type": "markdown",
+              "state": {
+                "file": "errors/Conexion Stream Debate Cortada en Cloudflare Tunnel.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Conexion Stream Debate Cortada en Cloudflare Tunnel"
             }
           }
         ]
@@ -178,6 +182,12 @@
   },
   "active": "33c7cda3827fefaf",
   "lastOpenFiles": [
+    "tmp2w31mynq.tmp",
+    "tmp1a3pn0hs.tmp",
+    "tmpw6yw3uoy.tmp",
+    "ideas/prueba.md",
+    "tmp76mrr8kn.tmp",
+    "errors/Conexion Stream Debate Cortada en Cloudflare Tunnel.md",
     "tmpsadga8bz.tmp",
     "tmp9ip559m9.tmp",
     "ideas/scoa-debate-elección-de-tema-y-estilo-para.md",
@@ -188,10 +198,6 @@
     "ideas/scoa-debate-estrategia-ia-personaje,-estil.md",
     "tmpbdxcuzfs.tmp",
     "tmp3x_fm332.tmp",
-    "tmpgth8lqp6.tmp",
-    "tmp67zzjywb.tmp",
-    "tmphu98g9vm.tmp",
-    "tmpfpif0jog.tmp",
     "errors/Lag de Rendering en D3js por Consultas DOM en Tick.md",
     "skills/D3js Fisicas y Performance Avanzado.md",
     "templates/error_solution.md",
@@ -211,8 +217,6 @@
     "journal/2026-06-02.md",
     "skills/Asyncio Event Scheduler para DAG.md",
     "errors/FastAPI StaticFiles Directorio No Encontrado.md",
-    "skills/SCoA API Integration and Free Tier.md",
-    "errors/Event Listeners Duplicados D3 Graph.md",
-    "skills/CSS Grid Collapsible Animation Pattern.md"
+    "skills/SCoA API Integration and Free Tier.md"
   ]
 }
