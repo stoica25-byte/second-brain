@@ -25,6 +25,7 @@ Resolución de desconexiones periódicas e inactividad en el stream del debate d
 - **Premium SCoA Judges Grid & Tabulación**: Rediseño visual del panel de debates en la interfaz, implementando un grid de 5 columnas para representar el estado de cada juez de SCoA, sincronización de pestañas activas automáticas y animaciones de brillo con colores distintivos por juez.
 - **Prevención de Lag en Streams**: Corrección del bloqueo de la UI del navegador Chromium mediante el uso de lectores Fetch ReadableStream asíncronos y yielding manual (`setTimeout(0)`) entre chunks para evitar la sobrecarga de layouts/reflows de la página.
 - **Proxy gRPC-Web Asíncrono**: Corrección de desconexiones continuas de streams de Workspace/AppState (`ConnectError: [unknown] missing trailer`) mediante la migración a `httpx.AsyncClient` con lectura no buferada (`aiter_bytes()`) y exposición explícita de cabeceras de estado gRPC en CORS (`Access-Control-Expose-Headers`).
+- **Filtro de Warning de @import en CSS**: Resolución del warning de la consola por la regla `@import "tailwindcss";` ignorada en `jetbox.css`, mediante la interceptación y el enmascarado dinámico (`/* ... */`) de dicha directiva en el proxy de FastAPI.
 
 ## Notas Creadas/Actualizadas
 - [[Conexion Stream Debate Cortada en Cloudflare Tunnel]] (Error resuelto)
