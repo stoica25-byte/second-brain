@@ -22,7 +22,11 @@ Resolución de desconexiones periódicas e inactividad en el stream del debate d
 - **Resolución de Error Crítico en el Frontend**: Se removió la llamada obsoleta a `resizeCanvas()` en `frontend/app.js` que lanzaba un `ReferenceError` y bloqueaba todo el JS de la interfaz (deshabilitando los botones).
 - **Persistencia de Puerto Autodescubierto**: Añadida llamada a `saveSettings()` tras el discover del IDE de Antigravity en `app.js` para evitar que el navegador use URLs antiguas en `localStorage`.
 - **IP Numéricas de Conectividad**: Configurada la URL del Second Brain por defecto a `http://127.0.0.1:8000` en lugar de `localhost` para eludir fallos en Windows causados por la resolución automática a IPv6 (`::1`).
+- **Premium SCoA Judges Grid & Tabulación**: Rediseño visual del panel de debates en la interfaz, implementando un grid de 5 columnas para representar el estado de cada juez de SCoA, sincronización de pestañas activas automáticas y animaciones de brillo con colores distintivos por juez.
+- **Prevención de Lag en Streams**: Corrección del bloqueo de la UI del navegador Chromium mediante el uso de lectores Fetch ReadableStream asíncronos y yielding manual (`setTimeout(0)`) entre chunks para evitar la sobrecarga de layouts/reflows de la página.
 
 ## Notas Creadas/Actualizadas
 - [[Conexion Stream Debate Cortada en Cloudflare Tunnel]] (Error resuelto)
+- [[Bloqueo de Interfaz Web por Sobrecarga de Reflows en Streams SSE]] (Error resuelto)
 - [[Proxy de Streaming SSE Asincrono con Keep-Alive]] (Nueva Habilidad y Patrón)
+- [[Renderizado de Streams Asincronos con Control de Reflow en Frontend]] (Nueva Habilidad y Patrón)
