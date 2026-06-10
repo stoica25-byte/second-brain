@@ -32,6 +32,7 @@ Resolución de desconexiones periódicas e inactividad en el stream del debate d
 - **Robustecimiento y Auditoría de Reglas de GEMINI.md**: Ampliación de las reglas globales para resolver escenarios límite de concurrencia de ficheros (bloqueo optimista), fin de línea CRLF/LF en Windows, herencia de reglas en subagentes, exclusión de archivos no-texto, y limpieza automática de ficheros de conflicto en Obsidian.
 - **Auditoría Crítica de GEMINI.md (Escenarios Límite 15-18)**: Debate e incorporación en `GEMINI.md` de protocolos estrictos para gestionar codificaciones UTF-16, procesos huérfanos durante handoffs, fallos completos de permisos en Vault/Fallback y loops artificiales por autoguardado en Obsidian.
 - **Auditoría e Incorporación de Escenarios Límite 19-21**: Incorporación en `GEMINI.md` de reglas para la normalización de separadores de ruta en Windows (`\` vs `/`), restricciones estrictas para comandos de Git en subagentes con espacios de trabajo heredados (`inherit`) y registro/autocuración en fallos de reconstrucción del índice de FastAPI.
+- **Auditoría Crítica de GEMINI.md (Ronda 3 - Escenarios 22-25)**: Debate e incorporación de directrices para la validación ante desconexión de red en git push (evitar split-brain), exclusión automática de carpetas de compilación/caché en `grep_search`, compatibilidad estricta con el parser de YAML de Obsidian y recuperación segura del git stash del usuario.
 
 ## Notas Creadas/Actualizadas
 - [[Antigravity OS - Futuras Ideas y Arquitectura]] (Borrador de ideas)
