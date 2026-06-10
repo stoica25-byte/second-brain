@@ -28,6 +28,7 @@ Resolución de desconexiones periódicas e inactividad en el stream del debate d
 - **Filtro de Warning de @import en CSS**: Resolución del warning de la consola por la regla `@import "tailwindcss";` ignorada en `jetbox.css`, mediante la interceptación y el enmascarado dinámico (`/* ... */`) de dicha directiva en el proxy de FastAPI.
 - **Depreciación y Remoción del Widget de Debate (SCoA)**: A petición del usuario, se eliminó por completo la integración y funcionalidad de debates de SCoA en el Dashboard de Control Remoto (debido a que los debates se ejecutan correctamente de forma nativa en la UI de Second Brain). Se limpiaron el widget HTML (`widget-debate`), los scripts de streaming (`startScoaDebate`), el endpoint del proxy de debate en FastAPI, y se implementó una migración automática en `load_db()` para eliminar de forma segura el widget de los archivos `db_dashboard.json` persistidos de los usuarios.
 - **Remoción de Telemetría Simulada en Antigravity Monitor**: Eliminación de las barras visuales y del intervalo de simulación de CPU y RAM (`simulateAgentTelemetry`) en `app.js` e `index.html` del widget de Antigravity, conservando únicamente las métricas de red y conectividad reales (Estado IDE, Versión, Proyecto Activo y CSRF Token).
+- **Optimización de Contexto de Antigravity (Modo Quirúrgico)**: Actualización completa del archivo de instrucciones globales `GEMINI.md` para reducir drásticamente el consumo de tokens. Se introdujo un presupuesto cognitivo de exploración (máximo 3 hipótesis), un sistema de confianza antes de abrir archivos (confianza >= 80% para actuar directo), prohibición estricta de leer archivos de más de 150 líneas completos (obligando a lectura por rangos), anti-redundancia de herramientas, unificación del índice, escritura en batch de notas del vault y el protocolo de handoff/rotación de sesión mediante `scratch/handoff.json` cada 10 turnos.
 
 ## Notas Creadas/Actualizadas
 - [[Antigravity OS - Futuras Ideas y Arquitectura]] (Borrador de ideas)
@@ -36,4 +37,6 @@ Resolución de desconexiones periódicas e inactividad en el stream del debate d
 - [[ConnectError gRPC-Web Missing Trailer en Proxy FastAPI]] (Error resuelto)
 - [[Proxy de Streaming SSE Asincrono con Keep-Alive]] (Nueva Habilidad y Patrón)
 - [[Renderizado de Streams Asincronos con Control de Reflow en Frontend]] (Nueva Habilidad y Patrón)
+- [[GEMINI.md]] (Instrucciones Globales optimizadas para reducción de tokens)
+
 
