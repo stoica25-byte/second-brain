@@ -24,9 +24,11 @@ Resolución de desconexiones periódicas e inactividad en el stream del debate d
 - **IP Numéricas de Conectividad**: Configurada la URL del Second Brain por defecto a `http://127.0.0.1:8000` en lugar de `localhost` para eludir fallos en Windows causados por la resolución automática a IPv6 (`::1`).
 - **Premium SCoA Judges Grid & Tabulación**: Rediseño visual del panel de debates en la interfaz, implementando un grid de 5 columnas para representar el estado de cada juez de SCoA, sincronización de pestañas activas automáticas y animaciones de brillo con colores distintivos por juez.
 - **Prevención de Lag en Streams**: Corrección del bloqueo de la UI del navegador Chromium mediante el uso de lectores Fetch ReadableStream asíncronos y yielding manual (`setTimeout(0)`) entre chunks para evitar la sobrecarga de layouts/reflows de la página.
+- **Proxy gRPC-Web Asíncrono**: Corrección de desconexiones continuas de streams de Workspace/AppState (`ConnectError: [unknown] missing trailer`) mediante la migración a `httpx.AsyncClient` con lectura no buferada (`aiter_bytes()`) y exposición explícita de cabeceras de estado gRPC en CORS (`Access-Control-Expose-Headers`).
 
 ## Notas Creadas/Actualizadas
 - [[Conexion Stream Debate Cortada en Cloudflare Tunnel]] (Error resuelto)
 - [[Bloqueo de Interfaz Web por Sobrecarga de Reflows en Streams SSE]] (Error resuelto)
+- [[ConnectError gRPC-Web Missing Trailer en Proxy FastAPI]] (Error resuelto)
 - [[Proxy de Streaming SSE Asincrono con Keep-Alive]] (Nueva Habilidad y Patrón)
 - [[Renderizado de Streams Asincronos con Control de Reflow en Frontend]] (Nueva Habilidad y Patrón)
