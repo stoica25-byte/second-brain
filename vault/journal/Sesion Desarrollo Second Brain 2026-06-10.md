@@ -30,8 +30,10 @@ Resolución de desconexiones periódicas e inactividad en el stream del debate d
 - **Remoción de Telemetría Simulada en Antigravity Monitor**: Eliminación de las barras visuales y del intervalo de simulación de CPU y RAM (`simulateAgentTelemetry`) en `app.js` e `index.html` del widget de Antigravity, conservando únicamente las métricas de red y conectividad reales (Estado IDE, Versión, Proyecto Activo y CSRF Token).
 
 ## Notas Creadas/Actualizadas
-- [[Conexion Stream Debate Cortada en Cloudflare Tunnel]] (Error resuelto)
+- [[Antigravity OS - Futuras Ideas y Arquitectura]] (Borrador de ideas)
 - [[Bloqueo de Interfaz Web por Sobrecarga de Reflows en Streams SSE]] (Error resuelto)
+- [[Conexion Stream Debate Cortada en Cloudflare Tunnel]] (Error resuelto)
 - [[ConnectError gRPC-Web Missing Trailer en Proxy FastAPI]] (Error resuelto)
 - [[Proxy de Streaming SSE Asincrono con Keep-Alive]] (Nueva Habilidad y Patrón)
 - [[Renderizado de Streams Asincronos con Control de Reflow en Frontend]] (Nueva Habilidad y Patrón)
+
