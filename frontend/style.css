@@ -567,6 +567,8 @@ button:hover {
     padding: 12px;
     overflow: hidden;
     position: relative;
+    flex-shrink: 0;
+    cursor: pointer;
     transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1),
                 opacity 0.3s ease,
                 margin-bottom 0.3s ease,
@@ -576,6 +578,21 @@ button:hover {
 }
 .triage-card:hover {
     border-color: rgba(224, 175, 104, 0.3);
+}
+
+.triage-card-collapsible {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
+    opacity: 0;
+}
+.triage-card.expanded .triage-card-collapsible {
+    grid-template-rows: 1fr;
+    opacity: 1;
+}
+.triage-card-body-inner {
+    overflow: hidden;
+    cursor: default;
 }
 
 .triage-header {

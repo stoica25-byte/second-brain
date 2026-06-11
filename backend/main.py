@@ -754,6 +754,10 @@ async def patch_note_metadata(category: str, filepath: str, data: NoteMetadataUp
             new_category = data.category if data.category is not None else current_category
             new_status = data.status if data.status is not None else current_status
             
+            # Auto-promote to active if a draft/unread note is moved to a main note category
+            if current_status in ("draft", "unread") and new_category in ("ideas", "skills", "errors", "journal"):
+                new_status = "active"
+            
             if new_category not in CATEGORY_MAP:
                 raise HTTPException(status_code=400, detail="Invalid target category")
                 
@@ -1886,6 +1890,103 @@ async def telegram_bot_poller():
                 print(f"Error in Telegram Bot Poller loop: {e}")
             await asyncio.sleep(3.0)
 
+async def update_reels_moc(note_title: str, note_filename: str):
+    moc_path = PROJECT_ROOT / "vault" / "ideas" / "Reels y TikToks MOC.md"
+    if not moc_path.exists():
+        print(f"[AUTO-MOC] Reels y TikToks MOC.md not found at {moc_path}")
+        return
+        
+    try:
+        async with aiofiles.open(moc_path, "r", encoding="utf-8") as f:
+            content = await f.read()
+            
+        post = frontmatter.loads(content)
+        lines = post.content.splitlines()
+        
+        header_idx = -1
+        for i, line in enumerate(lines):
+            if line.strip().startswith("## 📥 Vídeos Auditados"):
+                header_idx = i
+                break
+                
+        if header_idx == -1:
+            print("[AUTO-MOC] Header '## 📥 Vídeos Auditados' not found in MOC")
+            return
+            
+        list_items = []
+        end_idx = len(lines)
+        
+        # Collect list items under this header until next header
+        for i in range(header_idx + 1, len(lines)):
+            line = lines[i]
+            stripped = line.strip()
+            if stripped.startswith("##"):
+                end_idx = i
+                break
+            if stripped.startswith("- "):
+                list_items.append((line, stripped))
+                
+        # Check if already present
+        new_stem = note_filename.replace(".md", "")
+        already_exists = False
+        for _, item_str in list_items:
+            if f"[[{new_stem}" in item_str:
+                already_exists = True
+                break
+                
+        if already_exists:
+            print(f"[AUTO-MOC] Note {new_stem} already linked in MOC")
+            return
+            
+        # Add new item
+        clean_title = note_title.replace("Auditoría: ", "")
+        new_line = f"- [[{new_stem}|Auditoría: {clean_title}]]"
+        new_item_tuple = (new_line, new_line)
+        
+        all_items = list_items + [new_item_tuple]
+        
+        # Sort items alphabetically by filename (stem) inside the wikilink
+        def get_sort_key(item_tuple):
+            match = re.search(r'\[\[([^\]|]+)', item_tuple[1])
+            return match.group(1).lower() if match else item_tuple[1].lower()
+            
+        all_items.sort(key=get_sort_key)
+        new_list_lines = [item[0].rstrip() for item in all_items]
+        
+        # Reconstruct lines:
+        before_list = lines[:header_idx + 1]
+        after_list = lines[end_idx:]
+        
+        final_content_lines = before_list + new_list_lines
+        if after_list:
+            final_content_lines.append("")
+            final_content_lines.extend(after_list)
+            
+        post.content = "\n".join(final_content_lines)
+        
+        await save_note_atomically(moc_path, frontmatter.dumps(post))
+        print(f"[AUTO-MOC] Successfully added {note_filename} to Reels y TikToks MOC.md")
+    except Exception as e:
+        print(f"[AUTO-MOC] Error updating Reels y TikToks MOC.md: {e}")
+
+def run_subprocess_blocking(cmd: list) -> tuple:
+    import subprocess
+    try:
+        res = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=120.0
+        )
+        if res.returncode != 0:
+            err_details = res.stderr.decode("utf-8", errors="ignore").strip()
+            print(f"[SUBPROCESS ERROR] Command failed with code {res.returncode}. Stderr: {err_details}")
+        return res.returncode, res.stdout, res.stderr
+    except subprocess.TimeoutExpired as te:
+        raise RuntimeError(f"El subproceso excedió el tiempo límite (120 segundos): {te}")
+    except Exception as e:
+        raise RuntimeError(f"Fallo al ejecutar el subproceso: {e}")
+
 async def process_video_task(task: dict):
     url = task["url"]
     tags = task["tags"]
@@ -1920,12 +2021,7 @@ async def process_video_task(task: dict):
                 url
             ]
             
-            proc = await asyncio.create_subprocess_exec(
-                *cmd_info,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
-            await proc.communicate()
+            await asyncio.to_thread(run_subprocess_blocking, cmd_info)
             
             # Localizar el archivo JSON
             generated_files = list(temp_dir.glob(f"info_{temp_id}*"))
@@ -1959,12 +2055,7 @@ async def process_video_task(task: dict):
                 url
             ]
             
-            proc = await asyncio.create_subprocess_exec(
-                *cmd_download,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
-            await proc.communicate()
+            await asyncio.to_thread(run_subprocess_blocking, cmd_download)
             
             media_files = list(temp_dir.glob(f"media_{temp_id}.*"))
             if media_files:
@@ -2093,6 +2184,7 @@ async def process_video_task(task: dict):
             
             async with write_lock:
                 await save_note_atomically(target_path, frontmatter.dumps(post_content))
+                await update_reels_moc(post_content.metadata["title"], filename)
                 await rebuild_index_internal()
                 
             # 6. Notificar a Telegram

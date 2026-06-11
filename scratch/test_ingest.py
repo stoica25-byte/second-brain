@@ -25,7 +25,7 @@ async def test_run():
     
     # URL de prueba (un video corto estable)
     test_task = {
-        "url": "https://www.instagram.com/reel/C8C8a21uXWv/",
+        "url": "https://www.instagram.com/reel/DY92L7bu27j/?igsh=YXBrdG1qNmhob2Q1",
         "tags": ["test-automatizacion"],
         "chat_id": None
     }

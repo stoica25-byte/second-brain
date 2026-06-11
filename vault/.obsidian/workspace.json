@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "ideas/scoa-debate-elección-de-tema-y-estilo-para.md",
+                "file": "sources/video-it's literally basically jarvis on your screen tha.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "scoa-debate-elección-de-tema-y-estilo-para"
+              "title": "video-it's literally basically jarvis on your screen tha"
             }
           }
         ]
@@ -182,29 +182,34 @@
   },
   "active": "33c7cda3827fefaf",
   "lastOpenFiles": [
+    "tmpgfuk9ml2.tmp",
+    "tmpnt136m5b.tmp",
+    "tmpwyk2uupg.tmp",
+    "tmpplqm5ja3.tmp",
+    "sources/video-Video by julian.goldie_.md",
+    "sources/video-Video by _no_hype_ai.md",
+    "tmpi0f0rhj4.tmp",
+    "sources/video-Video by kzzy47.md",
+    "tmpku4z2gxq.tmp",
+    "tmp67r6znl2.tmp",
+    "tmp9y1q0wsg.tmp",
+    "ideas/Windows MOC.md",
+    "sources/video-Ya puedes darle a tu agente un número de WhatsApp.md",
     "skills/FastAPI Endpoints - Patrones.md",
     "ideas/CSS MOC.md",
     "tmp2w31mynq.tmp",
     "tmp1a3pn0hs.tmp",
     "tmpw6yw3uoy.tmp",
     "ideas/prueba.md",
-    "tmp76mrr8kn.tmp",
     "errors/Conexion Stream Debate Cortada en Cloudflare Tunnel.md",
-    "tmpsadga8bz.tmp",
-    "tmp9ip559m9.tmp",
     "ideas/scoa-debate-elección-de-tema-y-estilo-para.md",
-    "tmppu0fps7d.tmp",
-    "tmpg140ed7f.tmp",
-    "tmp7efs5bj5.tmp",
     "ideas/SCoA MOC.md",
     "ideas/scoa-debate-estrategia-ia-personaje,-estil.md",
-    "tmpbdxcuzfs.tmp",
     "errors/Lag de Rendering en D3js por Consultas DOM en Tick.md",
     "skills/D3js Fisicas y Performance Avanzado.md",
     "templates/error_solution.md",
     "ideas/FastAPI MOC.md",
     "skills/Enlazado Trilateral Contextual Automatizado.md",
-    "ideas/Windows MOC.md",
     "ideas/Git MOC.md",
     "ideas/D3JS MOC.md",
     "errors/Conexiones de Red Subestimadas en Estadisticas.md",
@@ -212,11 +217,6 @@
     "errors/Deadlock por Bloqueo de Lock en Llamada API de Larga Duracion.md",
     "journal/Sesion Desarrollo Second Brain 2026-06-07.md",
     "journal/Sesion Desarrollo Second Brain 2026-06-06.md",
-    "ideas/scoa-debate-dashboard-movil-y-gratuito.md",
-    "journal/Sesion Desarrollo Second Brain 2026-06-03.md",
-    "journal/2026-06-02.md",
-    "skills/Asyncio Event Scheduler para DAG.md",
-    "errors/FastAPI StaticFiles Directorio No Encontrado.md",
-    "skills/SCoA API Integration and Free Tier.md"
+    "ideas/scoa-debate-dashboard-movil-y-gratuito.md"
   ]
 }

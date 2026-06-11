@@ -1,5 +1,7 @@
+// @section: State-Globals
 // --- STATE VARIABLES ---
 let notes = {};
+let inboxDrafts = {};
 let graphData = { nodes: [], links: [] };
 let activeNote = null;
 let graphInstance = null;
@@ -166,6 +168,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     // Start server heartbeat loop
     setInterval(heartbeat, 5000);
 });
+// @end: State-Globals
 
 // --- EVENT LISTENERS ---
 function setupEventListeners() {
@@ -456,6 +459,7 @@ async function updateStats() {
     }
 }
 
+// @section: Inbox-Curation
 // --- INBOX CURATION (INLINE TRIAGE PANEL) ---
 async function loadInbox() {
     try {
@@ -463,6 +467,7 @@ async function loadInbox() {
         const drafts = await res.json();
         
         inboxFeed.innerHTML = "";
+        inboxDrafts = {};
         
         if (drafts.length > 0) {
             inboxCount.innerText = drafts.length;
@@ -471,6 +476,7 @@ async function loadInbox() {
             drafts.forEach(draft => {
                 // Construct a safe DOM element selector ID
                 const safeId = getSafeId(draft.path);
+                inboxDrafts[safeId] = draft;
                 
                 const card = document.createElement("div");
                 card.className = "triage-card";
@@ -484,42 +490,105 @@ async function loadInbox() {
                         <span class="source-tag">${draft.source_type || 'Draft'}</span>
                         <span class="timestamp">${draft.created}</span>
                     </div>
-                    <div class="triage-title" id="triage-title-display-${safeId}" style="cursor: pointer; text-decoration: underline;" onclick="openDraftInViewer('${draft.category}', '${draft.filename.replace(/'/g, "\\'")}', '${draft.path.replace(/'/g, "\\'")}', '${draft.title.replace(/'/g, "\\'")}')" title="Haga clic para ver el contenido completo de la nota">${draft.title}</div>
-                    <div class="triage-body markdown-body">${renderMarkdown(draft.content)}</div>
-                    <div class="triage-quick-actions">
-                        <button class="btn-triage btn-triage-approve" onclick="triageApprove('${draft.category}', '${draft.filename}', '${safeId}')">Aprobar</button>
-                        <button class="btn-triage btn-triage-edit" onclick="triageToggleEdit('${safeId}')">Editar</button>
-                        <button class="btn-triage btn-triage-discard" onclick="triageDiscard('${draft.category}', '${draft.filename}', '${safeId}')">Descartar</button>
-                    </div>
-                    <div class="metadata-edit-drawer" id="triage-drawer-${safeId}">
-                        <div class="metadata-edit-wrapper">
-                            <div class="triage-input-group">
-                                <label>Título</label>
-                                <input type="text" id="triage-input-title-${safeId}" value="${draft.title}">
+                    <div class="triage-title" id="triage-title-display-${safeId}" style="cursor: pointer; text-decoration: underline;" title="Haga clic para ver el contenido completo de la nota"></div>
+                    <div class="triage-card-collapsible">
+                        <div class="triage-card-body-inner">
+                            <div class="triage-body markdown-body">${renderMarkdown(draft.content)}</div>
+                            <div class="triage-quick-actions">
+                                <button class="btn-triage btn-triage-approve">Aprobar</button>
+                                <button class="btn-triage btn-triage-edit">Editar</button>
+                                <button class="btn-triage btn-triage-discard">Descartar</button>
                             </div>
-                            <div class="triage-input-row">
-                                <div class="triage-input-group">
-                                    <label>Categoría</label>
-                                    <select id="triage-input-category-${safeId}">
-                                        <option value="ideas" ${draft.category === 'ideas' ? 'selected' : ''}>Ideas</option>
-                                        <option value="skills" ${draft.category === 'skills' ? 'selected' : ''}>Skills</option>
-                                        <option value="errors" ${draft.category === 'errors' ? 'selected' : ''}>Errors</option>
-                                        <option value="journal" ${draft.category === 'journal' ? 'selected' : ''}>Journal</option>
-                                        <option value="sources" ${draft.category === 'sources' ? 'selected' : ''}>Sources</option>
-                                    </select>
+                            <div class="metadata-edit-drawer" id="triage-drawer-${safeId}">
+                                <div class="metadata-edit-wrapper">
+                                    <div class="triage-input-group">
+                                        <label>Título</label>
+                                        <input type="text" id="triage-input-title-${safeId}">
+                                    </div>
+                                    <div class="triage-input-row">
+                                        <div class="triage-input-group">
+                                            <label>Categoría</label>
+                                            <select id="triage-input-category-${safeId}">
+                                                <option value="ideas">Ideas</option>
+                                                <option value="skills">Skills</option>
+                                                <option value="errors">Errors</option>
+                                                <option value="journal">Journal</option>
+                                                <option value="sources">Sources</option>
+                                            </select>
+                                        </div>
+                                        <div class="triage-input-group">
+                                            <label>Tags (comas)</label>
+                                            <input type="text" id="triage-input-tags-${safeId}">
+                                        </div>
+                                    </div>
+                                    <div class="triage-drawer-actions">
+                                        <button class="btn-drawer-cancel">Cancelar</button>
+                                        <button class="btn-drawer-confirm">Guardar</button>
+                                    </div>
                                 </div>
-                                <div class="triage-input-group">
-                                    <label>Tags (comas)</label>
-                                    <input type="text" id="triage-input-tags-${safeId}" value="${draft.tags.join(', ')}">
-                                </div>
-                            </div>
-                            <div class="triage-drawer-actions">
-                                <button class="btn-drawer-cancel" onclick="triageToggleEdit('${safeId}')">Cancelar</button>
-                                <button class="btn-drawer-confirm" onclick="triageSaveMetadata('${draft.category}', '${draft.filename}', '${safeId}')">Guardar</button>
                             </div>
                         </div>
                     </div>
                 `;
+                
+                // Set text values and inputs safely to prevent HTML parsing errors or quote breakage
+                const titleDisplay = card.querySelector(`#triage-title-display-${safeId}`);
+                titleDisplay.textContent = draft.title;
+                
+                const inputTitle = card.querySelector(`#triage-input-title-${safeId}`);
+                inputTitle.value = draft.title;
+                
+                const selectCategory = card.querySelector(`#triage-input-category-${safeId}`);
+                selectCategory.value = draft.category;
+                
+                const inputTags = card.querySelector(`#triage-input-tags-${safeId}`);
+                inputTags.value = draft.tags.join(', ');
+                
+                // Bind event listeners programmatically
+                card.addEventListener("click", (e) => {
+                    // Ignore clicks on buttons, inputs, select options, or the edit drawer
+                    if (e.target.closest(".btn-triage") || 
+                        e.target.closest(".metadata-edit-drawer") || 
+                        e.target.tagName === 'A' || 
+                        e.target.closest('a')) {
+                        return;
+                    }
+                    
+                    const isExpanded = card.classList.contains("expanded");
+                    if (isExpanded) {
+                        card.classList.remove("expanded");
+                    } else {
+                        // Collapse all other triage cards
+                        document.querySelectorAll(".triage-card").forEach(c => {
+                            if (c !== card) c.classList.remove("expanded");
+                        });
+                        // Expand this card
+                        card.classList.add("expanded");
+                        // Open in viewer
+                        openDraftInViewer(draft.category, draft.filename, draft.path, draft.title, draft.status);
+                    }
+                });
+                
+                card.querySelector(".btn-triage-approve").addEventListener("click", () => {
+                    triageApprove(draft.category, draft.filename, safeId);
+                });
+                
+                card.querySelector(".btn-triage-edit").addEventListener("click", () => {
+                    triageToggleEdit(safeId);
+                });
+                
+                card.querySelector(".btn-triage-discard").addEventListener("click", () => {
+                    triageDiscard(draft.category, draft.filename, safeId);
+                });
+                
+                card.querySelector(".btn-drawer-cancel").addEventListener("click", () => {
+                    triageToggleEdit(safeId);
+                });
+                
+                card.querySelector(".btn-drawer-confirm").addEventListener("click", () => {
+                    triageSaveMetadata(draft.category, draft.filename, safeId);
+                });
+                
                 inboxFeed.appendChild(card);
             });
         } else {
@@ -531,12 +600,13 @@ async function loadInbox() {
     }
 }
 
-function openDraftInViewer(category, filename, path, title) {
+function openDraftInViewer(category, filename, path, title, status) {
     const draftNote = {
         category: category,
         filename: filename,
         path: path,
         title: title,
+        status: status || "draft",
         tags: [],
         backlinks: []
     };
@@ -598,6 +668,14 @@ async function triageSaveMetadata(category, filename, safeId) {
         const data = await res.json();
         if (data.status === "success") {
             showToast("success", "Nota curada con éxito.");
+            if (data.path) {
+                activeNote = {
+                    path: data.path,
+                    category: data.category,
+                    filename: data.filename,
+                    status: "active"
+                };
+            }
             await loadData();
         }
     } catch (e) {
@@ -613,16 +691,16 @@ function triageApprove(category, filename, safeId) {
     
     // Check if there is a raw source note content
     const sourcePath = `${category}/${filename}`;
-    const rawNote = notes[sourcePath];
-    const content = rawNote ? rawNote.summary : "Borrador de captura curado en la consola.";
+    const draft = inboxDrafts[safeId];
+    const content = draft ? draft.content : (notes[sourcePath] ? notes[sourcePath].summary : "Borrador de captura curado en la consola.");
     
     const titleInput = document.getElementById(`triage-input-title-${safeId}`);
     const catInput = document.getElementById(`triage-input-category-${safeId}`);
     const tagsInput = document.getElementById(`triage-input-tags-${safeId}`);
     
-    const finalTitle = titleInput ? titleInput.value.trim() : (rawNote ? rawNote.title : filename.replace(".md", ""));
+    const finalTitle = titleInput ? titleInput.value.trim() : (draft ? draft.title : (notes[sourcePath] ? notes[sourcePath].title : filename.replace(".md", "")));
     const finalCat = catInput ? catInput.value : category;
-    const finalTags = tagsInput ? tagsInput.value.split(",").map(t => t.trim()).filter(t => t) : (rawNote ? rawNote.tags : []);
+    const finalTags = tagsInput ? tagsInput.value.split(",").map(t => t.trim()).filter(t => t) : (draft ? draft.tags : (notes[sourcePath] ? notes[sourcePath].tags : []));
     
     const payload = {
         category: finalCat,
@@ -777,6 +855,15 @@ async function executeTriageAction(safeId) {
                 alert("Promoción bloqueada: El archivo está abierto en Obsidian o bloqueado por Windows.");
                 return;
             }
+            const data = await res.json();
+            if (data.status === "success") {
+                activeNote = {
+                    path: data.path,
+                    category: data.new_category,
+                    filename: data.filename,
+                    status: "active"
+                };
+            }
         } else if (action === "discard") {
             const url = `/api/notes/${category}/${encodeURIComponent(filename)}`;
             const res = await fetch(url, { method: "DELETE" });
@@ -803,6 +890,7 @@ function triageRollbackUI(actionObj) {
     }
     showToast("error", "Error del servidor. Restaurando borrador.");
 }
+// @end: Inbox-Curation
 
 // --- TIMELINE DE APRENDIZAJE ---
 async function loadTimeline(page = 1, append = false) {
@@ -936,6 +1024,7 @@ function filterTimeline() {
     loadTimeline(1, false);
 }
 
+// @section: Note-Viewer
 // --- NOTE VIEWER & INSPECTOR ---
 async function openNote(note) {
     activeNote = note;
@@ -1007,6 +1096,17 @@ async function openNote(note) {
                     await loadTimeline(1, false);
                     activeCard = document.getElementById(`timeline-card-${safeId}`);
                 }
+            }
+        } else {
+            // Expand corresponding triage card in the list and collapse others
+            const triageCard = document.getElementById(`triage-card-${safeId}`);
+            if (triageCard) {
+                document.querySelectorAll(".triage-card").forEach(c => {
+                    if (c.id !== `triage-card-${safeId}`) {
+                        c.classList.remove("expanded");
+                    }
+                });
+                triageCard.classList.add("expanded");
             }
         }
         
@@ -1087,7 +1187,7 @@ async function openNote(note) {
         btnOpenObsidianNote.disabled = false;
         const btnSuggestNoteLinks = document.getElementById("btn-suggest-note-links");
         if (btnSuggestNoteLinks) {
-            btnSuggestNoteLinks.disabled = (note.status === "draft" || note.status === "unread");
+            btnSuggestNoteLinks.disabled = false;
         }
         
         // Render local Connection Radar Ego-Graph
@@ -1307,6 +1407,9 @@ function closeNoteView() {
     
     const radarSection = document.getElementById("ego-radar-section");
     if (radarSection) radarSection.classList.add("hidden");
+    
+    // Collapse all triage cards
+    document.querySelectorAll(".triage-card").forEach(c => c.classList.remove("expanded"));
 }
 
 async function handleDeleteNote() {
@@ -1340,6 +1443,7 @@ async function handleDeleteNote() {
         }
     }
 }
+// @end: Note-Viewer
 
 // --- CONNECTION RADAR (LOCAL EGO-GRAPH) ---
 function drawConnectionRadar(notePath) {
@@ -2646,6 +2750,7 @@ async function saveCapturedNote() {
     }
 }
 
+// @section: AI-Semantic-Optimizer
 // --- AI SEMANTIC OPTIMIZER FUNCTIONS ---
 
 async function optimizeVaultLinks() {
@@ -2814,4 +2919,5 @@ async function confirmSuggestedLinks() {
         confirmBtn.innerText = "Confirmar Enlaces";
     }
 }
+// @end: AI-Semantic-Optimizer
 
