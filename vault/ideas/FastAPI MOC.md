@@ -24,6 +24,7 @@ Mapa de Contenido (MOC) de herramientas, endpoints y soluciones de FastAPI en el
 - [[Deadlock por Bloqueo de Lock en Llamada API de Larga Duración]]
 - [[Error: FastAPI StaticFiles Directorio No Encontrado]]
 - [[Excedido el Tiempo de Espera (Read Timeout) en el Proxy de Git Sync]]
+- [[Fallo de Gemini API 503 por Alta Demanda]]
 
 ## 🔗 Conexiones
 - **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-07]]

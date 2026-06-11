@@ -30,6 +30,22 @@ from contextlib import asynccontextmanager
 # Resolve paths relative to project root (parent of backend folder)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
+# Cargar variables de entorno locales de forma nativa al inicio
+def load_env_native():
+    env_path = PROJECT_ROOT / ".env"
+    if env_path.exists():
+        try:
+            with open(env_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if "=" in line and not line.startswith("#"):
+                        k, v = line.split("=", 1)
+                        os.environ[k.strip()] = v.strip()
+        except Exception as e:
+            print(f"Error loading .env file: {e}")
+
+load_env_native()
+
 CATEGORY_MAP = {
     "ideas": str(PROJECT_ROOT / "vault" / "ideas"),
     "errors": str(PROJECT_ROOT / "vault" / "errors"),
@@ -577,19 +593,26 @@ def rename_file_safe_retry(src: Path, dst: Path):
                 raise pe
 
 # Lifespan manager
+# @section: App-Lifespan
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Verify index integrity on startup
     await verify_index_integrity()
     # Start background watcher
     watcher_task = asyncio.create_task(file_watcher_background_task())
+    # Start Video Ingest worker and Telegram poller
+    video_worker_task = asyncio.create_task(video_queue_worker())
+    telegram_poller_task = asyncio.create_task(telegram_bot_poller())
     yield
     # Clean up background tasks on shutdown
     watcher_task.cancel()
+    video_worker_task.cancel()
+    telegram_poller_task.cancel()
     try:
-        await watcher_task
-    except asyncio.CancelledError:
+        await asyncio.gather(watcher_task, video_worker_task, telegram_poller_task, return_exceptions=True)
+    except Exception:
         pass
+# @end: App-Lifespan
 
 # Initialize app with lifespan handler
 app = FastAPI(title="Visual Second Brain API", lifespan=lifespan)
@@ -1772,6 +1795,328 @@ async def optimize_links_endpoint(payload: OptimizeLinksPayload):
         await rebuild_index_internal()
     return {"status": "success", "processed": processed_summary}
 
+
+# @section: Video-Ingest-Engine
+# Lógica para la ingesta remota y de baja fricción de videos cortos (TikTok/Reels)
+# e integración de auditoría técnica por Gemini API para desarmar el humo de automatizaciones.
+
+import base64
+import httpx
+import secrets
+
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+video_queue = asyncio.Queue()
+video_semaphore = asyncio.Semaphore(1)
+
+class SharePayload(BaseModel):
+    url: str
+    token: str
+    tags: List[str] = []
+
+@app.post("/api/capture/share")
+async def capture_share(payload: SharePayload):
+    if payload.token != INGEST_TOKEN:
+        raise HTTPException(status_code=401, detail="Unauthorized token")
+    await video_queue.put({
+        "url": payload.url,
+        "tags": payload.tags,
+        "chat_id": None
+    })
+    return {"status": "accepted", "message": "Video queued for processing"}
+
+async def send_telegram_message(client: httpx.AsyncClient, chat_id: int, text: str):
+    try:
+        url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+        await client.post(url, json={"chat_id": chat_id, "text": text})
+    except Exception as e:
+        print(f"Failed to send Telegram message: {e}")
+
+async def video_queue_worker():
+    while True:
+        task = await video_queue.get()
+        try:
+            async with video_semaphore:
+                await process_video_task(task)
+        except Exception as e:
+            print(f"Error in video worker loop: {e}")
+        finally:
+            video_queue.task_done()
+
+async def telegram_bot_poller():
+    if not TELEGRAM_BOT_TOKEN:
+        print("TELEGRAM_BOT_TOKEN not found in environment. Telegram Bot Ingestion disabled.")
+        return
+    
+    print("Starting Telegram Bot Ingestion Poller...")
+    offset = 0
+    async with httpx.AsyncClient(timeout=45.0) as client:
+        while True:
+            try:
+                url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/getUpdates"
+                params = {"offset": offset, "timeout": 30}
+                response = await client.get(url, params=params)
+                if response.status_code == 200:
+                    data = response.json()
+                    if data.get("ok"):
+                        for update in data.get("result", []):
+                            offset = update["update_id"] + 1
+                            message = update.get("message")
+                            if message:
+                                chat_id = message["chat"]["id"]
+                                text = message.get("text", "")
+                                # Buscar enlaces de TikTok o Reels
+                                urls = re.findall(r'https?://[^\s]+', text)
+                                if urls:
+                                    for media_url in urls:
+                                        if "tiktok.com" in media_url or "instagram.com" in media_url:
+                                            tags = [tag.strip("#") for tag in text.split() if tag.startswith("#")]
+                                            await video_queue.put({
+                                                "url": media_url,
+                                                "tags": tags,
+                                                "chat_id": chat_id
+                                            })
+                                            await send_telegram_message(client, chat_id, "📥 Enlace encolado con éxito. Procesando en tu Second Brain...")
+                                        else:
+                                            await send_telegram_message(client, chat_id, "⚠️ Solo se admiten enlaces de TikTok o Instagram Reels.")
+                                elif text.startswith("/start"):
+                                    await send_telegram_message(client, chat_id, "👋 ¡Hola! Envíame un enlace de TikTok o Instagram Reel y realizaré una auditoría técnica en tu Second Brain.")
+            except Exception as e:
+                print(f"Error in Telegram Bot Poller loop: {e}")
+            await asyncio.sleep(3.0)
+
+async def process_video_task(task: dict):
+    url = task["url"]
+    tags = task["tags"]
+    chat_id = task["chat_id"]
+    
+    # Sanitización estricta por regex
+    if not re.match(r'^https?://[a-zA-Z0-9.\-_~:/?#\[\]@!$&\'()*+,;=]+$', url):
+        if chat_id:
+            async with httpx.AsyncClient() as client:
+                await send_telegram_message(client, chat_id, "❌ Error: La URL contiene caracteres no permitidos por seguridad.")
+        return
+
+    print(f"Starting processing task for URL: {url} (tags: {tags})")
+    
+    temp_dir = PROJECT_ROOT / "scratch" / "temp_media"
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    
+    temp_id = secrets.token_hex(8)
+    media_path = None
+    info_path = temp_dir / f"info_{temp_id}.json"
+    
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        try:
+            # 1. Obtener metadatos básicos
+            cmd_info = [
+                str(PROJECT_ROOT / "venv" / "Scripts" / "python.exe"),
+                "-m", "yt_dlp",
+                "--skip-download",
+                "--write-info-json",
+                "-o", str(temp_dir / f"info_{temp_id}"),
+                "--no-playlist",
+                url
+            ]
+            
+            proc = await asyncio.create_subprocess_exec(
+                *cmd_info,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            await proc.communicate()
+            
+            # Localizar el archivo JSON
+            generated_files = list(temp_dir.glob(f"info_{temp_id}*"))
+            for f in generated_files:
+                if f.suffix == ".json":
+                    info_path = f
+                    break
+            
+            video_title = "Video Importado"
+            video_creator = "Creador Desconocido"
+            video_description = ""
+            
+            if info_path.exists():
+                async with aiofiles.open(info_path, "r", encoding="utf-8") as f:
+                    metadata = json.loads(await f.read())
+                video_title = metadata.get("title", video_title)
+                video_creator = metadata.get("uploader", metadata.get("channel", video_creator))
+                video_description = metadata.get("description", "")
+            
+            # 2. Descargar contenido optimizado (ba/worst descarga audio o el video mas ligero que contenga audio)
+            is_visual = "visual" in tags
+            format_selector = "worst" if is_visual else "ba/worst"
+            
+            out_template = str(temp_dir / f"media_{temp_id}.%(ext)s")
+            cmd_download = [
+                str(PROJECT_ROOT / "venv" / "Scripts" / "python.exe"),
+                "-m", "yt_dlp",
+                "-f", format_selector,
+                "-o", out_template,
+                "--no-playlist",
+                url
+            ]
+            
+            proc = await asyncio.create_subprocess_exec(
+                *cmd_download,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            await proc.communicate()
+            
+            media_files = list(temp_dir.glob(f"media_{temp_id}.*"))
+            if media_files:
+                media_path = media_files[0]
+                
+            if not media_path or not media_path.exists():
+                raise Exception("Fallo en la descarga del recurso multimedia mediante yt-dlp.")
+            
+            # 3. Codificar en Base64
+            async with aiofiles.open(media_path, "rb") as f:
+                media_bytes = await f.read()
+            media_b64 = base64.b64encode(media_bytes).decode("utf-8")
+            
+            suffix = media_path.suffix.lower()
+            if suffix == ".mp4":
+                mime_type = "video/mp4"
+            elif suffix == ".webm":
+                mime_type = "video/webm"
+            elif suffix == ".3gp":
+                mime_type = "video/3gpp"
+            elif suffix == ".m4a":
+                mime_type = "audio/mp4"
+            elif suffix == ".ogg":
+                mime_type = "audio/ogg"
+            elif suffix == ".wav":
+                mime_type = "audio/wav"
+            elif suffix == ".aac":
+                mime_type = "audio/aac"
+            elif suffix == ".mp3":
+                mime_type = "audio/mp3"
+            else:
+                mime_type = "video/mp4"
+            
+            # 4. Auditoría con Gemini API
+            if not GEMINI_API_KEY:
+                raise Exception("Falta GEMINI_API_KEY en las variables del entorno.")
+                
+            system_instructions = (
+                "Eres un auditor técnico senior de la Corte Suprema de Agentes (SCoA). Tu objetivo es analizar "
+                "el contenido del audio/video adjunto (un TikTok o Instagram Reel) y desarmar con total objetividad "
+                "y de manera crítica cualquier afirmación exagerada, automatización irreal de 'no-code/IA', SaaS milagroso, "
+                "o 'hype' de captación de leads (marketing), evaluando su viabilidad real para un proyecto de producción.\n\n"
+                "Genera un reporte técnico Markdown en español estructurado exactamente con las siguientes secciones:\n"
+                "1. **Transcripción Literal**: Transcribe el contenido hablado completo del video.\n"
+                "2. **Semáforo de Utilidad**: Evalúa usando emojis:\n"
+                "   - Factibilidad Técnica: ⭐ a ⭐⭐⭐⭐⭐\n"
+                "   - Complejidad Oculta: 🟢 (Baja), 🟡 (Media), 🔴 (Alta)\n"
+                "   - Mantenibilidad: 🟢, 🟡, 🔴\n"
+                "3. **Análisis Hype vs. Realidad**: Contrasta de forma incisiva las promesas del video contra la realidad técnica.\n"
+                "4. **Puntos Críticos de Falla**: Detalla 2 o 3 razones técnicas precisas por las cuales este flujo fallará o se romperá (ej. límites de API, bloqueos, problemas de tokens).\n"
+                "5. **Estructura de Costes Ocultos**: Estima costes mensuales reales en APIs (tokens) o plataformas intermedias para ejecutar este caso de uso.\n"
+                "6. **Diagrama de Bloques Mermaid**: Dibuja un diagrama `mermaid` limpio que ilustre la arquitectura técnica simplificada de este proceso (usando código de bloques).\n"
+                "7. **El Poso Útil**: Describe el aprendizaje real, truco de código o patrón de ingeniería utilizable que se puede rescatar."
+            )
+            
+            gemini_payload = {
+                "contents": [{
+                    "parts": [
+                        {
+                            "inlineData": {
+                                "mimeType": mime_type,
+                                "data": media_b64
+                            }
+                        },
+                        {
+                            "text": f"Analiza críticamente el recurso del video '{video_title}' de '{video_creator}'.\nDescripción: {video_description}\n\nInstrucciones:\n{system_instructions}"
+                        }
+                    ]
+                }]
+            }
+            
+            gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
+            
+            # Mecanismo de reintentos para API de Gemini (saturación o sobrecarga)
+            max_retries = 5
+            backoff = 2
+            response = None
+            for attempt in range(max_retries):
+                try:
+                    response = await client.post(gemini_url, json=gemini_payload, headers={"Content-Type": "application/json"})
+                    if response.status_code == 200:
+                        break
+                    elif response.status_code in (503, 429, 500, 502, 504):
+                        print(f"Intento {attempt + 1} fallido con codigo {response.status_code}. Reintentando en {backoff}s...")
+                        if chat_id:
+                            await send_telegram_message(client, chat_id, f"⚠️ Servidor sobrecargado (Error {response.status_code}). Reintentando analisis en {backoff} segundos (intento {attempt + 1}/{max_retries})...")
+                        await asyncio.sleep(backoff)
+                        backoff *= 2
+                    else:
+                        raise Exception(f"Fallo en la llamada a la API de Gemini: {response.text}")
+                except httpx.RequestError as req_ex:
+                    print(f"Error de red en intento {attempt + 1}: {req_ex}")
+                    if attempt == max_retries - 1:
+                        raise req_ex
+                    await asyncio.sleep(backoff)
+                    backoff *= 2
+            
+            if not response or response.status_code != 200:
+                error_body = response.text if response else "Sin respuesta"
+                raise Exception(f"Fallo persistente en la llamada a la API de Gemini despues de {max_retries} intentos: {error_body}")
+                
+            gemini_res = response.json()
+            try:
+                audit_content = gemini_res["candidates"][0]["content"]["parts"][0]["text"]
+            except Exception:
+                raise Exception(f"Estructura de respuesta inválida de Gemini: {gemini_res}")
+                
+            # 5. Crear nota de Obsidian
+            sanitized_title = sanitize_filename(video_title)
+            if len(sanitized_title) > 50:
+                sanitized_title = sanitized_title[:50].strip()
+            
+            filename = f"video-{sanitized_title}.md"
+            target_path = get_secure_path("sources", filename)
+            
+            post_content = frontmatter.Post(audit_content)
+            post_content.metadata["title"] = f"Auditoría: {video_title}"
+            post_content.metadata["category"] = "sources"
+            post_content.metadata["status"] = "unread"
+            post_content.metadata["tags"] = ["project/antigravity", "type/video-audit"] + [f"tag/{t}" for t in tags]
+            post_content.metadata["source_type"] = "video"
+            post_content.metadata["source_url"] = url
+            post_content.metadata["created"] = datetime.now().strftime("%Y-%m-%d")
+            post_content.metadata["updated"] = datetime.now().strftime("%Y-%m-%d")
+            post_content.metadata["summary"] = f"Auditoría de caso de uso del video '{video_title}' por {video_creator}."
+            
+            async with write_lock:
+                await save_note_atomically(target_path, frontmatter.dumps(post_content))
+                await rebuild_index_internal()
+                
+            # 6. Notificar a Telegram
+            if chat_id:
+                wiki_link = f"[[{post_content.metadata['title']}]]"
+                await send_telegram_message(client, chat_id, f"✅ Auditoría completada con éxito:\n{wiki_link}\n\nNota disponible en tu bandeja de entrada.")
+                
+        except Exception as ex:
+            import traceback
+            traceback.print_exc()
+            err_msg = str(ex).replace("ó", "o").replace("í", "i").replace("á", "a").replace("é", "e").replace("ú", "u")
+            if not err_msg:
+                err_msg = f"Error interno en el worker (tipo: {type(ex).__name__})"
+            print(f"Error in video task worker: {err_msg}")
+            if chat_id:
+                await send_telegram_message(client, chat_id, f"❌ Fallo al procesar el video:\n{err_msg[:150]}...")
+        finally:
+            # Limpiar temporales
+            try:
+                if info_path and info_path.exists(): info_path.unlink()
+                if media_path and media_path.exists(): media_path.unlink()
+            except Exception:
+                pass
+# @end: Video-Ingest-Engine
 
 # Serve Frontend static files
 app.mount("/", StaticFiles(directory=str(PROJECT_ROOT / "frontend"), html=True), name="frontend")
