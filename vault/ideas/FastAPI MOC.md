@@ -20,12 +20,14 @@ Mapa de Contenido (MOC) de herramientas, endpoints y soluciones de FastAPI en el
 
 ## ❌ Errores Relacionados
 - [[Caída de Autenticación por Cabecera Bearer Vacía en el Cliente]]
+- [[Condición de Carrera de URLs Obsoletas al Iniciar FastAPI y Túnel]]
 - [[Conexiones de Red Subestimadas en Estadísticas]]
 - [[Deadlock por Bloqueo de Lock en Llamada API de Larga Duración]]
 - [[Error: FastAPI StaticFiles Directorio No Encontrado]]
 - [[Excedido el Tiempo de Espera (Read Timeout) en el Proxy de Git Sync]]
 - [[Fallo de Gemini API 503 por Alta Demanda]]
+- [[Python startswith Fallará con BOM de PowerShell en Windows]]
 
 ## 🔗 Conexiones
-- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-07]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-07]], [[Sesion Desarrollo Second Brain 2026-06-11]]
 - **MOC Temático**: [[Welcome Hub]]

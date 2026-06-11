@@ -21,9 +21,10 @@ Mapa de Contenido (MOC) de automatizaciones, terminal y scripts por lotes en Win
 
 ## ❌ Errores Relacionados
 - [[Caída de Sintaxis en Script de Lote de Windows por Paréntesis Anidados]]
+- [[Python startswith Fallará con BOM de PowerShell en Windows]]
 
 ## 🔗 Conexiones
-- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-07]]
+- **Diario de Desarrollo**: [[Sesion Desarrollo Second Brain 2026-06-07]], [[Sesion Desarrollo Second Brain 2026-06-11]]
 - **MOC Temático**: [[Welcome Hub]]
 
 --- 
