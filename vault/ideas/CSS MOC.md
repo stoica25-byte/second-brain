@@ -18,7 +18,6 @@ Mapa de Contenido (MOC) de estilos, animaciones personalizadas y safe-areas resp
 - [[CSS Grid Collapsible Animation Pattern]]
 - [[CSS Utility Classes Pattern]]
 - [[Evitar Solapamiento de Teclado y Barras de Navegación en Iframes Móviles]]
-- [[iOS Safari Input Zoom Prevention]]
 - [[Safe Area Notch Spacing in Embedded Webview]]
 
 ## ❌ Errores Relacionados
